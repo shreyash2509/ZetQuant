@@ -1,0 +1,1027 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <title>Factor Regression Analysis</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta name="description" content="Perform Fama-French three-factor model regression analysis for one or more ETFs or mutual funds, or alternatively use the capital asset pricing model (CAPM) or Carhart four-factor model regression analysis. The analysis is based on asset returns and factor returns published on Professor Kenneth French's data library.">
+    <meta name="keywords" content="Fama-French factors,Frazzini-Pedersen factors,Fama-French three-factor model,Carhart four-factor model,Fama-French five-factor model,Fama-French factor regression analysis,fixed income factor model,credit risk,interest rate risk,MKT,HML,SMB,UMD,MOM,QMJ,BAB">
+    <link rel="canonical" href="factor-analysis.html">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="css/merged-4b5ddc42c451e5d0b325c5d10e865f35.min.css">
+
+
+
+<script>
+var autoCompleteTickers=true;
+var showFullName=false;
+var enableExport=false;
+var expiredAccount=false;
+var enablePDF=false;
+var bookmarkURL="factor-analysis3c6c.html?s=y";
+var showBookmarkLink=true;
+var showExportLinks=true;
+window.q=[];window.$=function(f){q.push(f)}
+</script>
+
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-43200681-1', 'portfoliovisualizer.com');
+    ga('send', 'pageview');
+</script>
+
+
+
+
+    <script>
+        var stats=false;
+        var extraChartsCount=15;
+
+        $(function() {
+            updateFormState(false,true);
+        });
+        var regions0 = [ { id: -1, name: 'North America'}, { id: 0, name: 'United States'}, { id: -2, name: 'Asia Pacific'}, { id: 220, name: 'Japan'}, { id: -2, name: 'Region'}, { id: 1000, name: 'Intl Developed'}, { id: 1010, name: 'Intl Developed Ex US'}, { id: 1080, name: 'Emerging Markets'}, { id: 1020, name: 'Europe'}, { id: 1040, name: 'Asia Ex Japan'}, { id: 1030, name: 'North America'} ];
+var regions1 = [  ];
+var regions2 = [ { id: -1, name: 'North America'}, { id: 0, name: 'United States'}, { id: 10, name: 'Canada'}, { id: -2, name: 'Asia Pacific'}, { id: 200, name: 'Australia'}, { id: 210, name: 'Hong Kong'}, { id: 220, name: 'Japan'}, { id: 230, name: 'New Zealand'}, { id: 240, name: 'Singapore'}, { id: -2, name: 'Europe'}, { id: 300, name: 'Austria'}, { id: 310, name: 'Belgium'}, { id: 320, name: 'Denmark'}, { id: 330, name: 'Finland'}, { id: 340, name: 'France'}, { id: 350, name: 'Germany'}, { id: 360, name: 'Greece'}, { id: 370, name: 'Ireland'}, { id: 380, name: 'Italy'}, { id: 390, name: 'Netherlands'}, { id: 400, name: 'Norway'}, { id: 410, name: 'Portugal'}, { id: 420, name: 'Spain'}, { id: 430, name: 'Sweden'}, { id: 440, name: 'Switzerland'}, { id: 450, name: 'United Kingdom'}, { id: -2, name: 'Middle East'}, { id: 500, name: 'Israel'}, { id: -2, name: 'Region'}, { id: 1000, name: 'Intl Developed'}, { id: 1010, name: 'Intl Developed Ex US'}, { id: 1020, name: 'Europe'}, { id: 1050, name: 'Pacific'}, { id: 1030, name: 'North America'} ];
+var regions3 = [ { id: -1, name: 'North America'}, { id: 0, name: 'United States'} ];
+var regions4 = [  ];
+var regions5 = [ { id: -1, name: 'North America'}, { id: 0, name: 'United States'}, { id: -2, name: 'Region'}, { id: 1010, name: 'Intl Developed Ex US'} ];
+var regions6 = [ { id: -1, name: 'North America'}, { id: 0, name: 'United States'} ];
+
+        var customRegions = [ { id: -1, name: 'Country'}, { id: 0, name: 'United States'}, { id: -2, name: 'Region'}, { id: 1000, name: 'Intl Developed'}, { id: 1010, name: 'Intl Developed Ex US'}, { id: 1020, name: 'Europe'}, { id: 1030, name: 'North America'} ];
+        function updateFormState(refresh,updateRegions) {
+            var regressionType=$("#regressionType").val();
+            var factorModel=$("#factorModel").val();
+            var factorSeries=$("#factorDataSet").val();
+            var fpFactors=(factorSeries==2) && factorModel>1;
+            var ffResearchFactors=(factorSeries==0) && factorModel>1;
+            var aaFactors=(factorSeries==5);
+            var qFactors=(factorSeries==6);
+            var fiFactors=(factorSeries==3);
+            var timePeriod=$("#timePeriod").val();
+            var marketAssetType=$("#marketAssetType").val();
+            var customModel=factorSeries==-1;
+            var marketModel=factorSeries==-2;
+            var symbols=(regressionType==1);
+            var portfolio=(regressionType==2);
+            var benchmark=(regressionType==3);
+            var showTimePeriod=(ffResearchFactors || fpFactors || qFactors || customModel || marketModel) && symbols;
+
+            $("#pfSection").toggle(portfolio);
+            $("#symbols").closest('.form-group').toggle(symbols);
+            $("#benchmark").closest('.form-group').toggle(benchmark);
+            $("#timePeriod").closest('.form-group').toggle(showTimePeriod);
+            $("#sharedTimePeriod").closest('.form-group').toggle(symbols);
+            $("#rollPeriod").closest('.form-group').toggle(!showTimePeriod || timePeriod==2);
+
+            $("#useHMLDevFactor").closest('.form-group').toggle(fpFactors);
+            $("#includeQualityFactor").closest('.form-group').toggle(fpFactors);
+            $("#includeLowBetaFactor").closest('.form-group').toggle(fpFactors);
+            $("#fixedIncomeFactorModel").closest('.form-group').toggle(factorModel!=1 && !customModel && !marketModel);
+            $("#customFactorsSection").toggle(customModel);
+            $("#factorModel").closest('.form-group').toggle(!customModel && !marketModel && !fiFactors);
+            $("#marketArea").closest('.form-group').toggle(!marketModel);
+            $("#marketAssetType").closest('.form-group').toggle(marketModel);
+            $("#marketBenchmark").closest('.form-group').toggle(marketModel && marketAssetType==3);
+            $("#marketTicker").closest('.form-group').toggle(marketModel && marketAssetType==1);
+            $("#factorModel option:last").prop('disabled', factorSeries!=0 && !(aaFactors || qFactors));
+            if(factorSeries>0 && !(aaFactors || qFactors) && factorModel==5) {
+                $("#factorModel").val(4);
+            }
+            if(qFactors && factorModel==3) {
+                $("#factorModel").val(4);
+            }
+            $("#factorModel").trigger("chosen:updated");
+            if(!refresh || updateRegions) {
+                var regionArray=customModel ? 'customRegions' : 'regions'+parseInt(factorSeries);
+                var innerHTML='';
+                if(portfolio) {
+                    innerHTML+='<option value="9999">Determine By Portfolio Asset</option>';
+                }
+                jQuery.each(window[regionArray], function(index, region) {
+                    if(region.id<0) {
+                        if(region.id==-2) {
+                            innerHTML+='</optgroup>';
+                        }
+                        innerHTML+='<optgroup label="'+region.name+'">';
+                    }
+                    else {
+                        innerHTML+='<option value="'+region.id+'">'+region.name+'</option>';
+                    }
+                });
+                innerHTML+='</optgroup>';
+                $('#marketArea').html(innerHTML);
+            }
+            if(!refresh) {
+                $('#marketArea option[value="0"]').prop('selected', true);
+            }
+            $("#marketArea").trigger("chosen:updated");
+        }
+    </script>
+</head>
+<body>
+
+
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html"> PORTFOLIO <span class="pv-brand">VISUALIZER</span></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html" class="navbar-optional">Contact</a></li>
+                
+                <li><a href="pricing.html" class="navbar-optional">Pricing</a></li>
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Portfolio Analysis</li>
+                        <li><a href="backtest-asset-class-allocation.html">Backtest Asset Class Allocation</a></li>
+                        <li><a href="backtest-portfolio.html">Backtest Portfolio</a></li>
+                        <li><a href="monte-carlo-simulation.html">Monte Carlo Simulation</a></li>
+                        <li><a href="financial-goals.html">Financial Goals</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Optimization</li>
+                        <li><a href="efficient-frontier.html">Historical Efficient Frontier</a></li>
+                        <li><a href="efficient-frontier-forecast.html">Forecasted Efficient Frontier</a></li>
+                        <li><a href="optimize-portfolio.html">Portfolio Optimization</a></li>
+                        <li><a href="black-litterman-model.html">Black-Litterman Model</a></li>
+                        <li><a href="rolling-optimization.html">Rolling Optimization</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Asset Analytics</li>
+                        <li><a href="fund-screener.html">Fund Screener</a></li>
+                        <li><a href="fund-performance.html">Fund Performance</a></li>
+                        <li><a href="asset-correlations.html">Asset Correlations</a></li>
+                        <li><a href="asset-class-correlations.html">Asset Class Correlations</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Factor Analysis</li>
+                        <li><a href="factor-analysis.html">Factor Regression</a></li>
+                        <li><a href="risk-factor-allocation.html">Risk Factor Allocation</a></li>
+                        <li><a href="etf-and-mutual-fund-factor-regressions.html">Fund and ETF Factor Regressions</a></li>
+                        <li><a href="factor-performance-attribution.html">Factor Performance Attribution</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Market Timing</li>
+                        <li><a href="test-market-timing-model.html">Market Timing Models</a></li>
+                        <li><a href="test-market-timing-model5fea.html?timingModel=4&amp;coreSatellite=true">Core-Satellite</a></li>
+                    </ul>
+                </li>
+                
+                <li><div><a href="sign-up.html" class="btn btn-success navbar-btn">Sign Up</a></div></li>
+                <li><div><a href="login.html" class="btn btn-primary navbar-btn">Log In</a></div></li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="container-fluid">
+    <h1>Factor Regression Analysis</h1>
+
+    <p> This factor regression tool supports factor regression analysis of individual assets or a portfolio of assets using the given risk factor model. The multiple linear regression indicates how well the returns of the given assets or a portfolio are explained by the risk factor exposures. The supported equity risk factor models include: <ul> <li>The capital asset pricing model (CAPM) with market factor (MKT)</li> <li>The Fama-French three factor model with market, size, and value factors (MKT, SMB, HML)</li> <li>The Carhart four-factor model with market, size, value, and momentum factors (MKT, SMB, HML, MOM)</li> <li>The Fama-French five factor model with market, size, value, profitability, and investment factors (MKT, SMB, HML, RMW, CMA)</li> <li>The q-factor model with market, size, investment, return on equity, and expected growth factors (MKT, ME, I/A, ROE, EG)</li> </ul> <p> Additional supported equity factors include the short and long-term reversal factors (STREV, LTREV) based on Fama-French factor data, quality (QMJ) factor based on both AQR and Alpha Architect factor data, and bet against beta (BAB) factor based on AQR factor data. </p> <p> For fixed income funds and balanced funds you can include the fixed income factor model to explain returns based on term risk (interest rate risk) and credit risk exposures. The fixed income factors can be further adjusted to account for the yield curve and to add high yield credit risk as an additional factor. </p>
+
+    
+
+    <form action="https://www.portfoliovisualizer.com/factor-analysis#analysisResults" method="post" class="form-horizontal"  novalidate>
+
+
+        <div class="form-group">
+<label for="regressionType" class="control-label col-sm-3">Regression Type <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Select whether regression is run for individual assets or a portfolio of assets"></span>
+</label>
+<div class="col-sm-4">
+<select id="regressionType" name="regressionType" class="form-control" onchange="updateFormState(true,true)" >
+<option value="1" selected>Individual assets</option>
+<option value="2">Portfolio</option>
+<option value="3">Saved Benchmark</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="symbols" class="control-label col-sm-3">Tickers <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Enter one or more ticker symbols separated by comma or whitespace for factor analysis"></span>
+</label>
+<div class="col-sm-6">
+<div class="input-group">
+<input type="text" id="symbols" name="symbols" class="form-control pv-multiple fmt-uppercase" placeholder="Ticker symbols..." >
+<div class="input-group-btn"><button type="button" class="btn btn-default ticker-search"><i class="glyphicon glyphicon-search"></i></button>
+<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-cog"></i> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right scrollable-menu">
+<li class="dropdown-header">Tickers</li><li><a href="#" onclick="$('#symbols').val('').val('');return false;">Clear List</a></li><li><a href="#" onclick="importList('#symbols');return false;">Upload List</a></li></ul>
+</div>
+</div>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="benchmark" class="control-label col-sm-3">Benchmark <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Select saved benchmark series for factor analysis"></span>
+</label>
+<div class="col-sm-4">
+<select id="benchmark" name="benchmark" class="form-control" >
+<option value="" selected>[No saved benchmarks]</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="startDate" class="control-label col-sm-3">Start Date <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Enter start date for analysis period. If left blank, the earliest available date is used."></span>
+</label>
+<div class="col-sm-4">
+<div class="input-group">
+<input type="text" id="startDate" name="startDate" class="form-control fmt-date" maxlength="10" placeholder="MM/DD/YYYY (optional)" >
+<span class="input-group-addon glyphicon glyphicon-calendar" title="Select date"></span>
+</div>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="endDate" class="control-label col-sm-3">End Date <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Enter end date for analysis period. If left blank, the most recent available date is used."></span>
+</label>
+<div class="col-sm-4">
+<div class="input-group">
+<input type="text" id="endDate" name="endDate" class="form-control fmt-date" maxlength="10" placeholder="MM/DD/YYYY (optional)" >
+<span class="input-group-addon glyphicon glyphicon-calendar" title="Select date"></span>
+</div>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="sharedTimePeriod" class="control-label col-sm-3">Common Time Period <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Limit the regression period to the shared time period across all assets"></span>
+</label>
+<div class="col-sm-3">
+<select id="sharedTimePeriod" name="sharedTimePeriod" class="form-control" >
+<option value="false">No</option>
+<option value="true" selected>Yes</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="factorDataSet" class="control-label col-sm-3">Factor Returns <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify the factor return data set used for the analysis"></span>
+</label>
+<div class="col-sm-5">
+<select id="factorDataSet" name="factorDataSet" class="form-control" onchange="updateFormState(true,true)" >
+<option value="0" selected>Fama-French Research Factors</option>
+<option value="2">AQR Factors</option>
+<option value="5">Alpha Architect Factors</option>
+<option value="6">q-Factors</option>
+<option value="3">Fixed Income Factors</option>
+<option value="-2">Market Model</option>
+<option value="-1">Custom</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="marketArea" class="control-label col-sm-3">Stock Market <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify stock market area by country or region"></span>
+</label>
+<div class="col-sm-4">
+<select id="marketArea" name="marketArea" class="form-control" >
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="factorModel" class="control-label col-sm-3">Equity Factor Model <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify the equity factor model"></span>
+</label>
+<div class="col-sm-3">
+<select id="factorModel" name="factorModel" class="form-control" onchange="updateFormState(true,false)" >
+<option value="0">None</option>
+<option value="1">CAPM</option>
+<option value="3" selected>Three-Factor Model</option>
+<option value="4">Four-Factor Model</option>
+<option value="5">Five-Factor Model</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="useHMLDevFactor" class="control-label col-sm-3">Use HML-DEV Factor <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Replace HML with HML-DEV factor returns (reconstruct HML monthly)"></span>
+</label>
+<div class="col-sm-3">
+<select id="useHMLDevFactor" name="useHMLDevFactor" class="form-control" >
+<option value="true">Yes</option>
+<option value="false" selected>No</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="includeQualityFactor" class="control-label col-sm-3">Include Quality Factor (QMJ) <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Include Quality Minus Junk (QMJ) factor"></span>
+</label>
+<div class="col-sm-3">
+<select id="includeQualityFactor" name="includeQualityFactor" class="form-control" >
+<option value="true">Yes</option>
+<option value="false" selected>No</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="includeLowBetaFactor" class="control-label col-sm-3">Include Bet Against Beta (BAB) Factor <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Include Bet Against Beta (BAB) factor"></span>
+</label>
+<div class="col-sm-3">
+<select id="includeLowBetaFactor" name="includeLowBetaFactor" class="form-control" >
+<option value="true">Yes</option>
+<option value="false" selected>No</option>
+</select>
+</div>
+</div>
+
+        
+        <div class="form-group">
+<label for="fixedIncomeFactorModel" class="control-label col-sm-3">Fixed Income Factor Model <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify the fixed income factor model"></span>
+</label>
+<div class="col-sm-3">
+<select id="fixedIncomeFactorModel" name="fixedIncomeFactorModel" class="form-control" >
+<option value="0" selected>None</option>
+<option value="1">Term + Credit (unadjusted)</option>
+<option value="2">Term + Credit</option>
+<option value="4">2 x Term + 2 x Credit</option>
+</select>
+</div>
+</div>
+
+        
+        <div id="customFactorsSection" class="norender">
+            <div class="form-group">
+                <label class="control-label col-sm-3">FF Equity Factors</label>
+                <div class="col-sm-8">
+                    <label class="checkbox-inline"><input type="checkbox" name="ffmkt" value="true" id="ffmkt"></input><input type="hidden" id="__checkbox_ffmkt" name="__checkbox_ffmkt" value="__checkbox_true"></input>MKT-RF</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="ffsmb" value="true" id="ffsmb"></input><input type="hidden" id="__checkbox_ffsmb" name="__checkbox_ffsmb" value="__checkbox_true"></input>SMB</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="ffsmb5" value="true" id="ffsmb5"></input><input type="hidden" id="__checkbox_ffsmb5" name="__checkbox_ffsmb5" value="__checkbox_true"></input>SMB5</label>
+                    <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="SMB returns from Fama-French 5-factor data series"></span>
+                    <label class="checkbox-inline"><input type="checkbox" name="ffhml" value="true" id="ffhml"></input><input type="hidden" id="__checkbox_ffhml" name="__checkbox_ffhml" value="__checkbox_true"></input>HML</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="ffmom" value="true" id="ffmom"></input><input type="hidden" id="__checkbox_ffmom" name="__checkbox_ffmom" value="__checkbox_true"></input>MOM</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="ffrmw" value="true" id="ffrmw"></input><input type="hidden" id="__checkbox_ffrmw" name="__checkbox_ffrmw" value="__checkbox_true"></input>RMW</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="ffcma" value="true" id="ffcma"></input><input type="hidden" id="__checkbox_ffcma" name="__checkbox_ffcma" value="__checkbox_true"></input>CMA</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="ffstrev" value="true" id="ffstrev"></input><input type="hidden" id="__checkbox_ffstrev" name="__checkbox_ffstrev" value="__checkbox_true"></input>ST-REV</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="ffltrev" value="true" id="ffltrev"></input><input type="hidden" id="__checkbox_ffltrev" name="__checkbox_ffltrev" value="__checkbox_true"></input>LT-REV</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="control-label col-sm-3">AQR Equity Factors</label>
+                <div class="col-sm-8">
+                    <label class="checkbox-inline"><input type="checkbox" name="aqrmkt" value="true" id="aqrmkt"></input><input type="hidden" id="__checkbox_aqrmkt" name="__checkbox_aqrmkt" value="__checkbox_true"></input>MKT-RF</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="aqrsmb" value="true" id="aqrsmb"></input><input type="hidden" id="__checkbox_aqrsmb" name="__checkbox_aqrsmb" value="__checkbox_true"></input>SMB</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="aqrhml" value="true" id="aqrhml"></input><input type="hidden" id="__checkbox_aqrhml" name="__checkbox_aqrhml" value="__checkbox_true"></input>HML</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="aqrhmldev" value="true" id="aqrhmldev"></input><input type="hidden" id="__checkbox_aqrhmldev" name="__checkbox_aqrhmldev" value="__checkbox_true"></input>HML-DEV</label>
+                    <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="HML reconstructed every month"></span>
+                    <label class="checkbox-inline"><input type="checkbox" name="aqrmom" value="true" id="aqrmom"></input><input type="hidden" id="__checkbox_aqrmom" name="__checkbox_aqrmom" value="__checkbox_true"></input>MOM</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="aqrqmj" value="true" id="aqrqmj"></input><input type="hidden" id="__checkbox_aqrqmj" name="__checkbox_aqrqmj" value="__checkbox_true"></input>QMJ</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="aqrbab" value="true" id="aqrbab"></input><input type="hidden" id="__checkbox_aqrbab" name="__checkbox_aqrbab" value="__checkbox_true"></input>BAB</label>
+                </div>
+            </div>
+            
+            
+            <div class="form-group">
+                <label class="control-label col-sm-3">Alpha Architect Equity Factors</label>
+                <div class="col-sm-8">
+                    <label class="checkbox-inline"><input type="checkbox" name="aamkt" value="true" id="aamkt"></input><input type="hidden" id="__checkbox_aamkt" name="__checkbox_aamkt" value="__checkbox_true"></input>MKT-RF</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="aasmb" value="true" id="aasmb"></input><input type="hidden" id="__checkbox_aasmb" name="__checkbox_aasmb" value="__checkbox_true"></input>SMB</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="aahml" value="true" id="aahml"></input><input type="hidden" id="__checkbox_aahml" name="__checkbox_aahml" value="__checkbox_true"></input>HML</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="aamom" value="true" id="aamom"></input><input type="hidden" id="__checkbox_aamom" name="__checkbox_aamom" value="__checkbox_true"></input>MOM</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="aaqmj" value="true" id="aaqmj"></input><input type="hidden" id="__checkbox_aaqmj" name="__checkbox_aaqmj" value="__checkbox_true"></input>QMJ</label>
+                </div>
+            </div>
+            
+            
+            <div class="form-group">
+                <label class="control-label col-sm-3">q-Factors</label>
+                <div class="col-sm-8">
+                    <label class="checkbox-inline"><input type="checkbox" name="qmkt" value="true" id="qmkt"></input><input type="hidden" id="__checkbox_qmkt" name="__checkbox_qmkt" value="__checkbox_true"></input>MKT-RF</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="qme" value="true" id="qme"></input><input type="hidden" id="__checkbox_qme" name="__checkbox_qme" value="__checkbox_true"></input>ME</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="qia" value="true" id="qia"></input><input type="hidden" id="__checkbox_qia" name="__checkbox_qia" value="__checkbox_true"></input>I/A</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="qroe" value="true" id="qroe"></input><input type="hidden" id="__checkbox_qroe" name="__checkbox_qroe" value="__checkbox_true"></input>ROE</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="qeg" value="true" id="qeg"></input><input type="hidden" id="__checkbox_qeg" name="__checkbox_qeg" value="__checkbox_true"></input>EG</label>
+                </div>
+            </div>
+            
+            
+            <div class="form-group">
+                <label class="control-label col-sm-3">Fixed Income Factors</label>
+                <div class="col-sm-8">
+                    <label class="checkbox-inline"><input type="checkbox" name="trm" value="true" id="trm"></input><input type="hidden" id="__checkbox_trm" name="__checkbox_trm" value="__checkbox_true"></input>TRM</label>
+                    <label class="checkbox-inline"><input type="checkbox" name="cdt" value="true" id="cdt"></input><input type="hidden" id="__checkbox_cdt" name="__checkbox_cdt" value="__checkbox_true"></input>CDT</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+<label for="customFactors" class="control-label col-sm-3">Factor Tickers <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Enter ticker symbols for custom factors"></span>
+</label>
+<div class="col-sm-6">
+<div class="input-group">
+<input type="text" id="customFactors" name="customFactors" class="form-control pv-multiple fmt-uppercase" maxlength="100" placeholder="Ticker symbols..." >
+<div class="input-group-btn"><button type="button" class="btn btn-default ticker-search"><i class="glyphicon glyphicon-search"></i></button>
+<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-cog"></i> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right scrollable-menu">
+<li class="dropdown-header">Tickers</li><li><a href="#" onclick="$('#customFactors').val('').val('');return false;">Clear List</a></li><li><a href="#" onclick="importList('#customFactors');return false;">Upload List</a></li></ul>
+</div>
+</div>
+</div>
+</div>
+
+        </div>
+        <div class="form-group">
+<label for="timePeriod" class="control-label col-sm-3">Regression Basis <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify whether to use daily or monthly returns in regression analysis"></span>
+</label>
+<div class="col-sm-3">
+<select id="timePeriod" name="timePeriod" class="form-control" onchange="updateFormState(true,false)" >
+<option value="1">Daily Returns</option>
+<option value="2" selected>Monthly Returns</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="rollPeriod" class="control-label col-sm-3">Roll Period <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Roll period for rolling regression factor analysis"></span>
+</label>
+<div class="col-sm-3">
+<select id="rollPeriod" name="rollPeriod" class="form-control" >
+<option value="12">12 Months</option>
+<option value="24">24 Months</option>
+<option value="36" selected>36 Months</option>
+<option value="48">48 Months</option>
+<option value="60">60 Months</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="marketAssetType" class="control-label col-sm-3">Market Asset <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify whether a ticker or an imported benchmark is used as the market"></span>
+</label>
+<div class="col-sm-4">
+<select id="marketAssetType" name="marketAssetType" class="form-control" onchange="updateFormState(true,false)" >
+<option value="1" selected>Ticker</option>
+<option value="3">Saved Benchmark</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="marketBenchmark" class="control-label col-sm-3">Market Benchmark <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Market benchmark"></span>
+</label>
+<div class="col-sm-4">
+<select id="marketBenchmark" name="marketBenchmark" class="form-control" >
+<option value="" selected>[No saved benchmarks]</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="marketTicker" class="control-label col-sm-3">Benchmark Ticker <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Ticker for the market benchmark asset"></span>
+</label>
+<div class="col-sm-4">
+<div class="input-group">
+<input type="text" id="marketTicker" name="marketTicker" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="robustRegression" class="control-label col-sm-3">Use Robust Regression <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Use Newey&ndash;West estimator to address autocorrelation and heteroscedasticity of the residuals"></span>
+</label>
+<div class="col-sm-3">
+<select id="robustRegression" name="robustRegression" class="form-control" >
+<option value="false" selected>No</option>
+<option value="true">Yes</option>
+</select>
+</div>
+</div>
+
+
+        <div id="pfSection" class="portfolio-section norender pv-allow-expansion" data-count="1" data-maxrows="150" data-advanced="false" >
+<div class="row bottomBorder">
+<div class="col-sm-6 separateTop asset-header text-nowrap"><b>Portfolio Assets</b><div class="btn-group btn-group-sm left-margin hidden-print" role="group" aria-label="Portfolio allocation options"><button type="button" class="btn btn-default clearAllocation" title="Clear assets and allocations"><i class="glyphicon glyphicon-trash"></i></button><div id="allocation-menu-1" class="btn-group btn-group-sm allocation-menu hidden-print" role="group"><button id="allocationOptionsButton1" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-cog"></i> <span class="caret"></span></button><ul class="dropdown-menu scrollable-menu"><li class="dropdown-header">Allocation Weights</li><li><a href="#" onclick="equalWeightAllocations(1,'');return false;">Equal Weight</a></li><li><a href="#" onclick="normalizeAllocations(1,'');return false;">Normalize</a></li><li><a href="#" onclick="clearAllocations(1,'');return false;">Clear</a></li><li class="divider"></li><li class="dropdown-header">Import Portfolio</li><li><a href="#" onclick="importPortfolio(1,'');return false;">Upload Portfolio</a></li></ul></div>
+</div></div>
+<div class="col-sm-2 separateTop"><b>Allocation</b></div></div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-3 separateTop">Asset 1</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol1">Select asset 1</label></span>
+<input type="text" id="symbol1" name="symbol1" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation1_1">Enter percentage allocation for asset 1</label></span>
+<input type="number" id="allocation1_1" name="allocation1_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-3 separateTop">Asset 2</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol2">Select asset 2</label></span>
+<input type="text" id="symbol2" name="symbol2" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation2_1">Enter percentage allocation for asset 2</label></span>
+<input type="number" id="allocation2_1" name="allocation2_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-3 separateTop">Asset 3</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol3">Select asset 3</label></span>
+<input type="text" id="symbol3" name="symbol3" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation3_1">Enter percentage allocation for asset 3</label></span>
+<input type="number" id="allocation3_1" name="allocation3_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-3 separateTop">Asset 4</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol4">Select asset 4</label></span>
+<input type="text" id="symbol4" name="symbol4" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation4_1">Enter percentage allocation for asset 4</label></span>
+<input type="number" id="allocation4_1" name="allocation4_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-3 separateTop">Asset 5</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol5">Select asset 5</label></span>
+<input type="text" id="symbol5" name="symbol5" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation5_1">Enter percentage allocation for asset 5</label></span>
+<input type="number" id="allocation5_1" name="allocation5_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-3 separateTop">Asset 6</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol6">Select asset 6</label></span>
+<input type="text" id="symbol6" name="symbol6" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation6_1">Enter percentage allocation for asset 6</label></span>
+<input type="number" id="allocation6_1" name="allocation6_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-3 separateTop">Asset 7</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol7">Select asset 7</label></span>
+<input type="text" id="symbol7" name="symbol7" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation7_1">Enter percentage allocation for asset 7</label></span>
+<input type="number" id="allocation7_1" name="allocation7_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-3 separateTop">Asset 8</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol8">Select asset 8</label></span>
+<input type="text" id="symbol8" name="symbol8" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation8_1">Enter percentage allocation for asset 8</label></span>
+<input type="number" id="allocation8_1" name="allocation8_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-3 separateTop">Asset 9</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol9">Select asset 9</label></span>
+<input type="text" id="symbol9" name="symbol9" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation9_1">Enter percentage allocation for asset 9</label></span>
+<input type="number" id="allocation9_1" name="allocation9_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-3 separateTop">Asset 10</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol10">Select asset 10</label></span>
+<input type="text" id="symbol10" name="symbol10" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation10_1">Enter percentage allocation for asset 10</label></span>
+<input type="number" id="allocation10_1" name="allocation10_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row topBorder totals-row">
+<div class="col-sm-3 separateTop"><b>Total</b></div>
+<div class="col-sm-2 col-sm-offset-3 totals-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="total1">Total allocation for portfolio</label></span>
+<input type="number" id="total1" name="total1" class="form-control" readonly>
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+</div>
+
+
+        <div class="form-group form-buttons">
+<div class="col-sm-offset-3 col-sm-9">
+<input type="submit" id="submitButton" value="Factor Analysis" class="btn btn-primary">
+<input type="button" id="cancelButton" value="Cancel" class="btn btn-default" onclick="document.location.href='index.html'">
+</div>
+</div>
+
+
+    </form>
+
+    
+    
+</div>
+
+
+
+<div id="symbolPicker" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="symbolPickerTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2 class="modal-title" id="symbolPickerTitle">Find ETF, Mutual Fund or Stock Symbol</h2>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="assetType" class="control-label col-sm-2">Type</label>
+                        <div class="col-sm-4">
+                            <select name="assetType" id="assetType" class="form-control">
+                                <option value="2">ETF</option>
+                                <option value="5">Mutual Fund</option>
+                                <option value="4">Closed-End Fund</option>
+                                <option value="1">Stock</option>
+                                <option value="10">Asset Class</option>
+                                
+                                
+                                <option value="6">Cash</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="assetSearch" class="control-label col-sm-2">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="assetSearch" name="assetSearch" class="form-control typeahead" placeholder="Enter partial name (3 or more characters)" autofocus>
+                            <p class="help-block">Example: &quot;vanguard bond&quot;</p>
+                        </div>
+                    </div>
+                    <div class="form-group norender">
+                        <label for="cashAsset" class="control-label col-sm-2">Cash Asset</label>
+                        <div class="col-sm-10">
+                            <select name="cashAsset" id="cashAsset" class="form-control">
+                                <option value="CASHX">Money Market</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group norender" >
+                        <label for="assetClassAsset" class="control-label col-sm-2">Asset Class</label>
+                        <div class="col-sm-10">
+                            <select name="assetClassAsset" id="assetClassAsset" class="form-control">
+                                <optgroup label="US Equity">
+
+                                <option value="VTSMX">US Stock Market (VTSMX)</option>
+                                
+                                <option value="VFINX">US Large Cap (VFINX)</option>
+                                
+                                <option value="VIVAX">US Large Cap Value (VIVAX)</option>
+                                
+                                <option value="VIGRX">US Large Cap Growth (VIGRX)</option>
+                                
+                                <option value="VIMSX">US Mid Cap (VIMSX)</option>
+                                
+                                <option value="VMVIX">US Mid Cap Value (VMVIX)</option>
+                                
+                                <option value="VMGIX">US Mid Cap Growth (VMGIX)</option>
+                                
+                                <option value="NAESX">US Small Cap (NAESX)</option>
+                                
+                                <option value="VISVX">US Small Cap Value (VISVX)</option>
+                                
+                                <option value="VISGX">US Small Cap Growth (VISGX)</option>
+                                
+                                <option value="BRSIX">US Micro Cap (BRSIX)</option>
+                                </optgroup>
+<optgroup label="International Equity">
+
+                                <option value="VGTSX">Global ex-US Stock Market (VGTSX)</option>
+                                
+                                <option value="VTMGX">Intl Developed ex-US Market (VTMGX)</option>
+                                
+                                <option value="VSS">International ex-US Small Cap (VSS)</option>
+                                
+                                <option value="EFV">International ex-US Value (EFV)</option>
+                                
+                                <option value="VEURX">European Stocks (VEURX)</option>
+                                
+                                <option value="VPACX">Pacific Stocks (VPACX)</option>
+                                
+                                <option value="VEIEX">Emerging Markets (VEIEX)</option>
+                                </optgroup>
+<optgroup label="Fixed Income">
+
+                                <option value="CASHX">Cash (CASHX)</option>
+                                
+                                <option value="VFISX">Short Term Treasury (VFISX)</option>
+                                
+                                <option value="VFITX">Intermediate Term Treasury (VFITX)</option>
+                                
+                                <option value="IEF">10-year Treasury (IEF)</option>
+                                
+                                <option value="VUSTX">Long Term Treasury (VUSTX)</option>
+                                
+                                <option value="VBMFX">Total US Bond Market (VBMFX)</option>
+                                
+                                <option value="VIPSX">TIPS (VIPSX)</option>
+                                
+                                <option value="PIGLX">Global Bonds (Unhedged) (PIGLX)</option>
+                                
+                                <option value="PGBIX">Global Bonds (USD Hedged) (PGBIX)</option>
+                                
+                                <option value="VFSTX">Short-Term Investment Grade (VFSTX)</option>
+                                
+                                <option value="LQD">Corporate Bonds (LQD)</option>
+                                
+                                <option value="VWESX">Long-Term Corporate Bonds (VWESX)</option>
+                                
+                                <option value="VWEHX">High Yield Corporate Bonds (VWEHX)</option>
+                                
+                                <option value="VWSTX">Short-Term Tax-Exempt (VWSTX)</option>
+                                
+                                <option value="VWITX">Intermediate-Term Tax-Exempt (VWITX)</option>
+                                
+                                <option value="VWLTX">Long-Term Tax-Exempt (VWLTX)</option>
+                                </optgroup>
+<optgroup label="Alternatives">
+
+                                <option value="VGSIX">REIT (VGSIX)</option>
+                                
+                                <option value="GLD">Gold (GLD)</option>
+                                
+                                <option value="GDX">Precious Metals (GDX)</option>
+                                
+                                <option value="GSG">Commodities (GSG)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="form-buttons modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectTicker">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="importDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="importDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="importConfigForm" action="https://www.portfoliovisualizer.com/import" method="POST" data-messages="#importMessages" enctype="multipart/form-data">
+        <input type="hidden" id="importType" name="importType" value="portfolio">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="importDialogTitle">Import Portfolio</h2>
+                </div>
+                <div class="modal-body">
+                    <p id="importPortfolioInfo">
+                        You can upload a portfolio asset allocation by selecting a file below.
+                        The import uses a standard Excel or CSV file format with a ticker symbol followed by asset balance or weight on each row,
+                        and you can <a href="faq.html#portfolios">download sample files</a> for the supported data formats from the related documentation section.
+                    </p>
+                    <p id="importListInfo" class="norender">
+                        You can upload a list of tickers by selecting either a text file of an Excel file below.
+                        The tickers in the file can be listed either on separate lines or on the same line.
+                    </p>
+                    <div id="importMessages"></div>
+
+                    <div class="form-group">
+                        <label for="portfolio" class="control-label col-sm-2">File</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="hidden_jaws"><label for="portfolio_info">File</label></span>
+                                <input class="form-control" type="text" name="portfolio_info" id="portfolio_info" readonly>
+                                <span class="input-group-btn">
+                                    <span class="btn btn-default btn-file">
+                                    Browse...
+                                    <input type="file" id="portfolio" name="portfolio" accept=".csv,.xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,text/plain">
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="importConfigButton">Upload</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div id="confirmDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="confirmActionForm">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="confirmDialogTitle">Confirm Action</h2>
+                </div>
+                <div class="modal-body">
+                    <span id="confirmText"></span>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelConfirmButton">Cancel</button>
+                    <button type="button" class="btn" data-dismiss="modal" id="confirmButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<div id="footer" class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-5">
+                <span class="text-muted">&copy; 2022 Silicon Cloud Technologies LLC</span>
+            </div>
+            <div class="col-sm-1">
+                <a href="about.html">About</a>
+            </div>
+            <div class="col-sm-1">
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="col-sm-1">
+                <a href="pricing.html">Pricing</a>
+            </div>
+            
+            <div class="col-sm-2">
+                <a href="terms-of-service.html">Terms of Service</a>
+            </div>
+            <div class="col-sm-2">
+                <a href="privacy-policy.html">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="../cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="jquery/jquery-3.4.1.min.js">\x3C/script>')</script>           
+<script src="../cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script>jQuery.fn.modal || document.write('<script src="bootstrap/js/bootstrap.min6bf2.js?v=341">\x3C/script>')</script>    
+
+
+<script src="javascript/merged-cd97b9efd972c726e07a723ff74b40a0.min.js"></script>
+
+
+
+<script>
+$(function() {
+    $.each(q, function(index, f) {
+        f.call(document);
+    });
+    postPageInit();
+});
+</script>
+
+
+</body>
+
+
+</html>

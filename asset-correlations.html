@@ -1,0 +1,546 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <title>Asset Correlations</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta name="description" content="Calculate and view correlations for stocks, ETFs and mutual funds">
+    <meta name="keywords" content="correlation,ETF correlations,mutual fund correlations,stock correlations">
+    <link rel="canonical" href="asset-correlations.html">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="css/merged-4b5ddc42c451e5d0b325c5d10e865f35.min.css">
+
+
+
+<script>
+var autoCompleteTickers=true;
+var showFullName=false;
+var enableExport=false;
+var expiredAccount=false;
+var enablePDF=false;
+var bookmarkURL="asset-correlations3c6c.html?s=y";
+var showBookmarkLink=true;
+var showExportLinks=true;
+window.q=[];window.$=function(f){q.push(f)}
+</script>
+
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-43200681-1', 'portfoliovisualizer.com');
+    ga('send', 'pageview');
+</script>
+
+
+
+
+    <script>
+        $(function() {
+            updateFormState();
+        });
+        function updateFormState() {
+            var timePeriod=$("#timePeriod").val();
+            $("#tradingDays").closest('.form-group').toggle(timePeriod==1);
+            $("#months").closest('.form-group').toggle(timePeriod==2);
+        }
+    </script>
+</head>
+<body>
+
+
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html"> PORTFOLIO <span class="pv-brand">VISUALIZER</span></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html" class="navbar-optional">Contact</a></li>
+                
+                <li><a href="pricing.html" class="navbar-optional">Pricing</a></li>
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Portfolio Analysis</li>
+                        <li><a href="backtest-asset-class-allocation.html">Backtest Asset Class Allocation</a></li>
+                        <li><a href="backtest-portfolio.html">Backtest Portfolio</a></li>
+                        <li><a href="monte-carlo-simulation.html">Monte Carlo Simulation</a></li>
+                        <li><a href="financial-goals.html">Financial Goals</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Optimization</li>
+                        <li><a href="efficient-frontier.html">Historical Efficient Frontier</a></li>
+                        <li><a href="efficient-frontier-forecast.html">Forecasted Efficient Frontier</a></li>
+                        <li><a href="optimize-portfolio.html">Portfolio Optimization</a></li>
+                        <li><a href="black-litterman-model.html">Black-Litterman Model</a></li>
+                        <li><a href="rolling-optimization.html">Rolling Optimization</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Asset Analytics</li>
+                        <li><a href="fund-screener.html">Fund Screener</a></li>
+                        <li><a href="fund-performance.html">Fund Performance</a></li>
+                        <li><a href="asset-correlations.html">Asset Correlations</a></li>
+                        <li><a href="asset-class-correlations.html">Asset Class Correlations</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Factor Analysis</li>
+                        <li><a href="factor-analysis.html">Factor Regression</a></li>
+                        <li><a href="risk-factor-allocation.html">Risk Factor Allocation</a></li>
+                        <li><a href="etf-and-mutual-fund-factor-regressions.html">Fund and ETF Factor Regressions</a></li>
+                        <li><a href="factor-performance-attribution.html">Factor Performance Attribution</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Market Timing</li>
+                        <li><a href="test-market-timing-model.html">Market Timing Models</a></li>
+                        <li><a href="test-market-timing-model5fea.html?timingModel=4&amp;coreSatellite=true">Core-Satellite</a></li>
+                    </ul>
+                </li>
+                
+                <li><div><a href="sign-up.html" class="btn btn-success navbar-btn">Sign Up</a></div></li>
+                <li><div><a href="login.html" class="btn btn-primary navbar-btn">Log In</a></div></li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="container-fluid">
+<h1>Asset Correlations</h1>
+    <p>
+        This asset correlation testing tool allows you to view correlations for stocks, ETFs and mutual funds for the given time period. You also view the rolling correlation for a given number of trading days to see how the correlation between the assets has changed over time. You can also <a href="asset-class-correlations.html">view correlation matrix for common asset class ETFs</a> or test assets for <a href="asset-autocorrelation.html">autocorrelation</a> and <a href="asset-cointegration.html">cointegration</a>.
+    </p>
+
+    
+
+    <form action="https://www.portfoliovisualizer.com/asset-correlations" method="post" class="form-horizontal"  novalidate>
+
+        <div class="form-group">
+<label for="symbols" class="control-label col-sm-3">Tickers <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Enter ticker symbols separated by comma or whitespace for correlation analysis"></span>
+</label>
+<div class="col-sm-6">
+<div class="input-group">
+<input type="text" id="symbols" name="symbols" class="form-control pv-multiple fmt-uppercase" placeholder="Ticker symbols..." >
+<div class="input-group-btn"><button type="button" class="btn btn-default ticker-search"><i class="glyphicon glyphicon-search"></i></button>
+<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-cog"></i> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right scrollable-menu">
+<li class="dropdown-header">Tickers</li><li><a href="#" onclick="$('#symbols').val('').val('');return false;">Clear List</a></li><li><a href="#" onclick="importList('#symbols');return false;">Upload List</a></li><li class="divider"></li><li class="dropdown-header">Lazy Portfolios</li><li><a href="#" onclick="selectAssets('#symbols','Growth Portfolio');return false;">Growth Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Moderate Portfolio');return false;">Moderate Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Conservative Portfolio');return false;">Conservative Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Income Portfolio');return false;">Income Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Bill Bernstein No Brainer');return false;">Bill Bernstein No Brainer</a></li><li><a href="#" onclick="selectAssets('#symbols','Bill Schultheis Coffee House');return false;">Bill Schultheis Coffee House</a></li><li><a href="#" onclick="selectAssets('#symbols','Bogleheads Three Funds');return false;">Bogleheads Three Funds</a></li><li><a href="#" onclick="selectAssets('#symbols','Bogleheads Four Funds');return false;">Bogleheads Four Funds</a></li><li><a href="#" onclick="selectAssets('#symbols','David Swensen Lazy Portfolio');return false;">David Swensen Lazy Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','David Swensen Yale Endowment');return false;">David Swensen Yale Endowment</a></li><li><a href="#" onclick="selectAssets('#symbols','FundAdvice Ultimate Buy & Hold Portfolio');return false;">FundAdvice Ultimate Buy &amp; Hold Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Harry Browne Permanent Portfolio');return false;">Harry Browne Permanent Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Larry Swedroe Simple Portfolio');return false;">Larry Swedroe Simple Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Larry Swedroe Minimize FatTails Portfolio');return false;">Larry Swedroe Minimize FatTails Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Mebane Faber Ivy Portfolio');return false;">Mebane Faber Ivy Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Ray Dalio All Seasons');return false;">Ray Dalio All Seasons</a></li><li><a href="#" onclick="selectAssets('#symbols','Rick Ferri Core Four');return false;">Rick Ferri Core Four</a></li><li><a href="#" onclick="selectAssets('#symbols','Scott Burns Couch Portfolio');return false;">Scott Burns Couch Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Stocks\/Bonds (60\/40)');return false;">Stocks/Bonds (60/40)</a></li><li><a href="#" onclick="selectAssets('#symbols','Stocks\/Bonds (40\/60)');return false;">Stocks/Bonds (40/60)</a></li></ul>
+</div>
+</div>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="startDate" class="control-label col-sm-3">Start Date <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Enter start date for correlation period. If left blank, the earliest available date is used."></span>
+</label>
+<div class="col-sm-4">
+<div class="input-group">
+<input type="text" id="startDate" name="startDate" class="form-control fmt-date" maxlength="10" placeholder="MM/DD/YYYY (optional)" >
+<span class="input-group-addon glyphicon glyphicon-calendar" title="Select date"></span>
+</div>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="endDate" class="control-label col-sm-3">End Date <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Enter end date for correlation period. If left blank, the most recent available date is used."></span>
+</label>
+<div class="col-sm-4">
+<div class="input-group">
+<input type="text" id="endDate" name="endDate" class="form-control fmt-date" maxlength="10" placeholder="MM/DD/YYYY (optional)" >
+<span class="input-group-addon glyphicon glyphicon-calendar" title="Select date"></span>
+</div>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="timePeriod" class="control-label col-sm-3">Correlation Basis <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Sampling period of returns for correlation calculations"></span>
+</label>
+<div class="col-sm-3">
+<select id="timePeriod" name="timePeriod" class="form-control" onchange="updateFormState()" >
+<option value="1">Daily Returns</option>
+<option value="2" selected>Monthly Returns</option>
+<option value="4">Annual Returns</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="tradingDays" class="control-label col-sm-3">Rolling Correlation <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Number of trading days used for rolling correlation calculations"></span>
+</label>
+<div class="col-sm-3">
+<select id="tradingDays" name="tradingDays" class="form-control" >
+<option value="20">20 Trading Days</option>
+<option value="30">30 Trading Days</option>
+<option value="40">40 Trading Days</option>
+<option value="50">50 Trading Days</option>
+<option value="60" selected>60 Trading Days</option>
+<option value="70">70 Trading Days</option>
+<option value="80">80 Trading Days</option>
+<option value="90">90 Trading Days</option>
+<option value="100">100 Trading Days</option>
+<option value="110">110 Trading Days</option>
+<option value="120">120 Trading Days</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="months" class="control-label col-sm-3">Rolling Correlation <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Number of months used for rolling correlation calculations"></span>
+</label>
+<div class="col-sm-3">
+<select id="months" name="months" class="form-control" >
+<option value="12">12 Months</option>
+<option value="24">24 Months</option>
+<option value="36" selected>36 Months</option>
+<option value="48">48 Months</option>
+<option value="60">60 Months</option>
+</select>
+</div>
+</div>
+
+
+        <div class="form-group form-buttons">
+<div class="col-sm-offset-3 col-sm-9">
+<input type="submit" id="submitButton" value="View Correlation" class="btn btn-primary">
+<input type="button" id="cancelButton" value="Cancel" class="btn btn-default" onclick="document.location.href='index.html'">
+</div>
+</div>
+
+    </form>
+
+
+
+
+
+</div>
+
+
+
+<div id="symbolPicker" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="symbolPickerTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2 class="modal-title" id="symbolPickerTitle">Find ETF, Mutual Fund or Stock Symbol</h2>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="assetType" class="control-label col-sm-2">Type</label>
+                        <div class="col-sm-4">
+                            <select name="assetType" id="assetType" class="form-control">
+                                <option value="2">ETF</option>
+                                <option value="5">Mutual Fund</option>
+                                <option value="4">Closed-End Fund</option>
+                                <option value="1">Stock</option>
+                                <option value="10">Asset Class</option>
+                                
+                                
+                                <option value="6">Cash</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="assetSearch" class="control-label col-sm-2">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="assetSearch" name="assetSearch" class="form-control typeahead" placeholder="Enter partial name (3 or more characters)" autofocus>
+                            <p class="help-block">Example: &quot;vanguard bond&quot;</p>
+                        </div>
+                    </div>
+                    <div class="form-group norender">
+                        <label for="cashAsset" class="control-label col-sm-2">Cash Asset</label>
+                        <div class="col-sm-10">
+                            <select name="cashAsset" id="cashAsset" class="form-control">
+                                <option value="CASHX">Money Market</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group norender" >
+                        <label for="assetClassAsset" class="control-label col-sm-2">Asset Class</label>
+                        <div class="col-sm-10">
+                            <select name="assetClassAsset" id="assetClassAsset" class="form-control">
+                                <optgroup label="US Equity">
+
+                                <option value="VTSMX">US Stock Market (VTSMX)</option>
+                                
+                                <option value="VFINX">US Large Cap (VFINX)</option>
+                                
+                                <option value="VIVAX">US Large Cap Value (VIVAX)</option>
+                                
+                                <option value="VIGRX">US Large Cap Growth (VIGRX)</option>
+                                
+                                <option value="VIMSX">US Mid Cap (VIMSX)</option>
+                                
+                                <option value="VMVIX">US Mid Cap Value (VMVIX)</option>
+                                
+                                <option value="VMGIX">US Mid Cap Growth (VMGIX)</option>
+                                
+                                <option value="NAESX">US Small Cap (NAESX)</option>
+                                
+                                <option value="VISVX">US Small Cap Value (VISVX)</option>
+                                
+                                <option value="VISGX">US Small Cap Growth (VISGX)</option>
+                                
+                                <option value="BRSIX">US Micro Cap (BRSIX)</option>
+                                </optgroup>
+<optgroup label="International Equity">
+
+                                <option value="VGTSX">Global ex-US Stock Market (VGTSX)</option>
+                                
+                                <option value="VTMGX">Intl Developed ex-US Market (VTMGX)</option>
+                                
+                                <option value="VSS">International ex-US Small Cap (VSS)</option>
+                                
+                                <option value="EFV">International ex-US Value (EFV)</option>
+                                
+                                <option value="VEURX">European Stocks (VEURX)</option>
+                                
+                                <option value="VPACX">Pacific Stocks (VPACX)</option>
+                                
+                                <option value="VEIEX">Emerging Markets (VEIEX)</option>
+                                </optgroup>
+<optgroup label="Fixed Income">
+
+                                <option value="CASHX">Cash (CASHX)</option>
+                                
+                                <option value="VFISX">Short Term Treasury (VFISX)</option>
+                                
+                                <option value="VFITX">Intermediate Term Treasury (VFITX)</option>
+                                
+                                <option value="IEF">10-year Treasury (IEF)</option>
+                                
+                                <option value="VUSTX">Long Term Treasury (VUSTX)</option>
+                                
+                                <option value="VBMFX">Total US Bond Market (VBMFX)</option>
+                                
+                                <option value="VIPSX">TIPS (VIPSX)</option>
+                                
+                                <option value="PIGLX">Global Bonds (Unhedged) (PIGLX)</option>
+                                
+                                <option value="PGBIX">Global Bonds (USD Hedged) (PGBIX)</option>
+                                
+                                <option value="VFSTX">Short-Term Investment Grade (VFSTX)</option>
+                                
+                                <option value="LQD">Corporate Bonds (LQD)</option>
+                                
+                                <option value="VWESX">Long-Term Corporate Bonds (VWESX)</option>
+                                
+                                <option value="VWEHX">High Yield Corporate Bonds (VWEHX)</option>
+                                
+                                <option value="VWSTX">Short-Term Tax-Exempt (VWSTX)</option>
+                                
+                                <option value="VWITX">Intermediate-Term Tax-Exempt (VWITX)</option>
+                                
+                                <option value="VWLTX">Long-Term Tax-Exempt (VWLTX)</option>
+                                </optgroup>
+<optgroup label="Alternatives">
+
+                                <option value="VGSIX">REIT (VGSIX)</option>
+                                
+                                <option value="GLD">Gold (GLD)</option>
+                                
+                                <option value="GDX">Precious Metals (GDX)</option>
+                                
+                                <option value="GSG">Commodities (GSG)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="form-buttons modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectTicker">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="importDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="importDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="importConfigForm" action="https://www.portfoliovisualizer.com/import" method="POST" data-messages="#importMessages" enctype="multipart/form-data">
+        <input type="hidden" id="importType" name="importType" value="portfolio">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="importDialogTitle">Import Portfolio</h2>
+                </div>
+                <div class="modal-body">
+                    <p id="importPortfolioInfo">
+                        You can upload a portfolio asset allocation by selecting a file below.
+                        The import uses a standard Excel or CSV file format with a ticker symbol followed by asset balance or weight on each row,
+                        and you can <a href="faq.html#portfolios">download sample files</a> for the supported data formats from the related documentation section.
+                    </p>
+                    <p id="importListInfo" class="norender">
+                        You can upload a list of tickers by selecting either a text file of an Excel file below.
+                        The tickers in the file can be listed either on separate lines or on the same line.
+                    </p>
+                    <div id="importMessages"></div>
+
+                    <div class="form-group">
+                        <label for="portfolio" class="control-label col-sm-2">File</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="hidden_jaws"><label for="portfolio_info">File</label></span>
+                                <input class="form-control" type="text" name="portfolio_info" id="portfolio_info" readonly>
+                                <span class="input-group-btn">
+                                    <span class="btn btn-default btn-file">
+                                    Browse...
+                                    <input type="file" id="portfolio" name="portfolio" accept=".csv,.xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,text/plain">
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="importConfigButton">Upload</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div id="confirmDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="confirmActionForm">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="confirmDialogTitle">Confirm Action</h2>
+                </div>
+                <div class="modal-body">
+                    <span id="confirmText"></span>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelConfirmButton">Cancel</button>
+                    <button type="button" class="btn" data-dismiss="modal" id="confirmButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<div id="footer" class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-5">
+                <span class="text-muted">&copy; 2022 Silicon Cloud Technologies LLC</span>
+            </div>
+            <div class="col-sm-1">
+                <a href="about.html">About</a>
+            </div>
+            <div class="col-sm-1">
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="col-sm-1">
+                <a href="pricing.html">Pricing</a>
+            </div>
+            
+            <div class="col-sm-2">
+                <a href="terms-of-service.html">Terms of Service</a>
+            </div>
+            <div class="col-sm-2">
+                <a href="privacy-policy.html">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="../cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="jquery/jquery-3.4.1.min.js">\x3C/script>')</script>           
+<script src="../cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script>jQuery.fn.modal || document.write('<script src="bootstrap/js/bootstrap.min6bf2.js?v=341">\x3C/script>')</script>    
+
+
+<script src="javascript/merged-cd97b9efd972c726e07a723ff74b40a0.min.js"></script>
+
+
+
+<script>
+$(function() {
+    $.each(q, function(index, f) {
+        f.call(document);
+    });
+    postPageInit();
+});
+</script>
+
+
+</body>
+
+
+</html>

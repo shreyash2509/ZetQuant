@@ -1,0 +1,634 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <title>Asset Correlations</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta name="description" content="Calculate and view correlations for stocks, ETFs and mutual funds">
+    <meta name="keywords" content="correlation,ETF correlations,mutual fund correlations,stock correlations">
+    <link rel="canonical" href="asset-correlations.html">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="css/merged-4b5ddc42c451e5d0b325c5d10e865f35.min.css">
+
+
+
+<script>
+var autoCompleteTickers=true;
+var showFullName=false;
+var enableExport=false;
+var expiredAccount=false;
+var enablePDF=false;
+var bookmarkURL="asset-correlations09af.html?s=y&amp;symbols=VTI+VNQ+GLD+BND";
+var showBookmarkLink=true;
+var showExportLinks=true;
+window.q=[];window.$=function(f){q.push(f)}
+</script>
+
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-43200681-1', 'portfoliovisualizer.com');
+    ga('send', 'pageview');
+</script>
+
+
+
+
+    <script>
+        $(function() {
+            updateFormState();
+        });
+        function updateFormState() {
+            var timePeriod=$("#timePeriod").val();
+            $("#tradingDays").closest('.form-group').toggle(timePeriod==1);
+            $("#months").closest('.form-group').toggle(timePeriod==2);
+        }
+    </script>
+</head>
+<body>
+
+
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html"> PORTFOLIO <span class="pv-brand">VISUALIZER</span></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html" class="navbar-optional">Contact</a></li>
+                
+                <li><a href="pricing.html" class="navbar-optional">Pricing</a></li>
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Portfolio Analysis</li>
+                        <li><a href="backtest-asset-class-allocation.html">Backtest Asset Class Allocation</a></li>
+                        <li><a href="backtest-portfolio.html">Backtest Portfolio</a></li>
+                        <li><a href="monte-carlo-simulation.html">Monte Carlo Simulation</a></li>
+                        <li><a href="financial-goals.html">Financial Goals</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Optimization</li>
+                        <li><a href="efficient-frontier.html">Historical Efficient Frontier</a></li>
+                        <li><a href="efficient-frontier-forecast.html">Forecasted Efficient Frontier</a></li>
+                        <li><a href="optimize-portfolio.html">Portfolio Optimization</a></li>
+                        <li><a href="black-litterman-model.html">Black-Litterman Model</a></li>
+                        <li><a href="rolling-optimization.html">Rolling Optimization</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Asset Analytics</li>
+                        <li><a href="fund-screener.html">Fund Screener</a></li>
+                        <li><a href="fund-performance.html">Fund Performance</a></li>
+                        <li><a href="asset-correlations.html">Asset Correlations</a></li>
+                        <li><a href="asset-class-correlations.html">Asset Class Correlations</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Factor Analysis</li>
+                        <li><a href="factor-analysis.html">Factor Regression</a></li>
+                        <li><a href="risk-factor-allocation.html">Risk Factor Allocation</a></li>
+                        <li><a href="etf-and-mutual-fund-factor-regressions.html">Fund and ETF Factor Regressions</a></li>
+                        <li><a href="factor-performance-attribution.html">Factor Performance Attribution</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Market Timing</li>
+                        <li><a href="test-market-timing-model.html">Market Timing Models</a></li>
+                        <li><a href="test-market-timing-model5fea.html?timingModel=4&amp;coreSatellite=true">Core-Satellite</a></li>
+                    </ul>
+                </li>
+                
+                <li><div><a href="sign-up.html" class="btn btn-success navbar-btn">Sign Up</a></div></li>
+                <li><div><a href="login.html" class="btn btn-primary navbar-btn">Log In</a></div></li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="container-fluid">
+<h1>Asset Correlations</h1>
+    <p>
+        This asset correlation testing tool allows you to view correlations for stocks, ETFs and mutual funds for the given time period. You also view the rolling correlation for a given number of trading days to see how the correlation between the assets has changed over time. You can also <a href="asset-class-correlations.html">view correlation matrix for common asset class ETFs</a> or test assets for <a href="asset-autocorrelation.html">autocorrelation</a> and <a href="asset-cointegration.html">cointegration</a>.
+    </p>
+
+    
+
+    <form action="https://www.portfoliovisualizer.com/asset-correlations" method="post" class="form-horizontal"  novalidate>
+
+        <div class="form-group">
+<label for="symbols" class="control-label col-sm-3">Tickers <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Enter ticker symbols separated by comma or whitespace for correlation analysis"></span>
+</label>
+<div class="col-sm-6">
+<div class="input-group">
+<input type="text" id="symbols" name="symbols" class="form-control pv-multiple fmt-uppercase" value="VTI VNQ GLD BND" placeholder="Ticker symbols..." >
+<div class="input-group-btn"><button type="button" class="btn btn-default ticker-search"><i class="glyphicon glyphicon-search"></i></button>
+<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-cog"></i> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right scrollable-menu">
+<li class="dropdown-header">Tickers</li><li><a href="#" onclick="$('#symbols').val('').val('');return false;">Clear List</a></li><li><a href="#" onclick="importList('#symbols');return false;">Upload List</a></li><li class="divider"></li><li class="dropdown-header">Lazy Portfolios</li><li><a href="#" onclick="selectAssets('#symbols','Growth Portfolio');return false;">Growth Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Moderate Portfolio');return false;">Moderate Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Conservative Portfolio');return false;">Conservative Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Income Portfolio');return false;">Income Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Bill Bernstein No Brainer');return false;">Bill Bernstein No Brainer</a></li><li><a href="#" onclick="selectAssets('#symbols','Bill Schultheis Coffee House');return false;">Bill Schultheis Coffee House</a></li><li><a href="#" onclick="selectAssets('#symbols','Bogleheads Three Funds');return false;">Bogleheads Three Funds</a></li><li><a href="#" onclick="selectAssets('#symbols','Bogleheads Four Funds');return false;">Bogleheads Four Funds</a></li><li><a href="#" onclick="selectAssets('#symbols','David Swensen Lazy Portfolio');return false;">David Swensen Lazy Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','David Swensen Yale Endowment');return false;">David Swensen Yale Endowment</a></li><li><a href="#" onclick="selectAssets('#symbols','FundAdvice Ultimate Buy & Hold Portfolio');return false;">FundAdvice Ultimate Buy &amp; Hold Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Harry Browne Permanent Portfolio');return false;">Harry Browne Permanent Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Larry Swedroe Simple Portfolio');return false;">Larry Swedroe Simple Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Larry Swedroe Minimize FatTails Portfolio');return false;">Larry Swedroe Minimize FatTails Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Mebane Faber Ivy Portfolio');return false;">Mebane Faber Ivy Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Ray Dalio All Seasons');return false;">Ray Dalio All Seasons</a></li><li><a href="#" onclick="selectAssets('#symbols','Rick Ferri Core Four');return false;">Rick Ferri Core Four</a></li><li><a href="#" onclick="selectAssets('#symbols','Scott Burns Couch Portfolio');return false;">Scott Burns Couch Portfolio</a></li><li><a href="#" onclick="selectAssets('#symbols','Stocks\/Bonds (60\/40)');return false;">Stocks/Bonds (60/40)</a></li><li><a href="#" onclick="selectAssets('#symbols','Stocks\/Bonds (40\/60)');return false;">Stocks/Bonds (40/60)</a></li></ul>
+</div>
+</div>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="startDate" class="control-label col-sm-3">Start Date <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Enter start date for correlation period. If left blank, the earliest available date is used."></span>
+</label>
+<div class="col-sm-4">
+<div class="input-group">
+<input type="text" id="startDate" name="startDate" class="form-control fmt-date" maxlength="10" placeholder="MM/DD/YYYY (optional)" >
+<span class="input-group-addon glyphicon glyphicon-calendar" title="Select date"></span>
+</div>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="endDate" class="control-label col-sm-3">End Date <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Enter end date for correlation period. If left blank, the most recent available date is used."></span>
+</label>
+<div class="col-sm-4">
+<div class="input-group">
+<input type="text" id="endDate" name="endDate" class="form-control fmt-date" maxlength="10" placeholder="MM/DD/YYYY (optional)" >
+<span class="input-group-addon glyphicon glyphicon-calendar" title="Select date"></span>
+</div>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="timePeriod" class="control-label col-sm-3">Correlation Basis <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Sampling period of returns for correlation calculations"></span>
+</label>
+<div class="col-sm-3">
+<select id="timePeriod" name="timePeriod" class="form-control" onchange="updateFormState()" >
+<option value="1">Daily Returns</option>
+<option value="2" selected>Monthly Returns</option>
+<option value="4">Annual Returns</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="tradingDays" class="control-label col-sm-3">Rolling Correlation <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Number of trading days used for rolling correlation calculations"></span>
+</label>
+<div class="col-sm-3">
+<select id="tradingDays" name="tradingDays" class="form-control" >
+<option value="20">20 Trading Days</option>
+<option value="30">30 Trading Days</option>
+<option value="40">40 Trading Days</option>
+<option value="50">50 Trading Days</option>
+<option value="60" selected>60 Trading Days</option>
+<option value="70">70 Trading Days</option>
+<option value="80">80 Trading Days</option>
+<option value="90">90 Trading Days</option>
+<option value="100">100 Trading Days</option>
+<option value="110">110 Trading Days</option>
+<option value="120">120 Trading Days</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="months" class="control-label col-sm-3">Rolling Correlation <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Number of months used for rolling correlation calculations"></span>
+</label>
+<div class="col-sm-3">
+<select id="months" name="months" class="form-control" >
+<option value="12">12 Months</option>
+<option value="24">24 Months</option>
+<option value="36" selected>36 Months</option>
+<option value="48">48 Months</option>
+<option value="60">60 Months</option>
+</select>
+</div>
+</div>
+
+
+        <div class="form-group form-buttons">
+<div class="col-sm-offset-3 col-sm-9">
+<input type="submit" id="submitButton" value="View Correlation" class="btn btn-primary">
+<input type="button" id="cancelButton" value="Cancel" class="btn btn-default" onclick="document.location.href='index.html'">
+</div>
+</div>
+
+    </form>
+
+
+
+
+<h2 class="anchor" id="analysisResults">Correlation Results <span class="directLink"></span> <span class="directExport"></span></h2>
+<p>
+    Asset correlations for time period 05/01/2007 - 05/31/2022 based on monthly returns.
+</p>
+        
+        <div class="alert alert-info" role="alert">
+            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <b>Note:</b> The time period was constrained by the available data for Vanguard Total Bond Market ETF (BND) [May 2007 - May 2022]. You can extend the available time period by using Vanguard Total Bond Market Index Inv (VBMFX), which is the oldest share class of the fund.
+        </div>
+        
+
+<ul id="tabs" class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#correlationMatrix" data-toggle="tab">Correlation Matrix</a></li>
+    
+    <li role="presentation"><a href="#rollingCorrelation" data-toggle="tab">Rolling Correlations</a></li>
+    
+</ul>
+
+<div id="result-content" class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="correlationMatrix">
+
+    <table class="table table-condensed table-striped"><caption class="sr-only">Asset Correlations</caption><thead><tr><th>Name</th><th>Ticker</th><th class="numberCell">VTI</th><th class="numberCell">VNQ</th><th class="numberCell">GLD</th><th class="numberCell">BND</th><th class="numberCell">Annualized Return</th><th class="numberCell">Daily Standard Deviation</th><th class="numberCell">Monthly Standard Deviation</th><th class="numberCell">Annualized Standard Deviation</th></tr></thead><tbody><tr><td>Vanguard Total Stock Market ETF</td><td>VTI</td><td class="numberCell">1.00</td><td class="numberCell">0.75</td><td class="numberCell">0.07</td><td class="numberCell">0.10</td><td class="numberCell">9.13%</td><td class="numberCell">1.30%</td><td class="numberCell">4.65%</td><td class="numberCell">16.10%</td></tr><tr><td>Vanguard Real Estate ETF</td><td>VNQ</td><td class="numberCell">0.75</td><td class="numberCell">1.00</td><td class="numberCell">0.11</td><td class="numberCell">0.30</td><td class="numberCell">5.83%</td><td class="numberCell">2.01%</td><td class="numberCell">6.68%</td><td class="numberCell">23.13%</td></tr><tr><td>SPDR Gold Shares</td><td>GLD</td><td class="numberCell">0.07</td><td class="numberCell">0.11</td><td class="numberCell">1.00</td><td class="numberCell">0.42</td><td class="numberCell">6.41%</td><td class="numberCell">1.12%</td><td class="numberCell">5.04%</td><td class="numberCell">17.45%</td></tr><tr><td>Vanguard Total Bond Market ETF</td><td>BND</td><td class="numberCell">0.10</td><td class="numberCell">0.30</td><td class="numberCell">0.42</td><td class="numberCell">1.00</td><td class="numberCell">3.18%</td><td class="numberCell">0.31%</td><td class="numberCell">1.13%</td><td class="numberCell">3.91%</td></tr></tbody></table>
+
+    <div id="resultNotes" class="well well-small">
+Notes on results:
+<ul>
+<li>IMPORTANT: The projections or other information generated by Portfolio Visualizer regarding the likelihood of various investment outcomes are hypothetical in nature, do not reflect actual investment results and are not guarantees of future results. Results may vary with each use and over time.</li>
+<li>The results do not constitute investment advice or recommendation, are provided solely for informational purposes, and are not an offer to buy or sell any securities. All use is subject to <a href="terms-of-service.html">terms of service</a>.</li>
+<li>Investing involves risk, including possible loss of principal. Past performance is not a guarantee of future results.</li>
+<li>Asset allocation and diversification strategies do not guarantee a profit or protect against a loss.</li>
+<li>Hypothetical returns do not reflect trading costs, transaction fees, commissions, or actual taxes due on investment returns.</li>
+<li>The results are based on information from a variety of sources we consider reliable, but we do not represent that the information is accurate or complete.</li>
+<li>Refer to the related documentation sections for more details on <a href="faq.html#definitions">terms and definitions</a>, <a href="faq.html#methodology">methodology</a>, and <a href="faq.html#marketData">data sources</a>.</li>
+<li>The results are based on the total return of assets and assume that all received dividends and distributions are reinvested.</li>
+<li>Time frame for correlation analysis is the full available data range unless a specific date interval is specified.</li>
+<li>Monthly standard deviation is calculated based on available full calendar months including the entered start and end months.</li>
+<li>Annualized standard deviation is calculated from the standard deviation of monthly returns</li>
+<li>Annualized return is calculated from the specific time period using compound annual growth rate formula.</li>
+</ul>
+</div>
+
+
+</div>
+
+
+
+<div role="tabpanel" class="tab-pane" id="rollingCorrelation">
+    
+    
+    <div class="alert alert-dismissible alert-info" role="alert">
+<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+Rolling correlations are only shown for the pairs from the first three ticker symbols entered.
+</div>
+
+    
+    <div id="chartDiv1" style="min-width: 900px; min-height: 500px; max-width: 1350px; max-height: 750px;"></div>
+<script>
+function getChartData1() {
+var chart1 = { chart: { type: 'line', }, title: { text: 'VTI-VNQ Rolling 36-month Correlation' }, plotOptions: { series: { lineWidth: 2 }, line: { marker: { enabled: false, radius: 3 } } },legend: { enabled: false}, xAxis: { title: { text: 'Date'} , type: 'datetime', allowDecimals: false, minTickInterval: 28 * 24 * 3600 * 1000, dateTimeLabelFormats: { day: '%b %Y', week: '%b %Y', month: '%b %Y', year: '%Y' }, bogus: true},yAxis: { title: {text: 'Correlation'} },tooltip: { shared: true }, series: [{ name: 'VTI-VNQ Correlation', data: [[Date.UTC(2007,11,31),0.692],[Date.UTC(2008,0,31),0.631],[Date.UTC(2008,1,29),0.637],[Date.UTC(2008,2,31),0.601],[Date.UTC(2008,3,30),0.665],[Date.UTC(2008,4,31),0.657],[Date.UTC(2008,5,30),0.717],[Date.UTC(2008,6,31),0.694],[Date.UTC(2008,7,31),0.693],[Date.UTC(2008,8,30),0.622],[Date.UTC(2008,9,31),0.798],[Date.UTC(2008,10,30),0.808],[Date.UTC(2008,11,31),0.788],[Date.UTC(2009,0,31),0.799],[Date.UTC(2009,1,28),0.82],[Date.UTC(2009,2,31),0.805],[Date.UTC(2009,3,30),0.835],[Date.UTC(2009,4,31),0.83],[Date.UTC(2009,5,30),0.829],[Date.UTC(2009,6,31),0.837],[Date.UTC(2009,7,31),0.835],[Date.UTC(2009,8,30),0.837],[Date.UTC(2009,9,31),0.836],[Date.UTC(2009,10,30),0.837],[Date.UTC(2009,11,31),0.84],[Date.UTC(2010,0,31),0.842],[Date.UTC(2010,1,28),0.843],[Date.UTC(2010,2,31),0.849],[Date.UTC(2010,3,30),0.855],[Date.UTC(2010,4,31),0.855],[Date.UTC(2010,5,30),0.858],[Date.UTC(2010,6,31),0.859],[Date.UTC(2010,7,31),0.856],[Date.UTC(2010,8,30),0.843],[Date.UTC(2010,9,31),0.843],[Date.UTC(2010,10,30),0.839],[Date.UTC(2010,11,31),0.837],[Date.UTC(2011,0,31),0.844],[Date.UTC(2011,1,28),0.844],[Date.UTC(2011,2,31),0.85],[Date.UTC(2011,3,30),0.849],[Date.UTC(2011,4,31),0.85],[Date.UTC(2011,5,30),0.846],[Date.UTC(2011,6,31),0.845],[Date.UTC(2011,7,31),0.845],[Date.UTC(2011,8,30),0.874],[Date.UTC(2011,9,31),0.842],[Date.UTC(2011,10,30),0.833],[Date.UTC(2011,11,31),0.857],[Date.UTC(2012,0,31),0.845],[Date.UTC(2012,1,29),0.802],[Date.UTC(2012,2,31),0.818],[Date.UTC(2012,3,30),0.833],[Date.UTC(2012,4,31),0.847],[Date.UTC(2012,5,30),0.853],[Date.UTC(2012,6,31),0.845],[Date.UTC(2012,7,31),0.866],[Date.UTC(2012,8,30),0.853],[Date.UTC(2012,9,31),0.852],[Date.UTC(2012,10,30),0.847],[Date.UTC(2012,11,31),0.849],[Date.UTC(2013,0,31),0.843],[Date.UTC(2013,1,28),0.842],[Date.UTC(2013,2,31),0.836],[Date.UTC(2013,3,30),0.835],[Date.UTC(2013,4,31),0.786],[Date.UTC(2013,5,30),0.775],[Date.UTC(2013,6,31),0.746],[Date.UTC(2013,7,31),0.761],[Date.UTC(2013,8,30),0.774],[Date.UTC(2013,9,31),0.774],[Date.UTC(2013,10,30),0.742],[Date.UTC(2013,11,31),0.736],[Date.UTC(2014,0,31),0.693],[Date.UTC(2014,1,28),0.695],[Date.UTC(2014,2,31),0.695],[Date.UTC(2014,3,30),0.687],[Date.UTC(2014,4,31),0.693],[Date.UTC(2014,5,30),0.685],[Date.UTC(2014,6,31),0.695],[Date.UTC(2014,7,31),0.673],[Date.UTC(2014,8,30),0.614],[Date.UTC(2014,9,31),0.468],[Date.UTC(2014,10,30),0.457],[Date.UTC(2014,11,31),0.464],[Date.UTC(2015,0,31),0.348],[Date.UTC(2015,1,28),0.298],[Date.UTC(2015,2,31),0.28],[Date.UTC(2015,3,30),0.291],[Date.UTC(2015,4,31),0.215],[Date.UTC(2015,5,30),0.228],[Date.UTC(2015,6,31),0.229],[Date.UTC(2015,7,31),0.326],[Date.UTC(2015,8,30),0.305],[Date.UTC(2015,9,31),0.342],[Date.UTC(2015,10,30),0.343],[Date.UTC(2015,11,31),0.333],[Date.UTC(2016,0,31),0.351],[Date.UTC(2016,1,29),0.352],[Date.UTC(2016,2,31),0.417],[Date.UTC(2016,3,30),0.419],[Date.UTC(2016,4,31),0.456],[Date.UTC(2016,5,30),0.429],[Date.UTC(2016,6,31),0.455],[Date.UTC(2016,7,31),0.42],[Date.UTC(2016,8,30),0.414],[Date.UTC(2016,9,31),0.422],[Date.UTC(2016,10,30),0.431],[Date.UTC(2016,11,31),0.442],[Date.UTC(2017,0,31),0.477],[Date.UTC(2017,1,28),0.467],[Date.UTC(2017,2,31),0.468],[Date.UTC(2017,3,30),0.474],[Date.UTC(2017,4,31),0.471],[Date.UTC(2017,5,30),0.471],[Date.UTC(2017,6,31),0.473],[Date.UTC(2017,7,31),0.467],[Date.UTC(2017,8,30),0.44],[Date.UTC(2017,9,31),0.426],[Date.UTC(2017,10,30),0.429],[Date.UTC(2017,11,31),0.433],[Date.UTC(2018,0,31),0.452],[Date.UTC(2018,1,28),0.565],[Date.UTC(2018,2,31),0.538],[Date.UTC(2018,3,30),0.552],[Date.UTC(2018,4,31),0.559],[Date.UTC(2018,5,30),0.537],[Date.UTC(2018,6,31),0.538],[Date.UTC(2018,7,31),0.48],[Date.UTC(2018,8,30),0.533],[Date.UTC(2018,9,31),0.497],[Date.UTC(2018,10,30),0.499],[Date.UTC(2018,11,31),0.602],[Date.UTC(2019,0,31),0.657],[Date.UTC(2019,1,28),0.652],[Date.UTC(2019,2,31),0.604],[Date.UTC(2019,3,30),0.594],[Date.UTC(2019,4,31),0.559],[Date.UTC(2019,5,30),0.581],[Date.UTC(2019,6,31),0.571],[Date.UTC(2019,7,31),0.54],[Date.UTC(2019,8,30),0.54],[Date.UTC(2019,9,31),0.523],[Date.UTC(2019,10,30),0.533],[Date.UTC(2019,11,31),0.534],[Date.UTC(2020,0,31),0.534],[Date.UTC(2020,1,29),0.59],[Date.UTC(2020,2,31),0.731],[Date.UTC(2020,3,30),0.756],[Date.UTC(2020,4,31),0.755],[Date.UTC(2020,5,30),0.757],[Date.UTC(2020,6,31),0.76],[Date.UTC(2020,7,31),0.746],[Date.UTC(2020,8,30),0.75],[Date.UTC(2020,9,31),0.755],[Date.UTC(2020,10,30),0.776],[Date.UTC(2020,11,31),0.777],[Date.UTC(2021,0,31),0.81],[Date.UTC(2021,1,28),0.809],[Date.UTC(2021,2,31),0.826],[Date.UTC(2021,3,30),0.825],[Date.UTC(2021,4,31),0.826],[Date.UTC(2021,5,30),0.832],[Date.UTC(2021,6,31),0.831],[Date.UTC(2021,7,31),0.83],[Date.UTC(2021,8,30),0.838],[Date.UTC(2021,9,31),0.846],[Date.UTC(2021,10,30),0.851],[Date.UTC(2021,11,31),0.823],[Date.UTC(2022,0,31),0.828],[Date.UTC(2022,1,28),0.833],[Date.UTC(2022,2,31),0.835],[Date.UTC(2022,3,30),0.837],[Date.UTC(2022,4,31),0.85]]}]};
+return [chart1, null, null];
+}
+</script>
+<div id="chartDiv2" style="min-width: 900px; min-height: 500px; max-width: 1350px; max-height: 750px;"></div>
+<script>
+function getChartData2() {
+var chart2 = { chart: { type: 'line', }, title: { text: 'VTI-GLD Rolling 36-month Correlation' }, plotOptions: { series: { lineWidth: 2 }, line: { marker: { enabled: false, radius: 3 } } },legend: { enabled: false}, xAxis: { title: { text: 'Date'} , type: 'datetime', allowDecimals: false, minTickInterval: 28 * 24 * 3600 * 1000, dateTimeLabelFormats: { day: '%b %Y', week: '%b %Y', month: '%b %Y', year: '%Y' }, bogus: true},yAxis: { title: {text: 'Correlation'} },tooltip: { shared: true }, series: [{ name: 'VTI-GLD Correlation', data: [[Date.UTC(2007,11,31),0.242],[Date.UTC(2008,0,31),0.029],[Date.UTC(2008,1,29),0.004],[Date.UTC(2008,2,31),0.01],[Date.UTC(2008,3,30),-0.054],[Date.UTC(2008,4,31),-0.016],[Date.UTC(2008,5,30),-0.055],[Date.UTC(2008,6,31),-0.02],[Date.UTC(2008,7,31),-0.044],[Date.UTC(2008,8,30),-0.081],[Date.UTC(2008,9,31),0.28],[Date.UTC(2008,10,30),0.154],[Date.UTC(2008,11,31),0.164],[Date.UTC(2009,0,31),0.101],[Date.UTC(2009,1,28),0.1],[Date.UTC(2009,2,31),0.054],[Date.UTC(2009,3,30),-0.014],[Date.UTC(2009,4,31),0.029],[Date.UTC(2009,5,30),0.027],[Date.UTC(2009,6,31),0.034],[Date.UTC(2009,7,31),0.035],[Date.UTC(2009,8,30),0.063],[Date.UTC(2009,9,31),0.061],[Date.UTC(2009,10,30),0.099],[Date.UTC(2009,11,31),0.079],[Date.UTC(2010,0,31),0.084],[Date.UTC(2010,1,28),0.09],[Date.UTC(2010,2,31),0.081],[Date.UTC(2010,3,30),0.087],[Date.UTC(2010,4,31),0.091],[Date.UTC(2010,5,30),0.086],[Date.UTC(2010,6,31),0.047],[Date.UTC(2010,7,31),0.036],[Date.UTC(2010,8,30),0.03],[Date.UTC(2010,9,31),0.028],[Date.UTC(2010,10,30),0.019],[Date.UTC(2010,11,31),0.024],[Date.UTC(2011,0,31),0.058],[Date.UTC(2011,1,28),0.078],[Date.UTC(2011,2,31),0.072],[Date.UTC(2011,3,30),0.103],[Date.UTC(2011,4,31),0.107],[Date.UTC(2011,5,30),0.135],[Date.UTC(2011,6,31),0.116],[Date.UTC(2011,7,31),0.076],[Date.UTC(2011,8,30),0.157],[Date.UTC(2011,9,31),-0.059],[Date.UTC(2011,10,30),0.025],[Date.UTC(2011,11,31),0.025],[Date.UTC(2012,0,31),0.086],[Date.UTC(2012,1,29),0.077],[Date.UTC(2012,2,31),0.102],[Date.UTC(2012,3,30),0.162],[Date.UTC(2012,4,31),0.185],[Date.UTC(2012,5,30),0.183],[Date.UTC(2012,6,31),0.184],[Date.UTC(2012,7,31),0.193],[Date.UTC(2012,8,30),0.186],[Date.UTC(2012,9,31),0.207],[Date.UTC(2012,10,30),0.165],[Date.UTC(2012,11,31),0.186],[Date.UTC(2013,0,31),0.164],[Date.UTC(2013,1,28),0.156],[Date.UTC(2013,2,31),0.167],[Date.UTC(2013,3,30),0.153],[Date.UTC(2013,4,31),0.177],[Date.UTC(2013,5,30),0.229],[Date.UTC(2013,6,31),0.3],[Date.UTC(2013,7,31),0.318],[Date.UTC(2013,8,30),0.275],[Date.UTC(2013,9,31),0.263],[Date.UTC(2013,10,30),0.253],[Date.UTC(2013,11,31),0.236],[Date.UTC(2014,0,31),0.219],[Date.UTC(2014,1,28),0.228],[Date.UTC(2014,2,31),0.231],[Date.UTC(2014,3,30),0.218],[Date.UTC(2014,4,31),0.212],[Date.UTC(2014,5,30),0.213],[Date.UTC(2014,6,31),0.276],[Date.UTC(2014,7,31),0.467],[Date.UTC(2014,8,30),0.403],[Date.UTC(2014,9,31),0.34],[Date.UTC(2014,10,30),0.355],[Date.UTC(2014,11,31),0.352],[Date.UTC(2015,0,31),0.177],[Date.UTC(2015,1,28),0.137],[Date.UTC(2015,2,31),0.145],[Date.UTC(2015,3,30),0.147],[Date.UTC(2015,4,31),0.063],[Date.UTC(2015,5,30),0.05],[Date.UTC(2015,6,31),0.047],[Date.UTC(2015,7,31),-0.052],[Date.UTC(2015,8,30),-0.064],[Date.UTC(2015,9,31),-0.023],[Date.UTC(2015,10,30),-0.014],[Date.UTC(2015,11,31),-0.019],[Date.UTC(2016,0,31),-0.104],[Date.UTC(2016,1,29),-0.112],[Date.UTC(2016,2,31),-0.118],[Date.UTC(2016,3,30),-0.114],[Date.UTC(2016,4,31),-0.107],[Date.UTC(2016,5,30),-0.165],[Date.UTC(2016,6,31),-0.227],[Date.UTC(2016,7,31),-0.191],[Date.UTC(2016,8,30),-0.17],[Date.UTC(2016,9,31),-0.15],[Date.UTC(2016,10,30),-0.182],[Date.UTC(2016,11,31),-0.175],[Date.UTC(2017,0,31),-0.14],[Date.UTC(2017,1,28),-0.175],[Date.UTC(2017,2,31),-0.178],[Date.UTC(2017,3,30),-0.176],[Date.UTC(2017,4,31),-0.17],[Date.UTC(2017,5,30),-0.199],[Date.UTC(2017,6,31),-0.218],[Date.UTC(2017,7,31),-0.227],[Date.UTC(2017,8,30),-0.285],[Date.UTC(2017,9,31),-0.277],[Date.UTC(2017,10,30),-0.274],[Date.UTC(2017,11,31),-0.271],[Date.UTC(2018,0,31),-0.183],[Date.UTC(2018,1,28),-0.096],[Date.UTC(2018,2,31),-0.109],[Date.UTC(2018,3,30),-0.108],[Date.UTC(2018,4,31),-0.114],[Date.UTC(2018,5,30),-0.122],[Date.UTC(2018,6,31),-0.128],[Date.UTC(2018,7,31),-0.09],[Date.UTC(2018,8,30),-0.113],[Date.UTC(2018,9,31),-0.183],[Date.UTC(2018,10,30),-0.198],[Date.UTC(2018,11,31),-0.275],[Date.UTC(2019,0,31),-0.163],[Date.UTC(2019,1,28),-0.155],[Date.UTC(2019,2,31),-0.148],[Date.UTC(2019,3,30),-0.15],[Date.UTC(2019,4,31),-0.168],[Date.UTC(2019,5,30),-0.027],[Date.UTC(2019,6,31),-0.041],[Date.UTC(2019,7,31),-0.103],[Date.UTC(2019,8,30),-0.107],[Date.UTC(2019,9,31),-0.132],[Date.UTC(2019,10,30),-0.092],[Date.UTC(2019,11,31),-0.074],[Date.UTC(2020,0,31),-0.096],[Date.UTC(2020,1,29),-0.076],[Date.UTC(2020,2,31),-0.038],[Date.UTC(2020,3,30),0.114],[Date.UTC(2020,4,31),0.127],[Date.UTC(2020,5,30),0.133],[Date.UTC(2020,6,31),0.187],[Date.UTC(2020,7,31),0.176],[Date.UTC(2020,8,30),0.219],[Date.UTC(2020,9,31),0.229],[Date.UTC(2020,10,30),0.114],[Date.UTC(2020,11,31),0.137],[Date.UTC(2021,0,31),0.133],[Date.UTC(2021,1,28),0.093],[Date.UTC(2021,2,31),0.087],[Date.UTC(2021,3,30),0.096],[Date.UTC(2021,4,31),0.087],[Date.UTC(2021,5,30),0.07],[Date.UTC(2021,6,31),0.078],[Date.UTC(2021,7,31),0.084],[Date.UTC(2021,8,30),0.109],[Date.UTC(2021,9,31),0.125],[Date.UTC(2021,10,30),0.131],[Date.UTC(2021,11,31),0.2],[Date.UTC(2022,0,31),0.208],[Date.UTC(2022,1,28),0.182],[Date.UTC(2022,2,31),0.183],[Date.UTC(2022,3,30),0.218],[Date.UTC(2022,4,31),0.235]]}]};
+return [chart2, null, null];
+}
+</script>
+<div id="chartDiv3" style="min-width: 900px; min-height: 500px; max-width: 1350px; max-height: 750px;"></div>
+<script>
+function getChartData3() {
+var chart3 = { chart: { type: 'line', }, title: { text: 'VNQ-GLD Rolling 36-month Correlation' }, plotOptions: { series: { lineWidth: 2 }, line: { marker: { enabled: false, radius: 3 } } },legend: { enabled: false}, xAxis: { title: { text: 'Date'} , type: 'datetime', allowDecimals: false, minTickInterval: 28 * 24 * 3600 * 1000, dateTimeLabelFormats: { day: '%b %Y', week: '%b %Y', month: '%b %Y', year: '%Y' }, bogus: true},yAxis: { title: {text: 'Correlation'} },tooltip: { shared: true }, series: [{ name: 'VNQ-GLD Correlation', data: [[Date.UTC(2007,11,31),0.206],[Date.UTC(2008,0,31),0.119],[Date.UTC(2008,1,29),0.099],[Date.UTC(2008,2,31),0.023],[Date.UTC(2008,3,30),-0.013],[Date.UTC(2008,4,31),0.007],[Date.UTC(2008,5,30),-0.034],[Date.UTC(2008,6,31),-0.017],[Date.UTC(2008,7,31),-0.043],[Date.UTC(2008,8,30),-0.051],[Date.UTC(2008,9,31),0.344],[Date.UTC(2008,10,30),0.142],[Date.UTC(2008,11,31),0.188],[Date.UTC(2009,0,31),0.113],[Date.UTC(2009,1,28),0.113],[Date.UTC(2009,2,31),0.095],[Date.UTC(2009,3,30),0.03],[Date.UTC(2009,4,31),0.041],[Date.UTC(2009,5,30),0.063],[Date.UTC(2009,6,31),0.064],[Date.UTC(2009,7,31),0.059],[Date.UTC(2009,8,30),0.078],[Date.UTC(2009,9,31),0.076],[Date.UTC(2009,10,30),0.094],[Date.UTC(2009,11,31),0.061],[Date.UTC(2010,0,31),0.064],[Date.UTC(2010,1,28),0.069],[Date.UTC(2010,2,31),0.058],[Date.UTC(2010,3,30),0.069],[Date.UTC(2010,4,31),0.066],[Date.UTC(2010,5,30),0.052],[Date.UTC(2010,6,31),0.028],[Date.UTC(2010,7,31),0.027],[Date.UTC(2010,8,30),0.02],[Date.UTC(2010,9,31),0.02],[Date.UTC(2010,10,30),0.007],[Date.UTC(2010,11,31),0.02],[Date.UTC(2011,0,31),0.019],[Date.UTC(2011,1,28),0.033],[Date.UTC(2011,2,31),0.05],[Date.UTC(2011,3,30),0.078],[Date.UTC(2011,4,31),0.076],[Date.UTC(2011,5,30),0.099],[Date.UTC(2011,6,31),0.101],[Date.UTC(2011,7,31),0.08],[Date.UTC(2011,8,30),0.133],[Date.UTC(2011,9,31),-0.102],[Date.UTC(2011,10,30),0.026],[Date.UTC(2011,11,31),-0.037],[Date.UTC(2012,0,31),0.024],[Date.UTC(2012,1,29),0.034],[Date.UTC(2012,2,31),0.031],[Date.UTC(2012,3,30),0.155],[Date.UTC(2012,4,31),0.196],[Date.UTC(2012,5,30),0.172],[Date.UTC(2012,6,31),0.172],[Date.UTC(2012,7,31),0.194],[Date.UTC(2012,8,30),0.168],[Date.UTC(2012,9,31),0.192],[Date.UTC(2012,10,30),0.155],[Date.UTC(2012,11,31),0.203],[Date.UTC(2013,0,31),0.186],[Date.UTC(2013,1,28),0.179],[Date.UTC(2013,2,31),0.201],[Date.UTC(2013,3,30),0.121],[Date.UTC(2013,4,31),0.186],[Date.UTC(2013,5,30),0.232],[Date.UTC(2013,6,31),0.282],[Date.UTC(2013,7,31),0.246],[Date.UTC(2013,8,30),0.22],[Date.UTC(2013,9,31),0.207],[Date.UTC(2013,10,30),0.24],[Date.UTC(2013,11,31),0.235],[Date.UTC(2014,0,31),0.262],[Date.UTC(2014,1,28),0.265],[Date.UTC(2014,2,31),0.271],[Date.UTC(2014,3,30),0.24],[Date.UTC(2014,4,31),0.235],[Date.UTC(2014,5,30),0.226],[Date.UTC(2014,6,31),0.231],[Date.UTC(2014,7,31),0.359],[Date.UTC(2014,8,30),0.29],[Date.UTC(2014,9,31),0.17],[Date.UTC(2014,10,30),0.195],[Date.UTC(2014,11,31),0.263],[Date.UTC(2015,0,31),0.257],[Date.UTC(2015,1,28),0.28],[Date.UTC(2015,2,31),0.286],[Date.UTC(2015,3,30),0.265],[Date.UTC(2015,4,31),0.226],[Date.UTC(2015,5,30),0.21],[Date.UTC(2015,6,31),0.156],[Date.UTC(2015,7,31),0.108],[Date.UTC(2015,8,30),0.132],[Date.UTC(2015,9,31),0.148],[Date.UTC(2015,10,30),0.16],[Date.UTC(2015,11,31),0.166],[Date.UTC(2016,0,31),0.119],[Date.UTC(2016,1,29),0.097],[Date.UTC(2016,2,31),0.084],[Date.UTC(2016,3,30),0.118],[Date.UTC(2016,4,31),0.058],[Date.UTC(2016,5,30),0.084],[Date.UTC(2016,6,31),0.096],[Date.UTC(2016,7,31),0.183],[Date.UTC(2016,8,30),0.197],[Date.UTC(2016,9,31),0.22],[Date.UTC(2016,10,30),0.203],[Date.UTC(2016,11,31),0.189],[Date.UTC(2017,0,31),0.163],[Date.UTC(2017,1,28),0.143],[Date.UTC(2017,2,31),0.143],[Date.UTC(2017,3,30),0.14],[Date.UTC(2017,4,31),0.149],[Date.UTC(2017,5,30),0.144],[Date.UTC(2017,6,31),0.143],[Date.UTC(2017,7,31),0.135],[Date.UTC(2017,8,30),0.082],[Date.UTC(2017,9,31),0.141],[Date.UTC(2017,10,30),0.143],[Date.UTC(2017,11,31),0.139],[Date.UTC(2018,0,31),0.029],[Date.UTC(2018,1,28),0.02],[Date.UTC(2018,2,31),0.028],[Date.UTC(2018,3,30),0.022],[Date.UTC(2018,4,31),0.014],[Date.UTC(2018,5,30),-0.027],[Date.UTC(2018,6,31),0.037],[Date.UTC(2018,7,31),0.077],[Date.UTC(2018,8,30),0.091],[Date.UTC(2018,9,31),0.059],[Date.UTC(2018,10,30),0.045],[Date.UTC(2018,11,31),-0.026],[Date.UTC(2019,0,31),0.055],[Date.UTC(2019,1,28),0.084],[Date.UTC(2019,2,31),0.098],[Date.UTC(2019,3,30),0.135],[Date.UTC(2019,4,31),0.164],[Date.UTC(2019,5,30),0.058],[Date.UTC(2019,6,31),0.041],[Date.UTC(2019,7,31),0.063],[Date.UTC(2019,8,30),0.052],[Date.UTC(2019,9,31),0.004],[Date.UTC(2019,10,30),-0.034],[Date.UTC(2019,11,31),-0.006],[Date.UTC(2020,0,31),0.011],[Date.UTC(2020,1,29),0.019],[Date.UTC(2020,2,31),0.042],[Date.UTC(2020,3,30),0.139],[Date.UTC(2020,4,31),0.141],[Date.UTC(2020,5,30),0.159],[Date.UTC(2020,6,31),0.188],[Date.UTC(2020,7,31),0.193],[Date.UTC(2020,8,30),0.212],[Date.UTC(2020,9,31),0.215],[Date.UTC(2020,10,30),0.115],[Date.UTC(2020,11,31),0.13],[Date.UTC(2021,0,31),0.148],[Date.UTC(2021,1,28),0.088],[Date.UTC(2021,2,31),0.077],[Date.UTC(2021,3,30),0.099],[Date.UTC(2021,4,31),0.1],[Date.UTC(2021,5,30),0.099],[Date.UTC(2021,6,31),0.103],[Date.UTC(2021,7,31),0.108],[Date.UTC(2021,8,30),0.133],[Date.UTC(2021,9,31),0.139],[Date.UTC(2021,10,30),0.149],[Date.UTC(2021,11,31),0.218],[Date.UTC(2022,0,31),0.227],[Date.UTC(2022,1,28),0.192],[Date.UTC(2022,2,31),0.203],[Date.UTC(2022,3,30),0.216],[Date.UTC(2022,4,31),0.239]]}]};
+return [chart3, null, null];
+}
+</script>
+
+    
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+
+<div id="symbolPicker" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="symbolPickerTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2 class="modal-title" id="symbolPickerTitle">Find ETF, Mutual Fund or Stock Symbol</h2>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="assetType" class="control-label col-sm-2">Type</label>
+                        <div class="col-sm-4">
+                            <select name="assetType" id="assetType" class="form-control">
+                                <option value="2">ETF</option>
+                                <option value="5">Mutual Fund</option>
+                                <option value="4">Closed-End Fund</option>
+                                <option value="1">Stock</option>
+                                <option value="10">Asset Class</option>
+                                
+                                
+                                <option value="6">Cash</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="assetSearch" class="control-label col-sm-2">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="assetSearch" name="assetSearch" class="form-control typeahead" placeholder="Enter partial name (3 or more characters)" autofocus>
+                            <p class="help-block">Example: &quot;vanguard bond&quot;</p>
+                        </div>
+                    </div>
+                    <div class="form-group norender">
+                        <label for="cashAsset" class="control-label col-sm-2">Cash Asset</label>
+                        <div class="col-sm-10">
+                            <select name="cashAsset" id="cashAsset" class="form-control">
+                                <option value="CASHX">Money Market</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group norender" >
+                        <label for="assetClassAsset" class="control-label col-sm-2">Asset Class</label>
+                        <div class="col-sm-10">
+                            <select name="assetClassAsset" id="assetClassAsset" class="form-control">
+                                <optgroup label="US Equity">
+
+                                <option value="VTSMX">US Stock Market (VTSMX)</option>
+                                
+                                <option value="VFINX">US Large Cap (VFINX)</option>
+                                
+                                <option value="VIVAX">US Large Cap Value (VIVAX)</option>
+                                
+                                <option value="VIGRX">US Large Cap Growth (VIGRX)</option>
+                                
+                                <option value="VIMSX">US Mid Cap (VIMSX)</option>
+                                
+                                <option value="VMVIX">US Mid Cap Value (VMVIX)</option>
+                                
+                                <option value="VMGIX">US Mid Cap Growth (VMGIX)</option>
+                                
+                                <option value="NAESX">US Small Cap (NAESX)</option>
+                                
+                                <option value="VISVX">US Small Cap Value (VISVX)</option>
+                                
+                                <option value="VISGX">US Small Cap Growth (VISGX)</option>
+                                
+                                <option value="BRSIX">US Micro Cap (BRSIX)</option>
+                                </optgroup>
+<optgroup label="International Equity">
+
+                                <option value="VGTSX">Global ex-US Stock Market (VGTSX)</option>
+                                
+                                <option value="VTMGX">Intl Developed ex-US Market (VTMGX)</option>
+                                
+                                <option value="VSS">International ex-US Small Cap (VSS)</option>
+                                
+                                <option value="EFV">International ex-US Value (EFV)</option>
+                                
+                                <option value="VEURX">European Stocks (VEURX)</option>
+                                
+                                <option value="VPACX">Pacific Stocks (VPACX)</option>
+                                
+                                <option value="VEIEX">Emerging Markets (VEIEX)</option>
+                                </optgroup>
+<optgroup label="Fixed Income">
+
+                                <option value="CASHX">Cash (CASHX)</option>
+                                
+                                <option value="VFISX">Short Term Treasury (VFISX)</option>
+                                
+                                <option value="VFITX">Intermediate Term Treasury (VFITX)</option>
+                                
+                                <option value="IEF">10-year Treasury (IEF)</option>
+                                
+                                <option value="VUSTX">Long Term Treasury (VUSTX)</option>
+                                
+                                <option value="VBMFX">Total US Bond Market (VBMFX)</option>
+                                
+                                <option value="VIPSX">TIPS (VIPSX)</option>
+                                
+                                <option value="PIGLX">Global Bonds (Unhedged) (PIGLX)</option>
+                                
+                                <option value="PGBIX">Global Bonds (USD Hedged) (PGBIX)</option>
+                                
+                                <option value="VFSTX">Short-Term Investment Grade (VFSTX)</option>
+                                
+                                <option value="LQD">Corporate Bonds (LQD)</option>
+                                
+                                <option value="VWESX">Long-Term Corporate Bonds (VWESX)</option>
+                                
+                                <option value="VWEHX">High Yield Corporate Bonds (VWEHX)</option>
+                                
+                                <option value="VWSTX">Short-Term Tax-Exempt (VWSTX)</option>
+                                
+                                <option value="VWITX">Intermediate-Term Tax-Exempt (VWITX)</option>
+                                
+                                <option value="VWLTX">Long-Term Tax-Exempt (VWLTX)</option>
+                                </optgroup>
+<optgroup label="Alternatives">
+
+                                <option value="VGSIX">REIT (VGSIX)</option>
+                                
+                                <option value="GLD">Gold (GLD)</option>
+                                
+                                <option value="GDX">Precious Metals (GDX)</option>
+                                
+                                <option value="GSG">Commodities (GSG)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="form-buttons modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectTicker">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="importDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="importDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="importConfigForm" action="https://www.portfoliovisualizer.com/import" method="POST" data-messages="#importMessages" enctype="multipart/form-data">
+        <input type="hidden" id="importType" name="importType" value="portfolio">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="importDialogTitle">Import Portfolio</h2>
+                </div>
+                <div class="modal-body">
+                    <p id="importPortfolioInfo">
+                        You can upload a portfolio asset allocation by selecting a file below.
+                        The import uses a standard Excel or CSV file format with a ticker symbol followed by asset balance or weight on each row,
+                        and you can <a href="faq.html#portfolios">download sample files</a> for the supported data formats from the related documentation section.
+                    </p>
+                    <p id="importListInfo" class="norender">
+                        You can upload a list of tickers by selecting either a text file of an Excel file below.
+                        The tickers in the file can be listed either on separate lines or on the same line.
+                    </p>
+                    <div id="importMessages"></div>
+
+                    <div class="form-group">
+                        <label for="portfolio" class="control-label col-sm-2">File</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="hidden_jaws"><label for="portfolio_info">File</label></span>
+                                <input class="form-control" type="text" name="portfolio_info" id="portfolio_info" readonly>
+                                <span class="input-group-btn">
+                                    <span class="btn btn-default btn-file">
+                                    Browse...
+                                    <input type="file" id="portfolio" name="portfolio" accept=".csv,.xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,text/plain">
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="importConfigButton">Upload</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div id="confirmDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="confirmActionForm">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="confirmDialogTitle">Confirm Action</h2>
+                </div>
+                <div class="modal-body">
+                    <span id="confirmText"></span>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelConfirmButton">Cancel</button>
+                    <button type="button" class="btn" data-dismiss="modal" id="confirmButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<div id="footer" class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-5">
+                <span class="text-muted">&copy; 2022 Silicon Cloud Technologies LLC</span>
+            </div>
+            <div class="col-sm-1">
+                <a href="about.html">About</a>
+            </div>
+            <div class="col-sm-1">
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="col-sm-1">
+                <a href="pricing.html">Pricing</a>
+            </div>
+            
+            <div class="col-sm-2">
+                <a href="terms-of-service.html">Terms of Service</a>
+            </div>
+            <div class="col-sm-2">
+                <a href="privacy-policy.html">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="../cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="jquery/jquery-3.4.1.min.js">\x3C/script>')</script>           
+<script src="../cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script>jQuery.fn.modal || document.write('<script src="bootstrap/js/bootstrap.min6bf2.js?v=341">\x3C/script>')</script>    
+
+
+<script src="javascript/merged-cd97b9efd972c726e07a723ff74b40a0.min.js"></script>
+
+<script src="../code.highcharts.com/highcharts.html"></script>
+<script>(typeof Highcharts !== 'undefined') || document.write('<script src="highcharts/highcharts465b.js?v=820">\x3C/script>')</script>
+<script src="../code.highcharts.com/modules/annotations.html"></script>
+<script src="../code.highcharts.com/modules/histogram-bellcurve.html"></script>
+
+
+<script>
+$(function() {
+    $.each(q, function(index, f) {
+        f.call(document);
+    });
+    postPageInit();
+});
+</script>
+
+
+</body>
+
+
+</html>

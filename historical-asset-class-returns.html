@@ -1,0 +1,4498 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <title>Asset Class Returns</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta name="description" content="Annual asset class returns">
+    <meta name="keywords" content="asset class returns">
+    <link rel="canonical" href="historical-asset-class-returns.html">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="css/merged-4b5ddc42c451e5d0b325c5d10e865f35.min.css">
+
+
+
+<script>
+var autoCompleteTickers=true;
+var showFullName=false;
+var enableExport=false;
+var expiredAccount=false;
+var enablePDF=false;
+var bookmarkURL="historical-asset-class-returns.html";
+var showBookmarkLink=true;
+var showExportLinks=true;
+window.q=[];window.$=function(f){q.push(f)}
+</script>
+
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-43200681-1', 'portfoliovisualizer.com');
+    ga('send', 'pageview');
+</script>
+
+
+
+    
+</head>
+<body>
+
+
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html"> PORTFOLIO <span class="pv-brand">VISUALIZER</span></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html" class="navbar-optional">Contact</a></li>
+                
+                <li><a href="pricing.html" class="navbar-optional">Pricing</a></li>
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Portfolio Analysis</li>
+                        <li><a href="backtest-asset-class-allocation.html">Backtest Asset Class Allocation</a></li>
+                        <li><a href="backtest-portfolio.html">Backtest Portfolio</a></li>
+                        <li><a href="monte-carlo-simulation.html">Monte Carlo Simulation</a></li>
+                        <li><a href="financial-goals.html">Financial Goals</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Optimization</li>
+                        <li><a href="efficient-frontier.html">Historical Efficient Frontier</a></li>
+                        <li><a href="efficient-frontier-forecast.html">Forecasted Efficient Frontier</a></li>
+                        <li><a href="optimize-portfolio.html">Portfolio Optimization</a></li>
+                        <li><a href="black-litterman-model.html">Black-Litterman Model</a></li>
+                        <li><a href="rolling-optimization.html">Rolling Optimization</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Asset Analytics</li>
+                        <li><a href="fund-screener.html">Fund Screener</a></li>
+                        <li><a href="fund-performance.html">Fund Performance</a></li>
+                        <li><a href="asset-correlations.html">Asset Correlations</a></li>
+                        <li><a href="asset-class-correlations.html">Asset Class Correlations</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Factor Analysis</li>
+                        <li><a href="factor-analysis.html">Factor Regression</a></li>
+                        <li><a href="risk-factor-allocation.html">Risk Factor Allocation</a></li>
+                        <li><a href="etf-and-mutual-fund-factor-regressions.html">Fund and ETF Factor Regressions</a></li>
+                        <li><a href="factor-performance-attribution.html">Factor Performance Attribution</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Market Timing</li>
+                        <li><a href="test-market-timing-model.html">Market Timing Models</a></li>
+                        <li><a href="test-market-timing-model5fea.html?timingModel=4&amp;coreSatellite=true">Core-Satellite</a></li>
+                    </ul>
+                </li>
+                
+                <li><div><a href="sign-up.html" class="btn btn-success navbar-btn">Sign Up</a></div></li>
+                <li><div><a href="login.html" class="btn btn-primary navbar-btn">Log In</a></div></li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container-fluid">
+    <h1>Asset Class Returns</h1>
+    <p>
+        The table below contains the annual asset class returns computed from the monthly returns.
+        Please refer to the <a href="faq.html#dataSources">FAQ</a> links for more information on the asset class returns data.
+    </p>
+
+    <table class="table table-striped table-condensed stickyHeaders">
+        <caption class="sr-only">Historical Asset Class Returns</caption>
+        <thead>
+        <tr>
+            <th>Year</th>
+            <th class="numberCell">Inflation</th>
+            
+            <th class="numberCell">US Stock Market</th>
+            
+            <th class="numberCell">US Large Cap</th>
+            
+            <th class="numberCell">US Large Cap Value</th>
+            
+            <th class="numberCell">US Large Cap Growth</th>
+            
+            <th class="numberCell">US Mid Cap</th>
+            
+            <th class="numberCell">US Mid Cap Value</th>
+            
+            <th class="numberCell">US Mid Cap Growth</th>
+            
+            <th class="numberCell">US Small Cap</th>
+            
+            <th class="numberCell">US Small Cap Value</th>
+            
+            <th class="numberCell">US Small Cap Growth</th>
+            
+            <th class="numberCell">US Micro Cap</th>
+            
+            <th class="numberCell">Global ex-US Stock Market</th>
+            
+            <th class="numberCell">Intl Developed ex-US Market</th>
+            
+            <th class="numberCell">International ex-US Small Cap</th>
+            
+            <th class="numberCell">International ex-US Value</th>
+            
+            <th class="numberCell">European Stocks</th>
+            
+            <th class="numberCell">Pacific Stocks</th>
+            
+            <th class="numberCell">Emerging Markets</th>
+            
+            <th class="numberCell">Cash</th>
+            
+            <th class="numberCell">Short Term Treasury</th>
+            
+            <th class="numberCell">Intermediate Term Treasury</th>
+            
+            <th class="numberCell">10-year Treasury</th>
+            
+            <th class="numberCell">Long Term Treasury</th>
+            
+            <th class="numberCell">Total US Bond Market</th>
+            
+            <th class="numberCell">TIPS</th>
+            
+            <th class="numberCell">Global Bonds (Unhedged)</th>
+            
+            <th class="numberCell">Global Bonds (USD Hedged)</th>
+            
+            <th class="numberCell">Short-Term Investment Grade</th>
+            
+            <th class="numberCell">Corporate Bonds</th>
+            
+            <th class="numberCell">Long-Term Corporate Bonds</th>
+            
+            <th class="numberCell">High Yield Corporate Bonds</th>
+            
+            <th class="numberCell">Short-Term Tax-Exempt</th>
+            
+            <th class="numberCell">Intermediate-Term Tax-Exempt</th>
+            
+            <th class="numberCell">Long-Term Tax-Exempt</th>
+            
+            <th class="numberCell">REIT</th>
+            
+            <th class="numberCell">Gold</th>
+            
+            <th class="numberCell">Precious Metals</th>
+            
+            <th class="numberCell">Commodities</th>
+            
+        </tr>
+        </thead>
+        
+        
+        <tbody>
+        
+        <tr>
+            <td>1972</td>
+            <td class="numberCell">3.41%</td>
+            
+            <td class="numberCell">17.62%</td>
+            
+            <td class="numberCell">18.95%</td>
+            
+            <td class="numberCell">15.32%</td>
+            
+            <td class="numberCell">22.97%</td>
+            
+            <td class="numberCell">8.02%</td>
+            
+            <td class="numberCell">11.94%</td>
+            
+            <td class="numberCell">4.29%</td>
+            
+            <td class="numberCell">8.66%</td>
+            
+            <td class="numberCell">11.15%</td>
+            
+            <td class="numberCell">6.36%</td>
+            
+            <td class="numberCell">1.01%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">4.13%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">2.72%</td>
+            
+            <td class="numberCell">2.35%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">49.02%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1973</td>
+            <td class="numberCell">8.71%</td>
+            
+            <td class="numberCell">-18.18%</td>
+            
+            <td class="numberCell">-16.18%</td>
+            
+            <td class="numberCell">-9.79%</td>
+            
+            <td class="numberCell">-23.09%</td>
+            
+            <td class="numberCell">-24.20%</td>
+            
+            <td class="numberCell">-13.77%</td>
+            
+            <td class="numberCell">-32.96%</td>
+            
+            <td class="numberCell">-32.85%</td>
+            
+            <td class="numberCell">-24.12%</td>
+            
+            <td class="numberCell">-40.26%</td>
+            
+            <td class="numberCell">-39.86%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">7.17%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">4.47%</td>
+            
+            <td class="numberCell">3.29%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">72.96%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1974</td>
+            <td class="numberCell">12.34%</td>
+            
+            <td class="numberCell">-27.81%</td>
+            
+            <td class="numberCell">-26.93%</td>
+            
+            <td class="numberCell">-21.13%</td>
+            
+            <td class="numberCell">-32.34%</td>
+            
+            <td class="numberCell">-26.34%</td>
+            
+            <td class="numberCell">-19.80%</td>
+            
+            <td class="numberCell">-32.64%</td>
+            
+            <td class="numberCell">-27.59%</td>
+            
+            <td class="numberCell">-21.09%</td>
+            
+            <td class="numberCell">-33.72%</td>
+            
+            <td class="numberCell">-24.56%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">8.14%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">5.70%</td>
+            
+            <td class="numberCell">4.05%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-2.27%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">66.15%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1975</td>
+            <td class="numberCell">6.94%</td>
+            
+            <td class="numberCell">37.82%</td>
+            
+            <td class="numberCell">36.95%</td>
+            
+            <td class="numberCell">40.67%</td>
+            
+            <td class="numberCell">33.10%</td>
+            
+            <td class="numberCell">48.69%</td>
+            
+            <td class="numberCell">56.79%</td>
+            
+            <td class="numberCell">41.95%</td>
+            
+            <td class="numberCell">55.13%</td>
+            
+            <td class="numberCell">53.94%</td>
+            
+            <td class="numberCell">56.63%</td>
+            
+            <td class="numberCell">67.55%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">6.09%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">7.36%</td>
+            
+            <td class="numberCell">5.52%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">9.95%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-24.80%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1976</td>
+            <td class="numberCell">4.86%</td>
+            
+            <td class="numberCell">26.47%</td>
+            
+            <td class="numberCell">24.18%</td>
+            
+            <td class="numberCell">33.32%</td>
+            
+            <td class="numberCell">14.85%</td>
+            
+            <td class="numberCell">36.67%</td>
+            
+            <td class="numberCell">46.79%</td>
+            
+            <td class="numberCell">26.54%</td>
+            
+            <td class="numberCell">45.33%</td>
+            
+            <td class="numberCell">54.78%</td>
+            
+            <td class="numberCell">36.40%</td>
+            
+            <td class="numberCell">49.27%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">5.19%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">13.75%</td>
+            
+            <td class="numberCell">15.29%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">15.35%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-4.10%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1977</td>
+            <td class="numberCell">6.70%</td>
+            
+            <td class="numberCell">-3.36%</td>
+            
+            <td class="numberCell">-7.84%</td>
+            
+            <td class="numberCell">-3.31%</td>
+            
+            <td class="numberCell">-8.66%</td>
+            
+            <td class="numberCell">1.30%</td>
+            
+            <td class="numberCell">5.24%</td>
+            
+            <td class="numberCell">-2.12%</td>
+            
+            <td class="numberCell">15.67%</td>
+            
+            <td class="numberCell">15.88%</td>
+            
+            <td class="numberCell">15.36%</td>
+            
+            <td class="numberCell">29.31%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">5.34%</td>
+            
+            <td class="numberCell">2.91%</td>
+            
+            <td class="numberCell">1.04%</td>
+            
+            <td class="numberCell">0.53%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">4.98%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">22.64%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1978</td>
+            <td class="numberCell">9.02%</td>
+            
+            <td class="numberCell">8.45%</td>
+            
+            <td class="numberCell">5.87%</td>
+            
+            <td class="numberCell">6.37%</td>
+            
+            <td class="numberCell">7.11%</td>
+            
+            <td class="numberCell">8.97%</td>
+            
+            <td class="numberCell">9.05%</td>
+            
+            <td class="numberCell">8.80%</td>
+            
+            <td class="numberCell">17.74%</td>
+            
+            <td class="numberCell">19.25%</td>
+            
+            <td class="numberCell">16.60%</td>
+            
+            <td class="numberCell">28.81%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">7.45%</td>
+            
+            <td class="numberCell">3.35%</td>
+            
+            <td class="numberCell">1.15%</td>
+            
+            <td class="numberCell">-0.74%</td>
+            
+            <td class="numberCell">-1.55%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">2.05%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">2.31%</td>
+            
+            <td class="numberCell">-4.65%</td>
+            
+            <td class="numberCell">5.93%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">37.01%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1979</td>
+            <td class="numberCell">13.29%</td>
+            
+            <td class="numberCell">24.25%</td>
+            
+            <td class="numberCell">18.05%</td>
+            
+            <td class="numberCell">23.22%</td>
+            
+            <td class="numberCell">17.44%</td>
+            
+            <td class="numberCell">31.48%</td>
+            
+            <td class="numberCell">29.84%</td>
+            
+            <td class="numberCell">33.07%</td>
+            
+            <td class="numberCell">41.02%</td>
+            
+            <td class="numberCell">37.80%</td>
+            
+            <td class="numberCell">45.21%</td>
+            
+            <td class="numberCell">46.92%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">10.49%</td>
+            
+            <td class="numberCell">8.08%</td>
+            
+            <td class="numberCell">5.35%</td>
+            
+            <td class="numberCell">1.83%</td>
+            
+            <td class="numberCell">-2.10%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-0.77%</td>
+            
+            <td class="numberCell">5.57%</td>
+            
+            <td class="numberCell">4.78%</td>
+            
+            <td class="numberCell">-1.58%</td>
+            
+            <td class="numberCell">-2.97%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">126.55%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1980</td>
+            <td class="numberCell">12.52%</td>
+            
+            <td class="numberCell">33.15%</td>
+            
+            <td class="numberCell">31.92%</td>
+            
+            <td class="numberCell">31.75%</td>
+            
+            <td class="numberCell">35.59%</td>
+            
+            <td class="numberCell">30.76%</td>
+            
+            <td class="numberCell">17.60%</td>
+            
+            <td class="numberCell">45.25%</td>
+            
+            <td class="numberCell">35.78%</td>
+            
+            <td class="numberCell">25.77%</td>
+            
+            <td class="numberCell">46.32%</td>
+            
+            <td class="numberCell">41.43%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">12.15%</td>
+            
+            <td class="numberCell">8.81%</td>
+            
+            <td class="numberCell">2.88%</td>
+            
+            <td class="numberCell">-1.29%</td>
+            
+            <td class="numberCell">-4.99%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">4.66%</td>
+            
+            <td class="numberCell">3.16%</td>
+            
+            <td class="numberCell">5.30%</td>
+            
+            <td class="numberCell">-10.35%</td>
+            
+            <td class="numberCell">-16.00%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">15.19%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1981</td>
+            <td class="numberCell">8.92%</td>
+            
+            <td class="numberCell">-4.15%</td>
+            
+            <td class="numberCell">-5.21%</td>
+            
+            <td class="numberCell">-1.48%</td>
+            
+            <td class="numberCell">-6.20%</td>
+            
+            <td class="numberCell">4.10%</td>
+            
+            <td class="numberCell">10.20%</td>
+            
+            <td class="numberCell">-1.74%</td>
+            
+            <td class="numberCell">4.36%</td>
+            
+            <td class="numberCell">15.69%</td>
+            
+            <td class="numberCell">-5.82%</td>
+            
+            <td class="numberCell">-3.30%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">15.29%</td>
+            
+            <td class="numberCell">14.26%</td>
+            
+            <td class="numberCell">9.41%</td>
+            
+            <td class="numberCell">5.28%</td>
+            
+            <td class="numberCell">0.65%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">8.55%</td>
+            
+            <td class="numberCell">9.29%</td>
+            
+            <td class="numberCell">8.30%</td>
+            
+            <td class="numberCell">-7.40%</td>
+            
+            <td class="numberCell">-11.15%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-32.60%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1982</td>
+            <td class="numberCell">3.83%</td>
+            
+            <td class="numberCell">20.50%</td>
+            
+            <td class="numberCell">20.97%</td>
+            
+            <td class="numberCell">25.08%</td>
+            
+            <td class="numberCell">20.33%</td>
+            
+            <td class="numberCell">25.21%</td>
+            
+            <td class="numberCell">29.36%</td>
+            
+            <td class="numberCell">20.52%</td>
+            
+            <td class="numberCell">29.27%</td>
+            
+            <td class="numberCell">36.87%</td>
+            
+            <td class="numberCell">22.36%</td>
+            
+            <td class="numberCell">27.91%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">11.45%</td>
+            
+            <td class="numberCell">22.12%</td>
+            
+            <td class="numberCell">31.13%</td>
+            
+            <td class="numberCell">39.57%</td>
+            
+            <td class="numberCell">47.10%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">28.68%</td>
+            
+            <td class="numberCell">27.09%</td>
+            
+            <td class="numberCell">10.15%</td>
+            
+            <td class="numberCell">31.07%</td>
+            
+            <td class="numberCell">38.56%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">14.94%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1983</td>
+            <td class="numberCell">3.79%</td>
+            
+            <td class="numberCell">22.66%</td>
+            
+            <td class="numberCell">21.29%</td>
+            
+            <td class="numberCell">25.44%</td>
+            
+            <td class="numberCell">16.92%</td>
+            
+            <td class="numberCell">27.11%</td>
+            
+            <td class="numberCell">32.69%</td>
+            
+            <td class="numberCell">22.32%</td>
+            
+            <td class="numberCell">31.64%</td>
+            
+            <td class="numberCell">42.61%</td>
+            
+            <td class="numberCell">20.54%</td>
+            
+            <td class="numberCell">39.70%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">9.03%</td>
+            
+            <td class="numberCell">8.00%</td>
+            
+            <td class="numberCell">5.22%</td>
+            
+            <td class="numberCell">2.30%</td>
+            
+            <td class="numberCell">-1.29%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">9.11%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">6.98%</td>
+            
+            <td class="numberCell">15.87%</td>
+            
+            <td class="numberCell">5.06%</td>
+            
+            <td class="numberCell">6.48%</td>
+            
+            <td class="numberCell">9.49%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-16.31%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1984</td>
+            <td class="numberCell">3.95%</td>
+            
+            <td class="numberCell">2.19%</td>
+            
+            <td class="numberCell">6.21%</td>
+            
+            <td class="numberCell">11.43%</td>
+            
+            <td class="numberCell">1.56%</td>
+            
+            <td class="numberCell">-1.74%</td>
+            
+            <td class="numberCell">2.54%</td>
+            
+            <td class="numberCell">-5.70%</td>
+            
+            <td class="numberCell">-4.26%</td>
+            
+            <td class="numberCell">5.69%</td>
+            
+            <td class="numberCell">-13.51%</td>
+            
+            <td class="numberCell">-6.51%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">10.17%</td>
+            
+            <td class="numberCell">14.01%</td>
+            
+            <td class="numberCell">15.01%</td>
+            
+            <td class="numberCell">14.87%</td>
+            
+            <td class="numberCell">16.24%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">14.23%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">14.67%</td>
+            
+            <td class="numberCell">7.74%</td>
+            
+            <td class="numberCell">6.80%</td>
+            
+            <td class="numberCell">9.53%</td>
+            
+            <td class="numberCell">8.55%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-19.38%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1985</td>
+            <td class="numberCell">3.80%</td>
+            
+            <td class="numberCell">31.27%</td>
+            
+            <td class="numberCell">31.23%</td>
+            
+            <td class="numberCell">32.93%</td>
+            
+            <td class="numberCell">33.57%</td>
+            
+            <td class="numberCell">32.79%</td>
+            
+            <td class="numberCell">32.31%</td>
+            
+            <td class="numberCell">33.13%</td>
+            
+            <td class="numberCell">33.70%</td>
+            
+            <td class="numberCell">37.46%</td>
+            
+            <td class="numberCell">31.17%</td>
+            
+            <td class="numberCell">24.40%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">7.88%</td>
+            
+            <td class="numberCell">13.83%</td>
+            
+            <td class="numberCell">22.24%</td>
+            
+            <td class="numberCell">29.85%</td>
+            
+            <td class="numberCell">36.90%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">14.90%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">21.66%</td>
+            
+            <td class="numberCell">21.99%</td>
+            
+            <td class="numberCell">6.95%</td>
+            
+            <td class="numberCell">17.33%</td>
+            
+            <td class="numberCell">20.77%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">6.00%</td>
+            
+            <td class="numberCell">-5.03%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1986</td>
+            <td class="numberCell">1.10%</td>
+            
+            <td class="numberCell">14.57%</td>
+            
+            <td class="numberCell">18.06%</td>
+            
+            <td class="numberCell">19.70%</td>
+            
+            <td class="numberCell">16.96%</td>
+            
+            <td class="numberCell">17.12%</td>
+            
+            <td class="numberCell">18.13%</td>
+            
+            <td class="numberCell">16.01%</td>
+            
+            <td class="numberCell">9.77%</td>
+            
+            <td class="numberCell">13.99%</td>
+            
+            <td class="numberCell">5.71%</td>
+            
+            <td class="numberCell">6.90%</td>
+            
+            <td class="numberCell">63.38%</td>
+            
+            <td class="numberCell">63.38%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">40.96%</td>
+            
+            <td class="numberCell">83.80%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">6.28%</td>
+            
+            <td class="numberCell">10.35%</td>
+            
+            <td class="numberCell">15.10%</td>
+            
+            <td class="numberCell">21.35%</td>
+            
+            <td class="numberCell">30.87%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">11.42%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">14.34%</td>
+            
+            <td class="numberCell">16.86%</td>
+            
+            <td class="numberCell">7.39%</td>
+            
+            <td class="numberCell">16.21%</td>
+            
+            <td class="numberCell">19.38%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">18.96%</td>
+            
+            <td class="numberCell">49.88%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1987</td>
+            <td class="numberCell">4.43%</td>
+            
+            <td class="numberCell">2.61%</td>
+            
+            <td class="numberCell">4.71%</td>
+            
+            <td class="numberCell">2.11%</td>
+            
+            <td class="numberCell">6.44%</td>
+            
+            <td class="numberCell">0.84%</td>
+            
+            <td class="numberCell">-0.98%</td>
+            
+            <td class="numberCell">2.64%</td>
+            
+            <td class="numberCell">-6.42%</td>
+            
+            <td class="numberCell">-3.51%</td>
+            
+            <td class="numberCell">-9.10%</td>
+            
+            <td class="numberCell">-9.36%</td>
+            
+            <td class="numberCell">30.48%</td>
+            
+            <td class="numberCell">30.48%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">7.06%</td>
+            
+            <td class="numberCell">43.55%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">5.93%</td>
+            
+            <td class="numberCell">4.78%</td>
+            
+            <td class="numberCell">1.55%</td>
+            
+            <td class="numberCell">-2.64%</td>
+            
+            <td class="numberCell">-2.92%</td>
+            
+            <td class="numberCell">1.54%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">4.45%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">0.20%</td>
+            
+            <td class="numberCell">2.65%</td>
+            
+            <td class="numberCell">4.11%</td>
+            
+            <td class="numberCell">1.64%</td>
+            
+            <td class="numberCell">-4.25%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">24.53%</td>
+            
+            <td class="numberCell">38.73%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1988</td>
+            <td class="numberCell">4.42%</td>
+            
+            <td class="numberCell">17.32%</td>
+            
+            <td class="numberCell">16.22%</td>
+            
+            <td class="numberCell">20.16%</td>
+            
+            <td class="numberCell">13.21%</td>
+            
+            <td class="numberCell">19.44%</td>
+            
+            <td class="numberCell">24.96%</td>
+            
+            <td class="numberCell">14.37%</td>
+            
+            <td class="numberCell">23.78%</td>
+            
+            <td class="numberCell">29.00%</td>
+            
+            <td class="numberCell">18.42%</td>
+            
+            <td class="numberCell">22.84%</td>
+            
+            <td class="numberCell">25.66%</td>
+            
+            <td class="numberCell">25.66%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">13.69%</td>
+            
+            <td class="numberCell">30.52%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">6.80%</td>
+            
+            <td class="numberCell">5.67%</td>
+            
+            <td class="numberCell">5.26%</td>
+            
+            <td class="numberCell">6.90%</td>
+            
+            <td class="numberCell">9.15%</td>
+            
+            <td class="numberCell">7.35%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">6.95%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">9.70%</td>
+            
+            <td class="numberCell">13.56%</td>
+            
+            <td class="numberCell">5.61%</td>
+            
+            <td class="numberCell">10.00%</td>
+            
+            <td class="numberCell">12.24%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-15.26%</td>
+            
+            <td class="numberCell">-14.19%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1989</td>
+            <td class="numberCell">4.65%</td>
+            
+            <td class="numberCell">28.12%</td>
+            
+            <td class="numberCell">31.36%</td>
+            
+            <td class="numberCell">26.89%</td>
+            
+            <td class="numberCell">35.83%</td>
+            
+            <td class="numberCell">26.00%</td>
+            
+            <td class="numberCell">24.92%</td>
+            
+            <td class="numberCell">27.09%</td>
+            
+            <td class="numberCell">19.41%</td>
+            
+            <td class="numberCell">19.21%</td>
+            
+            <td class="numberCell">19.62%</td>
+            
+            <td class="numberCell">10.16%</td>
+            
+            <td class="numberCell">12.85%</td>
+            
+            <td class="numberCell">12.85%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">28.18%</td>
+            
+            <td class="numberCell">7.23%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">8.61%</td>
+            
+            <td class="numberCell">11.48%</td>
+            
+            <td class="numberCell">14.52%</td>
+            
+            <td class="numberCell">17.84%</td>
+            
+            <td class="numberCell">17.93%</td>
+            
+            <td class="numberCell">13.64%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">11.45%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">15.18%</td>
+            
+            <td class="numberCell">1.89%</td>
+            
+            <td class="numberCell">7.08%</td>
+            
+            <td class="numberCell">10.00%</td>
+            
+            <td class="numberCell">9.79%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-2.84%</td>
+            
+            <td class="numberCell">30.40%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1990</td>
+            <td class="numberCell">6.11%</td>
+            
+            <td class="numberCell">-6.08%</td>
+            
+            <td class="numberCell">-3.32%</td>
+            
+            <td class="numberCell">-7.02%</td>
+            
+            <td class="numberCell">1.54%</td>
+            
+            <td class="numberCell">-10.73%</td>
+            
+            <td class="numberCell">-16.75%</td>
+            
+            <td class="numberCell">-4.02%</td>
+            
+            <td class="numberCell">-18.13%</td>
+            
+            <td class="numberCell">-19.05%</td>
+            
+            <td class="numberCell">-14.26%</td>
+            
+            <td class="numberCell">-21.56%</td>
+            
+            <td class="numberCell">-24.79%</td>
+            
+            <td class="numberCell">-24.79%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-3.87%</td>
+            
+            <td class="numberCell">-33.87%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">7.89%</td>
+            
+            <td class="numberCell">9.92%</td>
+            
+            <td class="numberCell">9.46%</td>
+            
+            <td class="numberCell">7.70%</td>
+            
+            <td class="numberCell">5.78%</td>
+            
+            <td class="numberCell">8.65%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">9.23%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">6.21%</td>
+            
+            <td class="numberCell">-5.85%</td>
+            
+            <td class="numberCell">6.57%</td>
+            
+            <td class="numberCell">7.20%</td>
+            
+            <td class="numberCell">5.02%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-3.11%</td>
+            
+            <td class="numberCell">-19.86%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1991</td>
+            <td class="numberCell">3.06%</td>
+            
+            <td class="numberCell">32.39%</td>
+            
+            <td class="numberCell">30.22%</td>
+            
+            <td class="numberCell">23.78%</td>
+            
+            <td class="numberCell">44.61%</td>
+            
+            <td class="numberCell">40.44%</td>
+            
+            <td class="numberCell">41.56%</td>
+            
+            <td class="numberCell">39.35%</td>
+            
+            <td class="numberCell">45.26%</td>
+            
+            <td class="numberCell">42.96%</td>
+            
+            <td class="numberCell">49.22%</td>
+            
+            <td class="numberCell">44.26%</td>
+            
+            <td class="numberCell">9.48%</td>
+            
+            <td class="numberCell">9.48%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">12.40%</td>
+            
+            <td class="numberCell">10.78%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">5.71%</td>
+            
+            <td class="numberCell">11.49%</td>
+            
+            <td class="numberCell">15.97%</td>
+            
+            <td class="numberCell">18.91%</td>
+            
+            <td class="numberCell">17.43%</td>
+            
+            <td class="numberCell">15.25%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">13.08%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">20.90%</td>
+            
+            <td class="numberCell">29.01%</td>
+            
+            <td class="numberCell">7.20%</td>
+            
+            <td class="numberCell">12.16%</td>
+            
+            <td class="numberCell">11.47%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-8.56%</td>
+            
+            <td class="numberCell">4.37%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1992</td>
+            <td class="numberCell">2.90%</td>
+            
+            <td class="numberCell">9.11%</td>
+            
+            <td class="numberCell">7.42%</td>
+            
+            <td class="numberCell">15.48%</td>
+            
+            <td class="numberCell">6.61%</td>
+            
+            <td class="numberCell">15.19%</td>
+            
+            <td class="numberCell">19.50%</td>
+            
+            <td class="numberCell">10.79%</td>
+            
+            <td class="numberCell">18.20%</td>
+            
+            <td class="numberCell">28.23%</td>
+            
+            <td class="numberCell">10.18%</td>
+            
+            <td class="numberCell">23.48%</td>
+            
+            <td class="numberCell">-14.79%</td>
+            
+            <td class="numberCell">-14.79%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-3.32%</td>
+            
+            <td class="numberCell">-18.17%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">3.57%</td>
+            
+            <td class="numberCell">6.75%</td>
+            
+            <td class="numberCell">7.78%</td>
+            
+            <td class="numberCell">7.23%</td>
+            
+            <td class="numberCell">7.41%</td>
+            
+            <td class="numberCell">7.14%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">7.19%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">9.78%</td>
+            
+            <td class="numberCell">14.24%</td>
+            
+            <td class="numberCell">4.71%</td>
+            
+            <td class="numberCell">8.86%</td>
+            
+            <td class="numberCell">9.30%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-5.73%</td>
+            
+            <td class="numberCell">-19.41%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1993</td>
+            <td class="numberCell">2.75%</td>
+            
+            <td class="numberCell">10.62%</td>
+            
+            <td class="numberCell">9.89%</td>
+            
+            <td class="numberCell">18.26%</td>
+            
+            <td class="numberCell">1.53%</td>
+            
+            <td class="numberCell">16.20%</td>
+            
+            <td class="numberCell">17.18%</td>
+            
+            <td class="numberCell">15.07%</td>
+            
+            <td class="numberCell">18.70%</td>
+            
+            <td class="numberCell">21.10%</td>
+            
+            <td class="numberCell">11.25%</td>
+            
+            <td class="numberCell">20.97%</td>
+            
+            <td class="numberCell">29.92%</td>
+            
+            <td class="numberCell">29.92%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">29.13%</td>
+            
+            <td class="numberCell">35.46%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">3.05%</td>
+            
+            <td class="numberCell">6.31%</td>
+            
+            <td class="numberCell">11.43%</td>
+            
+            <td class="numberCell">12.97%</td>
+            
+            <td class="numberCell">16.78%</td>
+            
+            <td class="numberCell">9.68%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">7.07%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">14.49%</td>
+            
+            <td class="numberCell">18.24%</td>
+            
+            <td class="numberCell">3.82%</td>
+            
+            <td class="numberCell">11.55%</td>
+            
+            <td class="numberCell">13.45%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">17.68%</td>
+            
+            <td class="numberCell">93.36%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1994</td>
+            <td class="numberCell">2.67%</td>
+            
+            <td class="numberCell">-0.17%</td>
+            
+            <td class="numberCell">1.18%</td>
+            
+            <td class="numberCell">-0.63%</td>
+            
+            <td class="numberCell">2.89%</td>
+            
+            <td class="numberCell">-1.72%</td>
+            
+            <td class="numberCell">-3.03%</td>
+            
+            <td class="numberCell">-0.60%</td>
+            
+            <td class="numberCell">-0.51%</td>
+            
+            <td class="numberCell">-0.07%</td>
+            
+            <td class="numberCell">-3.63%</td>
+            
+            <td class="numberCell">3.09%</td>
+            
+            <td class="numberCell">9.76%</td>
+            
+            <td class="numberCell">9.76%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">1.88%</td>
+            
+            <td class="numberCell">13.04%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">4.20%</td>
+            
+            <td class="numberCell">-0.48%</td>
+            
+            <td class="numberCell">-4.33%</td>
+            
+            <td class="numberCell">-7.19%</td>
+            
+            <td class="numberCell">-7.04%</td>
+            
+            <td class="numberCell">-2.66%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-1.71%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-0.08%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-5.30%</td>
+            
+            <td class="numberCell">-1.71%</td>
+            
+            <td class="numberCell">1.63%</td>
+            
+            <td class="numberCell">-2.12%</td>
+            
+            <td class="numberCell">-5.76%</td>
+            
+            <td class="numberCell">-8.40%</td>
+            
+            <td class="numberCell">-2.17%</td>
+            
+            <td class="numberCell">-5.42%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1995</td>
+            <td class="numberCell">2.54%</td>
+            
+            <td class="numberCell">35.79%</td>
+            
+            <td class="numberCell">37.45%</td>
+            
+            <td class="numberCell">37.04%</td>
+            
+            <td class="numberCell">38.06%</td>
+            
+            <td class="numberCell">33.22%</td>
+            
+            <td class="numberCell">33.38%</td>
+            
+            <td class="numberCell">32.91%</td>
+            
+            <td class="numberCell">28.74%</td>
+            
+            <td class="numberCell">30.32%</td>
+            
+            <td class="numberCell">30.07%</td>
+            
+            <td class="numberCell">34.48%</td>
+            
+            <td class="numberCell">3.98%</td>
+            
+            <td class="numberCell">3.98%</td>
+            
+            <td class="numberCell">1.16%</td>
+            
+            <td class="numberCell">11.53%</td>
+            
+            <td class="numberCell">22.28%</td>
+            
+            <td class="numberCell">2.75%</td>
+            
+            <td class="numberCell">0.56%</td>
+            
+            <td class="numberCell">5.71%</td>
+            
+            <td class="numberCell">12.11%</td>
+            
+            <td class="numberCell">20.44%</td>
+            
+            <td class="numberCell">25.55%</td>
+            
+            <td class="numberCell">30.09%</td>
+            
+            <td class="numberCell">18.18%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">22.91%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">12.74%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">26.40%</td>
+            
+            <td class="numberCell">19.15%</td>
+            
+            <td class="numberCell">5.99%</td>
+            
+            <td class="numberCell">13.64%</td>
+            
+            <td class="numberCell">18.72%</td>
+            
+            <td class="numberCell">12.13%</td>
+            
+            <td class="numberCell">0.98%</td>
+            
+            <td class="numberCell">-4.48%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1996</td>
+            <td class="numberCell">3.32%</td>
+            
+            <td class="numberCell">20.96%</td>
+            
+            <td class="numberCell">22.88%</td>
+            
+            <td class="numberCell">21.80%</td>
+            
+            <td class="numberCell">23.74%</td>
+            
+            <td class="numberCell">18.97%</td>
+            
+            <td class="numberCell">20.15%</td>
+            
+            <td class="numberCell">17.48%</td>
+            
+            <td class="numberCell">18.12%</td>
+            
+            <td class="numberCell">21.41%</td>
+            
+            <td class="numberCell">10.24%</td>
+            
+            <td class="numberCell">17.65%</td>
+            
+            <td class="numberCell">4.68%</td>
+            
+            <td class="numberCell">4.68%</td>
+            
+            <td class="numberCell">0.95%</td>
+            
+            <td class="numberCell">7.81%</td>
+            
+            <td class="numberCell">21.25%</td>
+            
+            <td class="numberCell">-7.82%</td>
+            
+            <td class="numberCell">15.83%</td>
+            
+            <td class="numberCell">5.17%</td>
+            
+            <td class="numberCell">4.39%</td>
+            
+            <td class="numberCell">1.92%</td>
+            
+            <td class="numberCell">-0.00%</td>
+            
+            <td class="numberCell">-1.26%</td>
+            
+            <td class="numberCell">3.58%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">10.33%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">4.79%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">1.20%</td>
+            
+            <td class="numberCell">9.55%</td>
+            
+            <td class="numberCell">3.69%</td>
+            
+            <td class="numberCell">4.20%</td>
+            
+            <td class="numberCell">4.42%</td>
+            
+            <td class="numberCell">33.84%</td>
+            
+            <td class="numberCell">-4.59%</td>
+            
+            <td class="numberCell">-0.75%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1997</td>
+            <td class="numberCell">1.70%</td>
+            
+            <td class="numberCell">30.99%</td>
+            
+            <td class="numberCell">33.19%</td>
+            
+            <td class="numberCell">29.78%</td>
+            
+            <td class="numberCell">36.34%</td>
+            
+            <td class="numberCell">25.66%</td>
+            
+            <td class="numberCell">35.08%</td>
+            
+            <td class="numberCell">17.75%</td>
+            
+            <td class="numberCell">24.59%</td>
+            
+            <td class="numberCell">35.44%</td>
+            
+            <td class="numberCell">14.37%</td>
+            
+            <td class="numberCell">22.78%</td>
+            
+            <td class="numberCell">-0.77%</td>
+            
+            <td class="numberCell">-1.39%</td>
+            
+            <td class="numberCell">-22.72%</td>
+            
+            <td class="numberCell">-3.14%</td>
+            
+            <td class="numberCell">24.23%</td>
+            
+            <td class="numberCell">-25.67%</td>
+            
+            <td class="numberCell">-16.82%</td>
+            
+            <td class="numberCell">5.22%</td>
+            
+            <td class="numberCell">6.51%</td>
+            
+            <td class="numberCell">8.96%</td>
+            
+            <td class="numberCell">11.97%</td>
+            
+            <td class="numberCell">13.90%</td>
+            
+            <td class="numberCell">9.44%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-0.90%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">6.95%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">13.78%</td>
+            
+            <td class="numberCell">11.91%</td>
+            
+            <td class="numberCell">4.07%</td>
+            
+            <td class="numberCell">7.06%</td>
+            
+            <td class="numberCell">9.29%</td>
+            
+            <td class="numberCell">18.77%</td>
+            
+            <td class="numberCell">-21.41%</td>
+            
+            <td class="numberCell">-38.92%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1998</td>
+            <td class="numberCell">1.61%</td>
+            
+            <td class="numberCell">23.26%</td>
+            
+            <td class="numberCell">28.62%</td>
+            
+            <td class="numberCell">14.63%</td>
+            
+            <td class="numberCell">42.21%</td>
+            
+            <td class="numberCell">9.90%</td>
+            
+            <td class="numberCell">3.67%</td>
+            
+            <td class="numberCell">17.27%</td>
+            
+            <td class="numberCell">-2.61%</td>
+            
+            <td class="numberCell">-2.68%</td>
+            
+            <td class="numberCell">3.52%</td>
+            
+            <td class="numberCell">-1.81%</td>
+            
+            <td class="numberCell">15.60%</td>
+            
+            <td class="numberCell">16.51%</td>
+            
+            <td class="numberCell">5.27%</td>
+            
+            <td class="numberCell">14.87%</td>
+            
+            <td class="numberCell">28.86%</td>
+            
+            <td class="numberCell">2.41%</td>
+            
+            <td class="numberCell">-18.12%</td>
+            
+            <td class="numberCell">4.97%</td>
+            
+            <td class="numberCell">7.36%</td>
+            
+            <td class="numberCell">10.61%</td>
+            
+            <td class="numberCell">14.64%</td>
+            
+            <td class="numberCell">13.05%</td>
+            
+            <td class="numberCell">8.58%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">12.43%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">6.57%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">9.21%</td>
+            
+            <td class="numberCell">5.62%</td>
+            
+            <td class="numberCell">4.32%</td>
+            
+            <td class="numberCell">5.76%</td>
+            
+            <td class="numberCell">6.02%</td>
+            
+            <td class="numberCell">-16.32%</td>
+            
+            <td class="numberCell">-0.83%</td>
+            
+            <td class="numberCell">-3.91%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>1999</td>
+            <td class="numberCell">2.68%</td>
+            
+            <td class="numberCell">23.81%</td>
+            
+            <td class="numberCell">21.07%</td>
+            
+            <td class="numberCell">12.58%</td>
+            
+            <td class="numberCell">28.76%</td>
+            
+            <td class="numberCell">15.32%</td>
+            
+            <td class="numberCell">3.12%</td>
+            
+            <td class="numberCell">42.99%</td>
+            
+            <td class="numberCell">23.13%</td>
+            
+            <td class="numberCell">3.35%</td>
+            
+            <td class="numberCell">19.80%</td>
+            
+            <td class="numberCell">31.49%</td>
+            
+            <td class="numberCell">29.92%</td>
+            
+            <td class="numberCell">37.96%</td>
+            
+            <td class="numberCell">19.04%</td>
+            
+            <td class="numberCell">16.30%</td>
+            
+            <td class="numberCell">16.66%</td>
+            
+            <td class="numberCell">57.05%</td>
+            
+            <td class="numberCell">61.57%</td>
+            
+            <td class="numberCell">4.77%</td>
+            
+            <td class="numberCell">1.85%</td>
+            
+            <td class="numberCell">-3.52%</td>
+            
+            <td class="numberCell">-7.83%</td>
+            
+            <td class="numberCell">-8.66%</td>
+            
+            <td class="numberCell">-0.76%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-4.28%</td>
+            
+            <td class="numberCell">0.29%</td>
+            
+            <td class="numberCell">3.31%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">-6.23%</td>
+            
+            <td class="numberCell">2.49%</td>
+            
+            <td class="numberCell">2.58%</td>
+            
+            <td class="numberCell">-0.50%</td>
+            
+            <td class="numberCell">-3.53%</td>
+            
+            <td class="numberCell">-4.04%</td>
+            
+            <td class="numberCell">0.85%</td>
+            
+            <td class="numberCell">28.82%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2000</td>
+            <td class="numberCell">3.39%</td>
+            
+            <td class="numberCell">-10.57%</td>
+            
+            <td class="numberCell">-9.06%</td>
+            
+            <td class="numberCell">6.09%</td>
+            
+            <td class="numberCell">-22.21%</td>
+            
+            <td class="numberCell">18.10%</td>
+            
+            <td class="numberCell">19.80%</td>
+            
+            <td class="numberCell">-6.28%</td>
+            
+            <td class="numberCell">-2.67%</td>
+            
+            <td class="numberCell">21.88%</td>
+            
+            <td class="numberCell">1.59%</td>
+            
+            <td class="numberCell">0.67%</td>
+            
+            <td class="numberCell">-15.61%</td>
+            
+            <td class="numberCell">-14.29%</td>
+            
+            <td class="numberCell">-3.08%</td>
+            
+            <td class="numberCell">-0.16%</td>
+            
+            <td class="numberCell">-8.21%</td>
+            
+            <td class="numberCell">-25.74%</td>
+            
+            <td class="numberCell">-27.56%</td>
+            
+            <td class="numberCell">5.99%</td>
+            
+            <td class="numberCell">8.83%</td>
+            
+            <td class="numberCell">14.03%</td>
+            
+            <td class="numberCell">17.28%</td>
+            
+            <td class="numberCell">19.72%</td>
+            
+            <td class="numberCell">11.39%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">0.43%</td>
+            
+            <td class="numberCell">9.20%</td>
+            
+            <td class="numberCell">8.17%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">11.76%</td>
+            
+            <td class="numberCell">-0.88%</td>
+            
+            <td class="numberCell">4.91%</td>
+            
+            <td class="numberCell">9.24%</td>
+            
+            <td class="numberCell">13.32%</td>
+            
+            <td class="numberCell">26.35%</td>
+            
+            <td class="numberCell">-5.44%</td>
+            
+            <td class="numberCell">-7.34%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2001</td>
+            <td class="numberCell">1.55%</td>
+            
+            <td class="numberCell">-10.97%</td>
+            
+            <td class="numberCell">-12.02%</td>
+            
+            <td class="numberCell">-11.86%</td>
+            
+            <td class="numberCell">-12.93%</td>
+            
+            <td class="numberCell">-0.50%</td>
+            
+            <td class="numberCell">-0.84%</td>
+            
+            <td class="numberCell">-6.02%</td>
+            
+            <td class="numberCell">3.10%</td>
+            
+            <td class="numberCell">13.70%</td>
+            
+            <td class="numberCell">-0.78%</td>
+            
+            <td class="numberCell">23.98%</td>
+            
+            <td class="numberCell">-20.15%</td>
+            
+            <td class="numberCell">-21.94%</td>
+            
+            <td class="numberCell">-4.59%</td>
+            
+            <td class="numberCell">-15.26%</td>
+            
+            <td class="numberCell">-20.30%</td>
+            
+            <td class="numberCell">-26.34%</td>
+            
+            <td class="numberCell">-2.88%</td>
+            
+            <td class="numberCell">3.70%</td>
+            
+            <td class="numberCell">7.80%</td>
+            
+            <td class="numberCell">7.55%</td>
+            
+            <td class="numberCell">5.40%</td>
+            
+            <td class="numberCell">4.31%</td>
+            
+            <td class="numberCell">8.43%</td>
+            
+            <td class="numberCell">7.61%</td>
+            
+            <td class="numberCell">2.48%</td>
+            
+            <td class="numberCell">10.83%</td>
+            
+            <td class="numberCell">8.14%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">9.57%</td>
+            
+            <td class="numberCell">2.90%</td>
+            
+            <td class="numberCell">4.75%</td>
+            
+            <td class="numberCell">5.05%</td>
+            
+            <td class="numberCell">4.54%</td>
+            
+            <td class="numberCell">12.35%</td>
+            
+            <td class="numberCell">0.75%</td>
+            
+            <td class="numberCell">18.33%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2002</td>
+            <td class="numberCell">2.38%</td>
+            
+            <td class="numberCell">-20.96%</td>
+            
+            <td class="numberCell">-22.15%</td>
+            
+            <td class="numberCell">-20.88%</td>
+            
+            <td class="numberCell">-23.68%</td>
+            
+            <td class="numberCell">-14.61%</td>
+            
+            <td class="numberCell">-12.95%</td>
+            
+            <td class="numberCell">-21.22%</td>
+            
+            <td class="numberCell">-20.02%</td>
+            
+            <td class="numberCell">-14.20%</td>
+            
+            <td class="numberCell">-15.41%</td>
+            
+            <td class="numberCell">4.90%</td>
+            
+            <td class="numberCell">-15.08%</td>
+            
+            <td class="numberCell">-15.62%</td>
+            
+            <td class="numberCell">5.79%</td>
+            
+            <td class="numberCell">-8.52%</td>
+            
+            <td class="numberCell">-17.95%</td>
+            
+            <td class="numberCell">-9.32%</td>
+            
+            <td class="numberCell">-7.43%</td>
+            
+            <td class="numberCell">1.65%</td>
+            
+            <td class="numberCell">8.02%</td>
+            
+            <td class="numberCell">14.15%</td>
+            
+            <td class="numberCell">15.45%</td>
+            
+            <td class="numberCell">16.67%</td>
+            
+            <td class="numberCell">8.26%</td>
+            
+            <td class="numberCell">16.61%</td>
+            
+            <td class="numberCell">21.33%</td>
+            
+            <td class="numberCell">9.29%</td>
+            
+            <td class="numberCell">5.22%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+            <td class="numberCell">13.22%</td>
+            
+            <td class="numberCell">1.73%</td>
+            
+            <td class="numberCell">3.49%</td>
+            
+            <td class="numberCell">7.91%</td>
+            
+            <td class="numberCell">10.12%</td>
+            
+            <td class="numberCell">3.75%</td>
+            
+            <td class="numberCell">25.57%</td>
+            
+            <td class="numberCell">33.35%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2003</td>
+            <td class="numberCell">1.88%</td>
+            
+            <td class="numberCell">31.35%</td>
+            
+            <td class="numberCell">28.50%</td>
+            
+            <td class="numberCell">32.25%</td>
+            
+            <td class="numberCell">25.92%</td>
+            
+            <td class="numberCell">34.14%</td>
+            
+            <td class="numberCell">37.94%</td>
+            
+            <td class="numberCell">35.59%</td>
+            
+            <td class="numberCell">45.63%</td>
+            
+            <td class="numberCell">37.19%</td>
+            
+            <td class="numberCell">42.88%</td>
+            
+            <td class="numberCell">80.98%</td>
+            
+            <td class="numberCell">40.34%</td>
+            
+            <td class="numberCell">38.67%</td>
+            
+            <td class="numberCell">66.48%</td>
+            
+            <td class="numberCell">49.93%</td>
+            
+            <td class="numberCell">38.70%</td>
+            
+            <td class="numberCell">38.42%</td>
+            
+            <td class="numberCell">57.65%</td>
+            
+            <td class="numberCell">1.04%</td>
+            
+            <td class="numberCell">2.38%</td>
+            
+            <td class="numberCell">2.37%</td>
+            
+            <td class="numberCell">0.15%</td>
+            
+            <td class="numberCell">2.68%</td>
+            
+            <td class="numberCell">3.97%</td>
+            
+            <td class="numberCell">8.00%</td>
+            
+            <td class="numberCell">16.59%</td>
+            
+            <td class="numberCell">3.93%</td>
+            
+            <td class="numberCell">4.20%</td>
+            
+            <td class="numberCell">9.08%</td>
+            
+            <td class="numberCell">6.26%</td>
+            
+            <td class="numberCell">17.20%</td>
+            
+            <td class="numberCell">1.64%</td>
+            
+            <td class="numberCell">4.46%</td>
+            
+            <td class="numberCell">5.21%</td>
+            
+            <td class="numberCell">35.66%</td>
+            
+            <td class="numberCell">19.89%</td>
+            
+            <td class="numberCell">59.45%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2004</td>
+            <td class="numberCell">3.26%</td>
+            
+            <td class="numberCell">12.52%</td>
+            
+            <td class="numberCell">10.74%</td>
+            
+            <td class="numberCell">15.26%</td>
+            
+            <td class="numberCell">7.20%</td>
+            
+            <td class="numberCell">20.35%</td>
+            
+            <td class="numberCell">26.04%</td>
+            
+            <td class="numberCell">13.00%</td>
+            
+            <td class="numberCell">19.90%</td>
+            
+            <td class="numberCell">23.55%</td>
+            
+            <td class="numberCell">16.06%</td>
+            
+            <td class="numberCell">19.09%</td>
+            
+            <td class="numberCell">20.84%</td>
+            
+            <td class="numberCell">20.25%</td>
+            
+            <td class="numberCell">34.80%</td>
+            
+            <td class="numberCell">28.80%</td>
+            
+            <td class="numberCell">20.86%</td>
+            
+            <td class="numberCell">18.83%</td>
+            
+            <td class="numberCell">26.12%</td>
+            
+            <td class="numberCell">1.32%</td>
+            
+            <td class="numberCell">1.03%</td>
+            
+            <td class="numberCell">3.40%</td>
+            
+            <td class="numberCell">4.50%</td>
+            
+            <td class="numberCell">7.12%</td>
+            
+            <td class="numberCell">4.24%</td>
+            
+            <td class="numberCell">8.27%</td>
+            
+            <td class="numberCell">11.57%</td>
+            
+            <td class="numberCell">6.11%</td>
+            
+            <td class="numberCell">2.11%</td>
+            
+            <td class="numberCell">5.72%</td>
+            
+            <td class="numberCell">8.94%</td>
+            
+            <td class="numberCell">8.52%</td>
+            
+            <td class="numberCell">1.12%</td>
+            
+            <td class="numberCell">3.23%</td>
+            
+            <td class="numberCell">4.12%</td>
+            
+            <td class="numberCell">30.76%</td>
+            
+            <td class="numberCell">4.65%</td>
+            
+            <td class="numberCell">8.09%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2005</td>
+            <td class="numberCell">3.42%</td>
+            
+            <td class="numberCell">5.98%</td>
+            
+            <td class="numberCell">4.77%</td>
+            
+            <td class="numberCell">7.10%</td>
+            
+            <td class="numberCell">5.09%</td>
+            
+            <td class="numberCell">13.93%</td>
+            
+            <td class="numberCell">16.02%</td>
+            
+            <td class="numberCell">8.11%</td>
+            
+            <td class="numberCell">7.36%</td>
+            
+            <td class="numberCell">6.07%</td>
+            
+            <td class="numberCell">8.64%</td>
+            
+            <td class="numberCell">4.08%</td>
+            
+            <td class="numberCell">15.57%</td>
+            
+            <td class="numberCell">13.60%</td>
+            
+            <td class="numberCell">23.23%</td>
+            
+            <td class="numberCell">15.27%</td>
+            
+            <td class="numberCell">9.26%</td>
+            
+            <td class="numberCell">22.59%</td>
+            
+            <td class="numberCell">32.05%</td>
+            
+            <td class="numberCell">3.14%</td>
+            
+            <td class="numberCell">1.77%</td>
+            
+            <td class="numberCell">2.31%</td>
+            
+            <td class="numberCell">3.01%</td>
+            
+            <td class="numberCell">6.61%</td>
+            
+            <td class="numberCell">2.40%</td>
+            
+            <td class="numberCell">2.59%</td>
+            
+            <td class="numberCell">-6.36%</td>
+            
+            <td class="numberCell">4.98%</td>
+            
+            <td class="numberCell">2.20%</td>
+            
+            <td class="numberCell">1.16%</td>
+            
+            <td class="numberCell">5.13%</td>
+            
+            <td class="numberCell">2.77%</td>
+            
+            <td class="numberCell">1.65%</td>
+            
+            <td class="numberCell">2.24%</td>
+            
+            <td class="numberCell">3.07%</td>
+            
+            <td class="numberCell">11.89%</td>
+            
+            <td class="numberCell">17.76%</td>
+            
+            <td class="numberCell">43.79%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2006</td>
+            <td class="numberCell">2.54%</td>
+            
+            <td class="numberCell">15.51%</td>
+            
+            <td class="numberCell">15.64%</td>
+            
+            <td class="numberCell">22.13%</td>
+            
+            <td class="numberCell">9.01%</td>
+            
+            <td class="numberCell">13.60%</td>
+            
+            <td class="numberCell">14.77%</td>
+            
+            <td class="numberCell">11.79%</td>
+            
+            <td class="numberCell">15.66%</td>
+            
+            <td class="numberCell">19.24%</td>
+            
+            <td class="numberCell">11.95%</td>
+            
+            <td class="numberCell">11.48%</td>
+            
+            <td class="numberCell">26.64%</td>
+            
+            <td class="numberCell">26.27%</td>
+            
+            <td class="numberCell">28.39%</td>
+            
+            <td class="numberCell">30.34%</td>
+            
+            <td class="numberCell">33.42%</td>
+            
+            <td class="numberCell">11.99%</td>
+            
+            <td class="numberCell">29.39%</td>
+            
+            <td class="numberCell">4.82%</td>
+            
+            <td class="numberCell">3.77%</td>
+            
+            <td class="numberCell">3.14%</td>
+            
+            <td class="numberCell">2.19%</td>
+            
+            <td class="numberCell">1.74%</td>
+            
+            <td class="numberCell">4.27%</td>
+            
+            <td class="numberCell">0.43%</td>
+            
+            <td class="numberCell">5.85%</td>
+            
+            <td class="numberCell">2.94%</td>
+            
+            <td class="numberCell">4.99%</td>
+            
+            <td class="numberCell">4.22%</td>
+            
+            <td class="numberCell">2.86%</td>
+            
+            <td class="numberCell">8.24%</td>
+            
+            <td class="numberCell">3.26%</td>
+            
+            <td class="numberCell">4.43%</td>
+            
+            <td class="numberCell">5.16%</td>
+            
+            <td class="numberCell">35.07%</td>
+            
+            <td class="numberCell">22.55%</td>
+            
+            <td class="numberCell">34.30%</td>
+            
+            <td class="numberCell">N/A</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2007</td>
+            <td class="numberCell">4.08%</td>
+            
+            <td class="numberCell">5.49%</td>
+            
+            <td class="numberCell">5.39%</td>
+            
+            <td class="numberCell">0.08%</td>
+            
+            <td class="numberCell">12.56%</td>
+            
+            <td class="numberCell">6.02%</td>
+            
+            <td class="numberCell">-4.37%</td>
+            
+            <td class="numberCell">17.30%</td>
+            
+            <td class="numberCell">1.16%</td>
+            
+            <td class="numberCell">-7.07%</td>
+            
+            <td class="numberCell">9.63%</td>
+            
+            <td class="numberCell">-5.40%</td>
+            
+            <td class="numberCell">15.52%</td>
+            
+            <td class="numberCell">11.15%</td>
+            
+            <td class="numberCell">2.95%</td>
+            
+            <td class="numberCell">4.23%</td>
+            
+            <td class="numberCell">13.82%</td>
+            
+            <td class="numberCell">4.78%</td>
+            
+            <td class="numberCell">38.90%</td>
+            
+            <td class="numberCell">4.56%</td>
+            
+            <td class="numberCell">7.89%</td>
+            
+            <td class="numberCell">9.98%</td>
+            
+            <td class="numberCell">10.42%</td>
+            
+            <td class="numberCell">9.24%</td>
+            
+            <td class="numberCell">6.92%</td>
+            
+            <td class="numberCell">11.59%</td>
+            
+            <td class="numberCell">9.26%</td>
+            
+            <td class="numberCell">4.99%</td>
+            
+            <td class="numberCell">5.86%</td>
+            
+            <td class="numberCell">3.73%</td>
+            
+            <td class="numberCell">3.75%</td>
+            
+            <td class="numberCell">2.04%</td>
+            
+            <td class="numberCell">4.19%</td>
+            
+            <td class="numberCell">3.43%</td>
+            
+            <td class="numberCell">2.54%</td>
+            
+            <td class="numberCell">-16.46%</td>
+            
+            <td class="numberCell">30.45%</td>
+            
+            <td class="numberCell">36.13%</td>
+            
+            <td class="numberCell">31.62%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2008</td>
+            <td class="numberCell">0.09%</td>
+            
+            <td class="numberCell">-37.04%</td>
+            
+            <td class="numberCell">-37.02%</td>
+            
+            <td class="numberCell">-35.97%</td>
+            
+            <td class="numberCell">-38.32%</td>
+            
+            <td class="numberCell">-41.82%</td>
+            
+            <td class="numberCell">-36.64%</td>
+            
+            <td class="numberCell">-47.07%</td>
+            
+            <td class="numberCell">-36.07%</td>
+            
+            <td class="numberCell">-32.05%</td>
+            
+            <td class="numberCell">-40.00%</td>
+            
+            <td class="numberCell">-39.49%</td>
+            
+            <td class="numberCell">-44.10%</td>
+            
+            <td class="numberCell">-41.27%</td>
+            
+            <td class="numberCell">-41.68%</td>
+            
+            <td class="numberCell">-41.67%</td>
+            
+            <td class="numberCell">-44.73%</td>
+            
+            <td class="numberCell">-34.36%</td>
+            
+            <td class="numberCell">-52.81%</td>
+            
+            <td class="numberCell">1.53%</td>
+            
+            <td class="numberCell">6.68%</td>
+            
+            <td class="numberCell">13.32%</td>
+            
+            <td class="numberCell">20.53%</td>
+            
+            <td class="numberCell">22.51%</td>
+            
+            <td class="numberCell">5.05%</td>
+            
+            <td class="numberCell">-2.85%</td>
+            
+            <td class="numberCell">-2.68%</td>
+            
+            <td class="numberCell">-2.35%</td>
+            
+            <td class="numberCell">-4.74%</td>
+            
+            <td class="numberCell">2.40%</td>
+            
+            <td class="numberCell">2.29%</td>
+            
+            <td class="numberCell">-21.29%</td>
+            
+            <td class="numberCell">3.74%</td>
+            
+            <td class="numberCell">-0.14%</td>
+            
+            <td class="numberCell">-4.87%</td>
+            
+            <td class="numberCell">-37.05%</td>
+            
+            <td class="numberCell">4.92%</td>
+            
+            <td class="numberCell">-56.02%</td>
+            
+            <td class="numberCell">-45.75%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2009</td>
+            <td class="numberCell">2.72%</td>
+            
+            <td class="numberCell">28.70%</td>
+            
+            <td class="numberCell">26.49%</td>
+            
+            <td class="numberCell">19.58%</td>
+            
+            <td class="numberCell">36.29%</td>
+            
+            <td class="numberCell">40.22%</td>
+            
+            <td class="numberCell">37.61%</td>
+            
+            <td class="numberCell">42.54%</td>
+            
+            <td class="numberCell">36.12%</td>
+            
+            <td class="numberCell">30.34%</td>
+            
+            <td class="numberCell">41.85%</td>
+            
+            <td class="numberCell">25.96%</td>
+            
+            <td class="numberCell">36.73%</td>
+            
+            <td class="numberCell">28.27%</td>
+            
+            <td class="numberCell">47.52%</td>
+            
+            <td class="numberCell">28.36%</td>
+            
+            <td class="numberCell">31.91%</td>
+            
+            <td class="numberCell">21.18%</td>
+            
+            <td class="numberCell">75.98%</td>
+            
+            <td class="numberCell">0.16%</td>
+            
+            <td class="numberCell">1.44%</td>
+            
+            <td class="numberCell">-1.69%</td>
+            
+            <td class="numberCell">-10.17%</td>
+            
+            <td class="numberCell">-12.06%</td>
+            
+            <td class="numberCell">5.93%</td>
+            
+            <td class="numberCell">10.80%</td>
+            
+            <td class="numberCell">17.17%</td>
+            
+            <td class="numberCell">15.30%</td>
+            
+            <td class="numberCell">14.03%</td>
+            
+            <td class="numberCell">8.46%</td>
+            
+            <td class="numberCell">8.75%</td>
+            
+            <td class="numberCell">39.09%</td>
+            
+            <td class="numberCell">3.07%</td>
+            
+            <td class="numberCell">10.22%</td>
+            
+            <td class="numberCell">14.08%</td>
+            
+            <td class="numberCell">29.58%</td>
+            
+            <td class="numberCell">24.03%</td>
+            
+            <td class="numberCell">76.46%</td>
+            
+            <td class="numberCell">11.22%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2010</td>
+            <td class="numberCell">1.50%</td>
+            
+            <td class="numberCell">17.09%</td>
+            
+            <td class="numberCell">14.91%</td>
+            
+            <td class="numberCell">14.27%</td>
+            
+            <td class="numberCell">16.96%</td>
+            
+            <td class="numberCell">25.46%</td>
+            
+            <td class="numberCell">21.63%</td>
+            
+            <td class="numberCell">28.93%</td>
+            
+            <td class="numberCell">27.72%</td>
+            
+            <td class="numberCell">24.82%</td>
+            
+            <td class="numberCell">30.69%</td>
+            
+            <td class="numberCell">24.86%</td>
+            
+            <td class="numberCell">11.12%</td>
+            
+            <td class="numberCell">8.36%</td>
+            
+            <td class="numberCell">25.60%</td>
+            
+            <td class="numberCell">4.47%</td>
+            
+            <td class="numberCell">4.91%</td>
+            
+            <td class="numberCell">15.77%</td>
+            
+            <td class="numberCell">18.86%</td>
+            
+            <td class="numberCell">0.14%</td>
+            
+            <td class="numberCell">2.63%</td>
+            
+            <td class="numberCell">7.35%</td>
+            
+            <td class="numberCell">7.92%</td>
+            
+            <td class="numberCell">8.93%</td>
+            
+            <td class="numberCell">6.42%</td>
+            
+            <td class="numberCell">6.17%</td>
+            
+            <td class="numberCell">11.24%</td>
+            
+            <td class="numberCell">8.53%</td>
+            
+            <td class="numberCell">5.21%</td>
+            
+            <td class="numberCell">9.33%</td>
+            
+            <td class="numberCell">10.71%</td>
+            
+            <td class="numberCell">12.40%</td>
+            
+            <td class="numberCell">0.95%</td>
+            
+            <td class="numberCell">2.13%</td>
+            
+            <td class="numberCell">1.50%</td>
+            
+            <td class="numberCell">28.30%</td>
+            
+            <td class="numberCell">29.27%</td>
+            
+            <td class="numberCell">37.45%</td>
+            
+            <td class="numberCell">7.17%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2011</td>
+            <td class="numberCell">2.96%</td>
+            
+            <td class="numberCell">0.96%</td>
+            
+            <td class="numberCell">1.97%</td>
+            
+            <td class="numberCell">1.00%</td>
+            
+            <td class="numberCell">1.71%</td>
+            
+            <td class="numberCell">-2.11%</td>
+            
+            <td class="numberCell">-0.44%</td>
+            
+            <td class="numberCell">-3.84%</td>
+            
+            <td class="numberCell">-2.80%</td>
+            
+            <td class="numberCell">-4.16%</td>
+            
+            <td class="numberCell">-1.58%</td>
+            
+            <td class="numberCell">-7.86%</td>
+            
+            <td class="numberCell">-14.56%</td>
+            
+            <td class="numberCell">-12.51%</td>
+            
+            <td class="numberCell">-19.63%</td>
+            
+            <td class="numberCell">-12.42%</td>
+            
+            <td class="numberCell">-11.60%</td>
+            
+            <td class="numberCell">-14.00%</td>
+            
+            <td class="numberCell">-18.78%</td>
+            
+            <td class="numberCell">0.07%</td>
+            
+            <td class="numberCell">2.26%</td>
+            
+            <td class="numberCell">9.79%</td>
+            
+            <td class="numberCell">16.24%</td>
+            
+            <td class="numberCell">29.28%</td>
+            
+            <td class="numberCell">7.56%</td>
+            
+            <td class="numberCell">13.23%</td>
+            
+            <td class="numberCell">9.20%</td>
+            
+            <td class="numberCell">8.60%</td>
+            
+            <td class="numberCell">1.93%</td>
+            
+            <td class="numberCell">9.73%</td>
+            
+            <td class="numberCell">17.18%</td>
+            
+            <td class="numberCell">7.13%</td>
+            
+            <td class="numberCell">1.60%</td>
+            
+            <td class="numberCell">9.62%</td>
+            
+            <td class="numberCell">10.69%</td>
+            
+            <td class="numberCell">8.47%</td>
+            
+            <td class="numberCell">9.57%</td>
+            
+            <td class="numberCell">-21.70%</td>
+            
+            <td class="numberCell">-3.28%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2012</td>
+            <td class="numberCell">1.74%</td>
+            
+            <td class="numberCell">16.25%</td>
+            
+            <td class="numberCell">15.82%</td>
+            
+            <td class="numberCell">15.00%</td>
+            
+            <td class="numberCell">16.89%</td>
+            
+            <td class="numberCell">15.80%</td>
+            
+            <td class="numberCell">15.91%</td>
+            
+            <td class="numberCell">15.81%</td>
+            
+            <td class="numberCell">18.04%</td>
+            
+            <td class="numberCell">18.56%</td>
+            
+            <td class="numberCell">17.52%</td>
+            
+            <td class="numberCell">19.83%</td>
+            
+            <td class="numberCell">18.14%</td>
+            
+            <td class="numberCell">18.56%</td>
+            
+            <td class="numberCell">20.73%</td>
+            
+            <td class="numberCell">18.83%</td>
+            
+            <td class="numberCell">20.80%</td>
+            
+            <td class="numberCell">15.49%</td>
+            
+            <td class="numberCell">18.64%</td>
+            
+            <td class="numberCell">0.08%</td>
+            
+            <td class="numberCell">0.69%</td>
+            
+            <td class="numberCell">2.67%</td>
+            
+            <td class="numberCell">2.73%</td>
+            
+            <td class="numberCell">3.46%</td>
+            
+            <td class="numberCell">4.05%</td>
+            
+            <td class="numberCell">6.77%</td>
+            
+            <td class="numberCell">7.42%</td>
+            
+            <td class="numberCell">9.54%</td>
+            
+            <td class="numberCell">4.52%</td>
+            
+            <td class="numberCell">10.58%</td>
+            
+            <td class="numberCell">11.66%</td>
+            
+            <td class="numberCell">14.36%</td>
+            
+            <td class="numberCell">0.99%</td>
+            
+            <td class="numberCell">5.70%</td>
+            
+            <td class="numberCell">8.08%</td>
+            
+            <td class="numberCell">17.53%</td>
+            
+            <td class="numberCell">6.60%</td>
+            
+            <td class="numberCell">-12.98%</td>
+            
+            <td class="numberCell">-0.58%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2013</td>
+            <td class="numberCell">1.50%</td>
+            
+            <td class="numberCell">33.35%</td>
+            
+            <td class="numberCell">32.18%</td>
+            
+            <td class="numberCell">32.87%</td>
+            
+            <td class="numberCell">32.16%</td>
+            
+            <td class="numberCell">35.00%</td>
+            
+            <td class="numberCell">37.42%</td>
+            
+            <td class="numberCell">32.02%</td>
+            
+            <td class="numberCell">37.62%</td>
+            
+            <td class="numberCell">36.41%</td>
+            
+            <td class="numberCell">37.98%</td>
+            
+            <td class="numberCell">50.91%</td>
+            
+            <td class="numberCell">15.04%</td>
+            
+            <td class="numberCell">22.06%</td>
+            
+            <td class="numberCell">16.60%</td>
+            
+            <td class="numberCell">21.84%</td>
+            
+            <td class="numberCell">24.70%</td>
+            
+            <td class="numberCell">17.36%</td>
+            
+            <td class="numberCell">-5.19%</td>
+            
+            <td class="numberCell">0.05%</td>
+            
+            <td class="numberCell">-0.10%</td>
+            
+            <td class="numberCell">-3.09%</td>
+            
+            <td class="numberCell">-8.57%</td>
+            
+            <td class="numberCell">-13.03%</td>
+            
+            <td class="numberCell">-2.26%</td>
+            
+            <td class="numberCell">-8.92%</td>
+            
+            <td class="numberCell">-5.04%</td>
+            
+            <td class="numberCell">-0.81%</td>
+            
+            <td class="numberCell">0.97%</td>
+            
+            <td class="numberCell">-2.00%</td>
+            
+            <td class="numberCell">-5.87%</td>
+            
+            <td class="numberCell">4.54%</td>
+            
+            <td class="numberCell">0.48%</td>
+            
+            <td class="numberCell">-1.56%</td>
+            
+            <td class="numberCell">-2.95%</td>
+            
+            <td class="numberCell">2.31%</td>
+            
+            <td class="numberCell">-28.33%</td>
+            
+            <td class="numberCell">-35.13%</td>
+            
+            <td class="numberCell">-1.83%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2014</td>
+            <td class="numberCell">0.76%</td>
+            
+            <td class="numberCell">12.43%</td>
+            
+            <td class="numberCell">13.51%</td>
+            
+            <td class="numberCell">13.07%</td>
+            
+            <td class="numberCell">13.47%</td>
+            
+            <td class="numberCell">13.60%</td>
+            
+            <td class="numberCell">13.84%</td>
+            
+            <td class="numberCell">13.35%</td>
+            
+            <td class="numberCell">7.37%</td>
+            
+            <td class="numberCell">10.39%</td>
+            
+            <td class="numberCell">3.88%</td>
+            
+            <td class="numberCell">4.61%</td>
+            
+            <td class="numberCell">-4.24%</td>
+            
+            <td class="numberCell">-5.66%</td>
+            
+            <td class="numberCell">-5.06%</td>
+            
+            <td class="numberCell">-6.80%</td>
+            
+            <td class="numberCell">-6.67%</td>
+            
+            <td class="numberCell">-4.69%</td>
+            
+            <td class="numberCell">0.42%</td>
+            
+            <td class="numberCell">0.03%</td>
+            
+            <td class="numberCell">0.71%</td>
+            
+            <td class="numberCell">4.32%</td>
+            
+            <td class="numberCell">10.63%</td>
+            
+            <td class="numberCell">25.27%</td>
+            
+            <td class="numberCell">5.76%</td>
+            
+            <td class="numberCell">3.83%</td>
+            
+            <td class="numberCell">2.37%</td>
+            
+            <td class="numberCell">9.70%</td>
+            
+            <td class="numberCell">1.76%</td>
+            
+            <td class="numberCell">8.21%</td>
+            
+            <td class="numberCell">18.17%</td>
+            
+            <td class="numberCell">4.58%</td>
+            
+            <td class="numberCell">0.65%</td>
+            
+            <td class="numberCell">7.25%</td>
+            
+            <td class="numberCell">11.07%</td>
+            
+            <td class="numberCell">30.13%</td>
+            
+            <td class="numberCell">-2.19%</td>
+            
+            <td class="numberCell">-11.41%</td>
+            
+            <td class="numberCell">-32.96%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2015</td>
+            <td class="numberCell">0.73%</td>
+            
+            <td class="numberCell">0.29%</td>
+            
+            <td class="numberCell">1.25%</td>
+            
+            <td class="numberCell">-1.04%</td>
+            
+            <td class="numberCell">3.17%</td>
+            
+            <td class="numberCell">-1.45%</td>
+            
+            <td class="numberCell">-1.91%</td>
+            
+            <td class="numberCell">-1.13%</td>
+            
+            <td class="numberCell">-3.78%</td>
+            
+            <td class="numberCell">-4.77%</td>
+            
+            <td class="numberCell">-2.64%</td>
+            
+            <td class="numberCell">-8.28%</td>
+            
+            <td class="numberCell">-4.38%</td>
+            
+            <td class="numberCell">-0.19%</td>
+            
+            <td class="numberCell">-0.01%</td>
+            
+            <td class="numberCell">-5.86%</td>
+            
+            <td class="numberCell">-2.00%</td>
+            
+            <td class="numberCell">2.25%</td>
+            
+            <td class="numberCell">-15.47%</td>
+            
+            <td class="numberCell">0.05%</td>
+            
+            <td class="numberCell">0.45%</td>
+            
+            <td class="numberCell">1.50%</td>
+            
+            <td class="numberCell">1.12%</td>
+            
+            <td class="numberCell">-1.54%</td>
+            
+            <td class="numberCell">0.30%</td>
+            
+            <td class="numberCell">-1.83%</td>
+            
+            <td class="numberCell">-3.57%</td>
+            
+            <td class="numberCell">-0.00%</td>
+            
+            <td class="numberCell">1.03%</td>
+            
+            <td class="numberCell">-1.25%</td>
+            
+            <td class="numberCell">-2.20%</td>
+            
+            <td class="numberCell">-1.40%</td>
+            
+            <td class="numberCell">0.45%</td>
+            
+            <td class="numberCell">2.85%</td>
+            
+            <td class="numberCell">3.97%</td>
+            
+            <td class="numberCell">2.22%</td>
+            
+            <td class="numberCell">-10.67%</td>
+            
+            <td class="numberCell">-29.42%</td>
+            
+            <td class="numberCell">-34.06%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2016</td>
+            <td class="numberCell">2.07%</td>
+            
+            <td class="numberCell">12.53%</td>
+            
+            <td class="numberCell">11.82%</td>
+            
+            <td class="numberCell">16.75%</td>
+            
+            <td class="numberCell">5.99%</td>
+            
+            <td class="numberCell">11.07%</td>
+            
+            <td class="numberCell">15.11%</td>
+            
+            <td class="numberCell">6.62%</td>
+            
+            <td class="numberCell">18.17%</td>
+            
+            <td class="numberCell">24.65%</td>
+            
+            <td class="numberCell">10.61%</td>
+            
+            <td class="numberCell">21.47%</td>
+            
+            <td class="numberCell">4.65%</td>
+            
+            <td class="numberCell">2.45%</td>
+            
+            <td class="numberCell">4.26%</td>
+            
+            <td class="numberCell">5.05%</td>
+            
+            <td class="numberCell">-0.80%</td>
+            
+            <td class="numberCell">5.19%</td>
+            
+            <td class="numberCell">11.50%</td>
+            
+            <td class="numberCell">0.30%</td>
+            
+            <td class="numberCell">1.00%</td>
+            
+            <td class="numberCell">1.19%</td>
+            
+            <td class="numberCell">1.00%</td>
+            
+            <td class="numberCell">1.21%</td>
+            
+            <td class="numberCell">2.50%</td>
+            
+            <td class="numberCell">4.52%</td>
+            
+            <td class="numberCell">4.25%</td>
+            
+            <td class="numberCell">6.17%</td>
+            
+            <td class="numberCell">2.75%</td>
+            
+            <td class="numberCell">6.21%</td>
+            
+            <td class="numberCell">7.83%</td>
+            
+            <td class="numberCell">11.19%</td>
+            
+            <td class="numberCell">0.36%</td>
+            
+            <td class="numberCell">0.08%</td>
+            
+            <td class="numberCell">0.62%</td>
+            
+            <td class="numberCell">8.34%</td>
+            
+            <td class="numberCell">8.03%</td>
+            
+            <td class="numberCell">50.64%</td>
+            
+            <td class="numberCell">10.12%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2017</td>
+            <td class="numberCell">2.11%</td>
+            
+            <td class="numberCell">21.05%</td>
+            
+            <td class="numberCell">21.67%</td>
+            
+            <td class="numberCell">16.99%</td>
+            
+            <td class="numberCell">27.65%</td>
+            
+            <td class="numberCell">19.12%</td>
+            
+            <td class="numberCell">16.91%</td>
+            
+            <td class="numberCell">21.72%</td>
+            
+            <td class="numberCell">16.10%</td>
+            
+            <td class="numberCell">11.67%</td>
+            
+            <td class="numberCell">21.78%</td>
+            
+            <td class="numberCell">12.47%</td>
+            
+            <td class="numberCell">27.40%</td>
+            
+            <td class="numberCell">26.40%</td>
+            
+            <td class="numberCell">30.60%</td>
+            
+            <td class="numberCell">21.25%</td>
+            
+            <td class="numberCell">26.82%</td>
+            
+            <td class="numberCell">28.39%</td>
+            
+            <td class="numberCell">31.15%</td>
+            
+            <td class="numberCell">0.88%</td>
+            
+            <td class="numberCell">0.40%</td>
+            
+            <td class="numberCell">1.58%</td>
+            
+            <td class="numberCell">2.39%</td>
+            
+            <td class="numberCell">8.59%</td>
+            
+            <td class="numberCell">3.45%</td>
+            
+            <td class="numberCell">2.81%</td>
+            
+            <td class="numberCell">9.21%</td>
+            
+            <td class="numberCell">4.32%</td>
+            
+            <td class="numberCell">2.03%</td>
+            
+            <td class="numberCell">7.06%</td>
+            
+            <td class="numberCell">11.94%</td>
+            
+            <td class="numberCell">7.02%</td>
+            
+            <td class="numberCell">1.00%</td>
+            
+            <td class="numberCell">4.54%</td>
+            
+            <td class="numberCell">6.43%</td>
+            
+            <td class="numberCell">4.83%</td>
+            
+            <td class="numberCell">12.81%</td>
+            
+            <td class="numberCell">13.75%</td>
+            
+            <td class="numberCell">3.89%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2018</td>
+            <td class="numberCell">1.91%</td>
+            
+            <td class="numberCell">-5.26%</td>
+            
+            <td class="numberCell">-4.53%</td>
+            
+            <td class="numberCell">-5.55%</td>
+            
+            <td class="numberCell">-3.46%</td>
+            
+            <td class="numberCell">-9.34%</td>
+            
+            <td class="numberCell">-12.53%</td>
+            
+            <td class="numberCell">-5.74%</td>
+            
+            <td class="numberCell">-9.43%</td>
+            
+            <td class="numberCell">-12.34%</td>
+            
+            <td class="numberCell">-5.80%</td>
+            
+            <td class="numberCell">-17.12%</td>
+            
+            <td class="numberCell">-14.44%</td>
+            
+            <td class="numberCell">-14.46%</td>
+            
+            <td class="numberCell">-18.47%</td>
+            
+            <td class="numberCell">-14.66%</td>
+            
+            <td class="numberCell">-14.86%</td>
+            
+            <td class="numberCell">-13.98%</td>
+            
+            <td class="numberCell">-14.71%</td>
+            
+            <td class="numberCell">1.90%</td>
+            
+            <td class="numberCell">1.35%</td>
+            
+            <td class="numberCell">1.00%</td>
+            
+            <td class="numberCell">0.99%</td>
+            
+            <td class="numberCell">-1.90%</td>
+            
+            <td class="numberCell">-0.13%</td>
+            
+            <td class="numberCell">-1.49%</td>
+            
+            <td class="numberCell">-3.82%</td>
+            
+            <td class="numberCell">-0.46%</td>
+            
+            <td class="numberCell">0.86%</td>
+            
+            <td class="numberCell">-3.79%</td>
+            
+            <td class="numberCell">-5.95%</td>
+            
+            <td class="numberCell">-2.96%</td>
+            
+            <td class="numberCell">1.59%</td>
+            
+            <td class="numberCell">1.25%</td>
+            
+            <td class="numberCell">0.90%</td>
+            
+            <td class="numberCell">-6.11%</td>
+            
+            <td class="numberCell">-1.94%</td>
+            
+            <td class="numberCell">-8.79%</td>
+            
+            <td class="numberCell">-13.88%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2019</td>
+            <td class="numberCell">2.29%</td>
+            
+            <td class="numberCell">30.65%</td>
+            
+            <td class="numberCell">31.33%</td>
+            
+            <td class="numberCell">25.67%</td>
+            
+            <td class="numberCell">37.08%</td>
+            
+            <td class="numberCell">30.86%</td>
+            
+            <td class="numberCell">27.82%</td>
+            
+            <td class="numberCell">33.72%</td>
+            
+            <td class="numberCell">27.22%</td>
+            
+            <td class="numberCell">22.61%</td>
+            
+            <td class="numberCell">32.60%</td>
+            
+            <td class="numberCell">15.34%</td>
+            
+            <td class="numberCell">21.43%</td>
+            
+            <td class="numberCell">22.05%</td>
+            
+            <td class="numberCell">21.36%</td>
+            
+            <td class="numberCell">15.78%</td>
+            
+            <td class="numberCell">24.06%</td>
+            
+            <td class="numberCell">17.42%</td>
+            
+            <td class="numberCell">20.13%</td>
+            
+            <td class="numberCell">2.13%</td>
+            
+            <td class="numberCell">3.59%</td>
+            
+            <td class="numberCell">6.29%</td>
+            
+            <td class="numberCell">8.03%</td>
+            
+            <td class="numberCell">14.13%</td>
+            
+            <td class="numberCell">8.61%</td>
+            
+            <td class="numberCell">8.06%</td>
+            
+            <td class="numberCell">6.67%</td>
+            
+            <td class="numberCell">6.76%</td>
+            
+            <td class="numberCell">5.74%</td>
+            
+            <td class="numberCell">17.37%</td>
+            
+            <td class="numberCell">20.41%</td>
+            
+            <td class="numberCell">15.79%</td>
+            
+            <td class="numberCell">2.38%</td>
+            
+            <td class="numberCell">6.78%</td>
+            
+            <td class="numberCell">8.49%</td>
+            
+            <td class="numberCell">28.78%</td>
+            
+            <td class="numberCell">17.86%</td>
+            
+            <td class="numberCell">39.79%</td>
+            
+            <td class="numberCell">15.62%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2020</td>
+            <td class="numberCell">1.36%</td>
+            
+            <td class="numberCell">20.87%</td>
+            
+            <td class="numberCell">18.25%</td>
+            
+            <td class="numberCell">2.18%</td>
+            
+            <td class="numberCell">40.01%</td>
+            
+            <td class="numberCell">18.10%</td>
+            
+            <td class="numberCell">2.41%</td>
+            
+            <td class="numberCell">34.32%</td>
+            
+            <td class="numberCell">18.96%</td>
+            
+            <td class="numberCell">5.72%</td>
+            
+            <td class="numberCell">35.10%</td>
+            
+            <td class="numberCell">25.53%</td>
+            
+            <td class="numberCell">11.16%</td>
+            
+            <td class="numberCell">10.26%</td>
+            
+            <td class="numberCell">11.84%</td>
+            
+            <td class="numberCell">-2.97%</td>
+            
+            <td class="numberCell">6.30%</td>
+            
+            <td class="numberCell">16.37%</td>
+            
+            <td class="numberCell">15.05%</td>
+            
+            <td class="numberCell">0.44%</td>
+            
+            <td class="numberCell">3.96%</td>
+            
+            <td class="numberCell">8.21%</td>
+            
+            <td class="numberCell">10.01%</td>
+            
+            <td class="numberCell">18.29%</td>
+            
+            <td class="numberCell">7.61%</td>
+            
+            <td class="numberCell">10.90%</td>
+            
+            <td class="numberCell">9.77%</td>
+            
+            <td class="numberCell">7.31%</td>
+            
+            <td class="numberCell">5.15%</td>
+            
+            <td class="numberCell">10.97%</td>
+            
+            <td class="numberCell">15.36%</td>
+            
+            <td class="numberCell">5.28%</td>
+            
+            <td class="numberCell">1.82%</td>
+            
+            <td class="numberCell">5.13%</td>
+            
+            <td class="numberCell">6.21%</td>
+            
+            <td class="numberCell">-4.78%</td>
+            
+            <td class="numberCell">24.81%</td>
+            
+            <td class="numberCell">23.66%</td>
+            
+            <td class="numberCell">-23.94%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2021</td>
+            <td class="numberCell">7.04%</td>
+            
+            <td class="numberCell">25.59%</td>
+            
+            <td class="numberCell">28.55%</td>
+            
+            <td class="numberCell">26.31%</td>
+            
+            <td class="numberCell">27.10%</td>
+            
+            <td class="numberCell">24.36%</td>
+            
+            <td class="numberCell">28.59%</td>
+            
+            <td class="numberCell">20.32%</td>
+            
+            <td class="numberCell">17.59%</td>
+            
+            <td class="numberCell">27.96%</td>
+            
+            <td class="numberCell">5.58%</td>
+            
+            <td class="numberCell">22.31%</td>
+            
+            <td class="numberCell">8.61%</td>
+            
+            <td class="numberCell">11.43%</td>
+            
+            <td class="numberCell">13.07%</td>
+            
+            <td class="numberCell">10.87%</td>
+            
+            <td class="numberCell">16.19%</td>
+            
+            <td class="numberCell">1.36%</td>
+            
+            <td class="numberCell">0.73%</td>
+            
+            <td class="numberCell">0.04%</td>
+            
+            <td class="numberCell">-0.87%</td>
+            
+            <td class="numberCell">-2.29%</td>
+            
+            <td class="numberCell">-3.33%</td>
+            
+            <td class="numberCell">-4.73%</td>
+            
+            <td class="numberCell">-1.77%</td>
+            
+            <td class="numberCell">5.56%</td>
+            
+            <td class="numberCell">-3.55%</td>
+            
+            <td class="numberCell">-0.53%</td>
+            
+            <td class="numberCell">-0.43%</td>
+            
+            <td class="numberCell">-1.85%</td>
+            
+            <td class="numberCell">-2.38%</td>
+            
+            <td class="numberCell">3.68%</td>
+            
+            <td class="numberCell">0.17%</td>
+            
+            <td class="numberCell">1.10%</td>
+            
+            <td class="numberCell">2.26%</td>
+            
+            <td class="numberCell">40.19%</td>
+            
+            <td class="numberCell">-4.15%</td>
+            
+            <td class="numberCell">-9.52%</td>
+            
+            <td class="numberCell">38.77%</td>
+            
+        </tr>
+        
+        <tr>
+            <td>2022</td>
+            <td class="numberCell">4.84%</td>
+            
+            <td class="numberCell">-14.24%</td>
+            
+            <td class="numberCell">-12.81%</td>
+            
+            <td class="numberCell">-1.60%</td>
+            
+            <td class="numberCell">-23.98%</td>
+            
+            <td class="numberCell">-14.18%</td>
+            
+            <td class="numberCell">-2.86%</td>
+            
+            <td class="numberCell">-24.85%</td>
+            
+            <td class="numberCell">-13.57%</td>
+            
+            <td class="numberCell">-5.83%</td>
+            
+            <td class="numberCell">-23.90%</td>
+            
+            <td class="numberCell">-14.41%</td>
+            
+            <td class="numberCell">-10.78%</td>
+            
+            <td class="numberCell">-10.68%</td>
+            
+            <td class="numberCell">-13.69%</td>
+            
+            <td class="numberCell">-1.92%</td>
+            
+            <td class="numberCell">-12.33%</td>
+            
+            <td class="numberCell">-10.70%</td>
+            
+            <td class="numberCell">-10.91%</td>
+            
+            <td class="numberCell">0.17%</td>
+            
+            <td class="numberCell">-2.49%</td>
+            
+            <td class="numberCell">-6.52%</td>
+            
+            <td class="numberCell">-9.78%</td>
+            
+            <td class="numberCell">-19.86%</td>
+            
+            <td class="numberCell">-9.10%</td>
+            
+            <td class="numberCell">-5.80%</td>
+            
+            <td class="numberCell">-8.27%</td>
+            
+            <td class="numberCell">-4.26%</td>
+            
+            <td class="numberCell">-4.38%</td>
+            
+            <td class="numberCell">-12.92%</td>
+            
+            <td class="numberCell">-18.49%</td>
+            
+            <td class="numberCell">-6.55%</td>
+            
+            <td class="numberCell">-1.30%</td>
+            
+            <td class="numberCell">-6.49%</td>
+            
+            <td class="numberCell">-8.47%</td>
+            
+            <td class="numberCell">-14.13%</td>
+            
+            <td class="numberCell">0.11%</td>
+            
+            <td class="numberCell">-0.94%</td>
+            
+            <td class="numberCell">46.35%</td>
+            
+        </tr>
+        
+        </tbody>
+        
+        <tfoot>
+        <tr>
+            <td colspan="40" class="text-muted">
+                The annual returns for 2022 are based on monthly returns from January to May.
+            </td>
+        </tr>
+        </tfoot>
+        
+    </table>
+
+    <button type="button" class="btn btn-primary hidden-print" onclick="document.location.href='index.html'">Close</button>
+</div>
+
+
+
+<div id="footer" class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-5">
+                <span class="text-muted">&copy; 2022 Silicon Cloud Technologies LLC</span>
+            </div>
+            <div class="col-sm-1">
+                <a href="about.html">About</a>
+            </div>
+            <div class="col-sm-1">
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="col-sm-1">
+                <a href="pricing.html">Pricing</a>
+            </div>
+            
+            <div class="col-sm-2">
+                <a href="terms-of-service.html">Terms of Service</a>
+            </div>
+            <div class="col-sm-2">
+                <a href="privacy-policy.html">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="../cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="jquery/jquery-3.4.1.min.js">\x3C/script>')</script>           
+<script src="../cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script>jQuery.fn.modal || document.write('<script src="bootstrap/js/bootstrap.min6bf2.js?v=341">\x3C/script>')</script>    
+
+
+<script src="javascript/merged-cd97b9efd972c726e07a723ff74b40a0.min.js"></script>
+
+
+
+<script>
+$(function() {
+    $.each(q, function(index, f) {
+        f.call(document);
+    });
+    postPageInit();
+});
+</script>
+
+
+</body>
+
+
+</html>

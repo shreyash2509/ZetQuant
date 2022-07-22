@@ -1,0 +1,564 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <title>Fund Screener</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta name="description" content="Fund screener for mutual funds and ETFs">
+    <meta name="keywords" content="fund screener,mutual fund,etf,fund performance,etf performance">
+    <link rel="canonical" href="fund-screener.html">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="css/merged-4b5ddc42c451e5d0b325c5d10e865f35.min.css">
+
+
+
+<script>
+var autoCompleteTickers=true;
+var showFullName=false;
+var enableExport=false;
+var expiredAccount=false;
+var enablePDF=false;
+var bookmarkURL="fund-screener.html";
+var showBookmarkLink=true;
+var showExportLinks=true;
+window.q=[];window.$=function(f){q.push(f)}
+</script>
+
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-43200681-1', 'portfoliovisualizer.com');
+    ga('send', 'pageview');
+</script>
+
+
+
+    
+    <style>
+        table.dataTable.table-condensed .multi.sorting:after,
+        table.dataTable.table-condensed .multi.sorting_asc:after,
+        table.dataTable.table-condensed .multi.sorting_desc:after {
+            top: 38px !important;
+            right: 6px;
+        }
+    </style>
+</head>
+<body>
+
+
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html"> PORTFOLIO <span class="pv-brand">VISUALIZER</span></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html" class="navbar-optional">Contact</a></li>
+                
+                <li><a href="pricing.html" class="navbar-optional">Pricing</a></li>
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Portfolio Analysis</li>
+                        <li><a href="backtest-asset-class-allocation.html">Backtest Asset Class Allocation</a></li>
+                        <li><a href="backtest-portfolio.html">Backtest Portfolio</a></li>
+                        <li><a href="monte-carlo-simulation.html">Monte Carlo Simulation</a></li>
+                        <li><a href="financial-goals.html">Financial Goals</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Optimization</li>
+                        <li><a href="efficient-frontier.html">Historical Efficient Frontier</a></li>
+                        <li><a href="efficient-frontier-forecast.html">Forecasted Efficient Frontier</a></li>
+                        <li><a href="optimize-portfolio.html">Portfolio Optimization</a></li>
+                        <li><a href="black-litterman-model.html">Black-Litterman Model</a></li>
+                        <li><a href="rolling-optimization.html">Rolling Optimization</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Asset Analytics</li>
+                        <li><a href="fund-screener.html">Fund Screener</a></li>
+                        <li><a href="fund-performance.html">Fund Performance</a></li>
+                        <li><a href="asset-correlations.html">Asset Correlations</a></li>
+                        <li><a href="asset-class-correlations.html">Asset Class Correlations</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Factor Analysis</li>
+                        <li><a href="factor-analysis.html">Factor Regression</a></li>
+                        <li><a href="risk-factor-allocation.html">Risk Factor Allocation</a></li>
+                        <li><a href="etf-and-mutual-fund-factor-regressions.html">Fund and ETF Factor Regressions</a></li>
+                        <li><a href="factor-performance-attribution.html">Factor Performance Attribution</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Market Timing</li>
+                        <li><a href="test-market-timing-model.html">Market Timing Models</a></li>
+                        <li><a href="test-market-timing-model5fea.html?timingModel=4&amp;coreSatellite=true">Core-Satellite</a></li>
+                    </ul>
+                </li>
+                
+                <li><div><a href="sign-up.html" class="btn btn-success navbar-btn">Sign Up</a></div></li>
+                <li><div><a href="login.html" class="btn btn-primary navbar-btn">Log In</a></div></li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container-fluid">
+    <h1>Fund Screener</h1>
+    <p>
+        Find ETF or mutual fund based on category and performance. You can select any fund for more detailed performance and risk statistics analysis.
+    </p>
+
+    <form action="https://www.portfoliovisualizer.com/fund-screener" method="post" class="form-horizontal"  novalidate>
+
+        <div class="form-group">
+<label for="fundType" class="control-label col-sm-2">Fund Type</label>
+<div class="col-sm-4">
+<select id="fundType" name="fundType" class="form-control" >
+<option value="-1" selected>All</option>
+<option value="2">ETF</option>
+<option value="5">Mutual Fund</option>
+<option value="4">Closed-End Fund</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="assetClass" class="control-label col-sm-2">Asset Class</label>
+<div class="col-sm-4">
+<select id="assetClass" name="assetClass" class="form-control" onchange="updateCategories()" >
+<option value="" selected>All</option>
+<option value="U.S. Equity">U.S. Equity</option>
+<option value="International Equity">International Equity</option>
+<option value="Taxable Bond">Taxable Bond</option>
+<option value="Municipal Bond">Municipal Bond</option>
+<option value="Sector Equity">Sector Equity</option>
+<option value="Allocation">Allocation</option>
+<option value="Alternative">Alternative</option>
+<option value="Commodities">Commodities</option>
+<option value="Miscellaneous">Miscellaneous</option>
+<option value="Nontraditional Equity">Nontraditional Equity</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="categories" class="control-label col-sm-2">Fund Category</label>
+<div class="col-sm-4">
+<select id="categories" name="categories" class="form-control" multiple="multiple" >
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="benchmarkName" class="control-label col-sm-2">Benchmark</label>
+<div class="col-sm-4">
+<select id="benchmarkName" name="benchmarkName" class="form-control" >
+<option value="" selected>All</option>
+<option value="Alerian MLP TR USD">Alerian MLP TR USD</option>
+<option value="Alerian Midstream Energy Select TR USD">Alerian Midstream Energy Select TR USD</option>
+<option value="Bloomberg 1-3 Yr US Treasury TR USD">Bloomberg 1-3 Yr US Treasury TR USD</option>
+<option value="Bloomberg Commodity TR USD">Bloomberg Commodity TR USD</option>
+<option value="Bloomberg Credit 1-3 Yr TR USD">Bloomberg Credit 1-3 Yr TR USD</option>
+<option value="Bloomberg GNMA TR USD">Bloomberg GNMA TR USD</option>
+<option value="Bloomberg Gbl Agg Ex USD TR Hdg USD">Bloomberg Gbl Agg Ex USD TR Hdg USD</option>
+<option value="Bloomberg Gbl Agg Ex USD TR USD">Bloomberg Gbl Agg Ex USD TR USD</option>
+<option value="Bloomberg Global Aggregate TR Hdg USD">Bloomberg Global Aggregate TR Hdg USD</option>
+<option value="Bloomberg Global Aggregate TR USD">Bloomberg Global Aggregate TR USD</option>
+<option value="Bloomberg Govt/Credit 1-3Y Ex Baa TR USD">Bloomberg Govt/Credit 1-3Y Ex Baa TR USD</option>
+<option value="Bloomberg HY Muni TR USD">Bloomberg HY Muni TR USD</option>
+<option value="Bloomberg Multiverse TR USD">Bloomberg Multiverse TR USD</option>
+<option value="Bloomberg Muni 1-15Y Blend(1-17) TR USD">Bloomberg Muni 1-15Y Blend(1-17) TR USD</option>
+<option value="Bloomberg Muni Inter-Short 1-10 TR USD">Bloomberg Muni Inter-Short 1-10 TR USD</option>
+<option value="Bloomberg Muni Quality Interm TR USD">Bloomberg Muni Quality Interm TR USD</option>
+<option value="Bloomberg Municipal 1 Yr 1-2 TR USD">Bloomberg Municipal 1 Yr 1-2 TR USD</option>
+<option value="Bloomberg Municipal 1-15 Yr TR USD">Bloomberg Municipal 1-15 Yr TR USD</option>
+<option value="Bloomberg Municipal 1-5 Yr TR USD">Bloomberg Municipal 1-5 Yr TR USD</option>
+<option value="Bloomberg Municipal 3-15Y Blend 2-17Y TR">Bloomberg Municipal 3-15Y Blend 2-17Y TR</option>
+<option value="Bloomberg Municipal California Exempt TR">Bloomberg Municipal California Exempt TR</option>
+<option value="Bloomberg Municipal New York Exempt TR">Bloomberg Municipal New York Exempt TR</option>
+<option value="Bloomberg Municipal TR USD">Bloomberg Municipal TR USD</option>
+<option value="Bloomberg Short-term Gov/Corp TR USD">Bloomberg Short-term Gov/Corp TR USD</option>
+<option value="Bloomberg U.S. Treasury TIPS 1-5Y TR USD">Bloomberg U.S. Treasury TIPS 1-5Y TR USD</option>
+<option value="Bloomberg US Agg Bond TR USD">Bloomberg US Agg Bond TR USD</option>
+<option value="Bloomberg US Agg Interm TR USD">Bloomberg US Agg Interm TR USD</option>
+<option value="Bloomberg US Aggregate 1-3 Yr TR USD">Bloomberg US Aggregate 1-3 Yr TR USD</option>
+<option value="Bloomberg US Corp Bond TR USD">Bloomberg US Corp Bond TR USD</option>
+<option value="Bloomberg US Corporate High Yield TR USD">Bloomberg US Corporate High Yield TR USD</option>
+<option value="Bloomberg US Credit TR USD">Bloomberg US Credit TR USD</option>
+<option value="Bloomberg US Government TR USD">Bloomberg US Government TR USD</option>
+<option value="Bloomberg US Govt 1-3 Yr TR USD">Bloomberg US Govt 1-3 Yr TR USD</option>
+<option value="Bloomberg US Govt Interm TR USD">Bloomberg US Govt Interm TR USD</option>
+<option value="Bloomberg US Govt/Credit 1-3 Yr TR USD">Bloomberg US Govt/Credit 1-3 Yr TR USD</option>
+<option value="Bloomberg US Govt/Credit 1-5 Yr TR USD">Bloomberg US Govt/Credit 1-5 Yr TR USD</option>
+<option value="Bloomberg US Govt/Credit A+ 1-5Y TR USD">Bloomberg US Govt/Credit A+ 1-5Y TR USD</option>
+<option value="Bloomberg US Govt/Credit Interm TR USD">Bloomberg US Govt/Credit Interm TR USD</option>
+<option value="Bloomberg US Govt/Credit TR USD">Bloomberg US Govt/Credit TR USD</option>
+<option value="Bloomberg US Govt/Mortgage TR USD">Bloomberg US Govt/Mortgage TR USD</option>
+<option value="Bloomberg US HY 2% Issuer Cap TR USD">Bloomberg US HY 2% Issuer Cap TR USD</option>
+<option value="Bloomberg US MBS TR USD">Bloomberg US MBS TR USD</option>
+<option value="Bloomberg US Scrtzd MBS ABS CMBS TR USD">Bloomberg US Scrtzd MBS ABS CMBS TR USD</option>
+<option value="Bloomberg US Treasury Bill 1-3 M TR USD">Bloomberg US Treasury Bill 1-3 M TR USD</option>
+<option value="Bloomberg US Treasury Long TR USD">Bloomberg US Treasury Long TR USD</option>
+<option value="Bloomberg US Treasury US TIPS TR USD">Bloomberg US Treasury US TIPS TR USD</option>
+<option value="Bloomberg US Trsy Infl Note 1-10Y TR USD">Bloomberg US Trsy Infl Note 1-10Y TR USD</option>
+<option value="Bloomberg US Universal TR USD">Bloomberg US Universal TR USD</option>
+<option value="CBOE S&amp;P 500 BuyWrite BXM">CBOE S&amp;P 500 BuyWrite BXM</option>
+<option value="Credit Suisse Leveraged Loan USD">Credit Suisse Leveraged Loan USD</option>
+<option value="DJ Industrial Average TR USD">DJ Industrial Average TR USD</option>
+<option value="FTSE EPRA Nareit Developed NR USD">FTSE EPRA Nareit Developed NR USD</option>
+<option value="FTSE EPRA Nareit Developed TR USD">FTSE EPRA Nareit Developed TR USD</option>
+<option value="FTSE Nareit All Equity REITs TR USD">FTSE Nareit All Equity REITs TR USD</option>
+<option value="FTSE Nareit Equity REITs TR USD">FTSE Nareit Equity REITs TR USD</option>
+<option value="FTSE Treasury Bill 1 Mon USD">FTSE Treasury Bill 1 Mon USD</option>
+<option value="FTSE Treasury Bill 3 Mon USD">FTSE Treasury Bill 3 Mon USD</option>
+<option value="FTSE WGBI USD">FTSE WGBI USD</option>
+<option value="HFRX Equity Hedge USD">HFRX Equity Hedge USD</option>
+<option value="HFRX Global Hedge Fund USD">HFRX Global Hedge Fund USD</option>
+<option value="ICE BofA 0-3 M US Trsy Bill TR USD">ICE BofA 0-3 M US Trsy Bill TR USD</option>
+<option value="ICE BofA 1-3Y US Corp TR USD">ICE BofA 1-3Y US Corp TR USD</option>
+<option value="ICE BofA 1-3Y US Corp&amp;Govt TR USD">ICE BofA 1-3Y US Corp&amp;Govt TR USD</option>
+<option value="ICE BofA 1-3Y US Trsy TR USD">ICE BofA 1-3Y US Trsy TR USD</option>
+<option value="ICE BofA All US Convertible TR USD">ICE BofA All US Convertible TR USD</option>
+<option value="ICE BofA Fxd Rate Pref TR USD">ICE BofA Fxd Rate Pref TR USD</option>
+<option value="ICE BofA US 3M Trsy Bill TR USD">ICE BofA US 3M Trsy Bill TR USD</option>
+<option value="ICE BofA US HY Constnd TR USD">ICE BofA US HY Constnd TR USD</option>
+<option value="ICE BofA US High Yield TR USD">ICE BofA US High Yield TR USD</option>
+<option value="ICE BofA US Treasury Bill TR USD">ICE BofA US Treasury Bill TR USD</option>
+<option value="ICE BofA USD 3M Dep OR CM TR USD">ICE BofA USD 3M Dep OR CM TR USD</option>
+<option value="ICE LIBOR 3 Month USD">ICE LIBOR 3 Month USD</option>
+<option value="JPM CEMBI Broad Diversified TR USD">JPM CEMBI Broad Diversified TR USD</option>
+<option value="JPM EMBI Global Diversified TR USD">JPM EMBI Global Diversified TR USD</option>
+<option value="JPM EMBI Global TR USD">JPM EMBI Global TR USD</option>
+<option value="JPM GBI-EM Global Diversified TR USD">JPM GBI-EM Global Diversified TR USD</option>
+<option value="MSCI AC Asia Ex Japan NR USD">MSCI AC Asia Ex Japan NR USD</option>
+<option value="MSCI ACWI Ex USA GR USD">MSCI ACWI Ex USA GR USD</option>
+<option value="MSCI ACWI Ex USA Growth NR USD">MSCI ACWI Ex USA Growth NR USD</option>
+<option value="MSCI ACWI Ex USA NR USD">MSCI ACWI Ex USA NR USD</option>
+<option value="MSCI ACWI Ex USA SMID NR USD">MSCI ACWI Ex USA SMID NR USD</option>
+<option value="MSCI ACWI Ex USA Small NR USD">MSCI ACWI Ex USA Small NR USD</option>
+<option value="MSCI ACWI GR USD">MSCI ACWI GR USD</option>
+<option value="MSCI ACWI NR USD">MSCI ACWI NR USD</option>
+<option value="MSCI ACWI Small NR USD">MSCI ACWI Small NR USD</option>
+<option value="MSCI China All Shares NR USD">MSCI China All Shares NR USD</option>
+<option value="MSCI China NR USD">MSCI China NR USD</option>
+<option value="MSCI EAFE GR USD">MSCI EAFE GR USD</option>
+<option value="MSCI EAFE NR USD">MSCI EAFE NR USD</option>
+<option value="MSCI EAFE Small Cap NR USD">MSCI EAFE Small Cap NR USD</option>
+<option value="MSCI EAFE Value NR USD">MSCI EAFE Value NR USD</option>
+<option value="MSCI EM GR USD">MSCI EM GR USD</option>
+<option value="MSCI EM NR USD">MSCI EM NR USD</option>
+<option value="MSCI EM Small NR USD">MSCI EM Small NR USD</option>
+<option value="MSCI Europe NR USD">MSCI Europe NR USD</option>
+<option value="MSCI USA EXTENDED ESG FOCUS NR USD">MSCI USA EXTENDED ESG FOCUS NR USD</option>
+<option value="MSCI World Ex USA Small Cap NR USD">MSCI World Ex USA Small Cap NR USD</option>
+<option value="MSCI World NR USD">MSCI World NR USD</option>
+<option value="MSCI World Value NR USD">MSCI World Value NR USD</option>
+<option value="MSCI World ex USA NR USD">MSCI World ex USA NR USD</option>
+<option value="MSCI World/Health Care NR USD">MSCI World/Health Care NR USD</option>
+<option value="Morningstar Mod Agg Tgt Risk TR USD">Morningstar Mod Agg Tgt Risk TR USD</option>
+<option value="Morningstar Mod Con Tgt Risk TR USD">Morningstar Mod Con Tgt Risk TR USD</option>
+<option value="Morningstar Mod Tgt Risk TR USD">Morningstar Mod Tgt Risk TR USD</option>
+<option value="NASDAQ 100 TR USD">NASDAQ 100 TR USD</option>
+<option value="NASDAQ Composite TR USD">NASDAQ Composite TR USD</option>
+<option value="Russell 1000 Growth TR USD">Russell 1000 Growth TR USD</option>
+<option value="Russell 1000 TR USD">Russell 1000 TR USD</option>
+<option value="Russell 1000 Value TR USD">Russell 1000 Value TR USD</option>
+<option value="Russell 2000 Growth TR USD">Russell 2000 Growth TR USD</option>
+<option value="Russell 2000 TR USD">Russell 2000 TR USD</option>
+<option value="Russell 2000 Value TR USD">Russell 2000 Value TR USD</option>
+<option value="Russell 2500 Growth TR USD">Russell 2500 Growth TR USD</option>
+<option value="Russell 2500 TR USD">Russell 2500 TR USD</option>
+<option value="Russell 2500 Value TR USD">Russell 2500 Value TR USD</option>
+<option value="Russell 3000 Growth TR USD">Russell 3000 Growth TR USD</option>
+<option value="Russell 3000 TR USD">Russell 3000 TR USD</option>
+<option value="Russell 3000 Value TR USD">Russell 3000 Value TR USD</option>
+<option value="Russell Mid Cap Growth TR USD">Russell Mid Cap Growth TR USD</option>
+<option value="Russell Mid Cap TR USD">Russell Mid Cap TR USD</option>
+<option value="Russell Mid Cap Value TR USD">Russell Mid Cap Value TR USD</option>
+<option value="S&amp;P 1500 Health Care TR">S&amp;P 1500 Health Care TR</option>
+<option value="S&amp;P 1500 TR">S&amp;P 1500 TR</option>
+<option value="S&amp;P 500 PR">S&amp;P 500 PR</option>
+<option value="S&amp;P 500 Sec/Utilities TR USD">S&amp;P 500 Sec/Utilities TR USD</option>
+<option value="S&amp;P 500 TR USD">S&amp;P 500 TR USD</option>
+<option value="S&amp;P 500 Value TR USD">S&amp;P 500 Value TR USD</option>
+<option value="S&amp;P Developed Ex US Small TR USD">S&amp;P Developed Ex US Small TR USD</option>
+<option value="S&amp;P MidCap 400 TR">S&amp;P MidCap 400 TR</option>
+<option value="S&amp;P Municipal Bond TR">S&amp;P Municipal Bond TR</option>
+<option value="S&amp;P North American Technology TR">S&amp;P North American Technology TR</option>
+<option value="S&amp;P SmallCap 600 TR USD">S&amp;P SmallCap 600 TR USD</option>
+<option value="S&amp;P Target Risk Growth TR USD">S&amp;P Target Risk Growth TR USD</option>
+<option value="S&amp;P/LSTA Leveraged Loan TR">S&amp;P/LSTA Leveraged Loan TR</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="performanceHistoryPeriod" class="control-label col-sm-2">Performance History</label>
+<div class="col-sm-4">
+<select id="performanceHistoryPeriod" name="performanceHistoryPeriod" class="form-control" >
+<option value="-1" selected>All</option>
+<option value="3">3 or more years</option>
+<option value="5">5 or more years</option>
+<option value="10">10 or more years</option>
+<option value="15">15 or more years</option>
+<option value="20">20 or more years</option>
+<option value="25">25 or more years</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="expenseRatio" class="control-label col-sm-2">Expense Ratio</label>
+<div class="col-sm-4">
+<select id="expenseRatio" name="expenseRatio" class="form-control" >
+<option value="-1">All</option>
+<option value="0.25">&lt; 0.25%</option>
+<option value="0.5">&lt; 0.50%</option>
+<option value="0.75">&lt; 0.75%</option>
+<option value="1.0">&lt; 1.00%</option>
+</select>
+</div>
+</div>
+
+
+        <div class="form-group form-buttons">
+<div class="col-sm-offset-2 col-sm-10">
+<input type="submit" id="submitButton" value="Update Table" class="btn btn-primary">
+</div>
+</div>
+
+    </form>
+
+    <h2>Fund Performance</h2>
+    <div class="table-responsive">
+        <table class="table table-striped table-condensed pagedTable fullWidth">
+            <caption class="sr-only">Screened mutual funds and ETFs</caption>
+            <thead>
+            <tr>
+                <th rowspan="2" class="multi">Ticker</th>
+                <th rowspan="2" class="multi">Name</th>
+                <th rowspan="2" class="multi">Asset Class</th>
+                <th rowspan="2" class="multi">Category</th>
+                <th colspan="4">Performance</th>
+                <th colspan="3">Risk Measures</th>
+                <th colspan="4">Excess Returns</th>
+                <th colspan="5">Fund Information</th>
+            </tr>
+            <tr>
+                
+                <th>YTD</th>
+                
+                <th>1Y</th>
+                <th>3Y</th>
+                <th>5Y</th>
+                <th>Sharpe</th>
+                <th>Sortino</th>
+                <th>Volatility</th>
+                <th>Tracking Error</th>
+                <th>Information Ratio</th>
+                <th>Upside Capture</th>
+                <th>Downside Capture</th>
+                <th>Yield SEC</th>
+                <th>Yield TTM</th>
+                <th>ER</th>
+                <th>Assets</th>
+                <th>Inception</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="resultNotes" class="well well-small separateTop">
+Notes on results:
+<ul>
+<li>IMPORTANT: The projections or other information generated by Portfolio Visualizer regarding the likelihood of various investment outcomes are hypothetical in nature, do not reflect actual investment results and are not guarantees of future results. Results may vary with each use and over time.</li>
+<li>The results do not constitute investment advice or recommendation, are provided solely for informational purposes, and are not an offer to buy or sell any securities. All use is subject to <a href="terms-of-service.html">terms of service</a>.</li>
+<li>Investing involves risk, including possible loss of principal. Past performance is not a guarantee of future results.</li>
+<li>Asset allocation and diversification strategies do not guarantee a profit or protect against a loss.</li>
+<li>Hypothetical returns do not reflect trading costs, transaction fees, commissions, or actual taxes due on investment returns.</li>
+<li>The results are based on information from a variety of sources we consider reliable, but we do not represent that the information is accurate or complete.</li>
+<li>Refer to the related documentation sections for more details on <a href="faq.html#definitions">terms and definitions</a>, <a href="faq.html#methodology">methodology</a>, and <a href="faq.html#marketData">data sources</a>.</li>
+<li>The fund performance analysis results were constructed using net of fee mutual fund performance. Portfolio Visualizer does not provide preferential treatment to any specific security or investment.</li>
+<li>The results are based on the total return of assets and assume that all received dividends and distributions are reinvested.</li>
+<li>Fund fundamentals data as of 06/23/2022. (c) 2022 Morningstar. All Rights Reserved. The fund fundamentals information contained herein: (1) is proprietary to Morningstar and/or its content providers; (2) may not be copied or distributed; and (3) is not warranted to be accurate, complete or timely. Neither Morningstar nor its content providers are responsible for any damages or losses arising from any use of this information. </li>
+<li>Fund performance and risk calculations are for full months ending in May 2022</li>
+<li>Sharpe and Sortino ratios are calculated and annualized from monthly excess returns over the risk free rate (3-month treasury bill) over the past 36 months</li>
+<li>Tracking error, information ratio, and capture ratios are calculated over the past 36 months against the fund benchmark</li>
+<li>Volatility is the annualized standard deviation of monthly returns over the past 36 months</li>
+<li>Displayed expense ratio is the prospectus net expense ratio</li>
+<li>Funds with less than one year of data are excluded</li>
+<li>YTD returns are based on full calendar months</li>
+</ul>
+</div>
+
+</div>
+
+
+
+<div id="footer" class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-5">
+                <span class="text-muted">&copy; 2022 Silicon Cloud Technologies LLC</span>
+            </div>
+            <div class="col-sm-1">
+                <a href="about.html">About</a>
+            </div>
+            <div class="col-sm-1">
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="col-sm-1">
+                <a href="pricing.html">Pricing</a>
+            </div>
+            
+            <div class="col-sm-2">
+                <a href="terms-of-service.html">Terms of Service</a>
+            </div>
+            <div class="col-sm-2">
+                <a href="privacy-policy.html">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="../cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="jquery/jquery-3.4.1.min.js">\x3C/script>')</script>           
+<script src="../cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script>jQuery.fn.modal || document.write('<script src="bootstrap/js/bootstrap.min6bf2.js?v=341">\x3C/script>')</script>    
+
+
+<script src="javascript/merged-cd97b9efd972c726e07a723ff74b40a0.min.js"></script>
+
+
+
+<script>
+$(function() {
+    $.each(q, function(index, f) {
+        f.call(document);
+    });
+    postPageInit();
+});
+</script>
+
+
+
+
+
+<script src="../cdn.datatables.net/t/bs/dt-1.10.12/datatables.min.js"></script>
+<script>jQuery.fn.dataTable || document.write('<script src="datatables/datatables.min076a.js?v=11012">\x3C/script>')</script> 
+
+
+<script>
+    var mapping = { "International Equity": [ "China Region","Diversified Emerging Mkts","Diversified Pacific/Asia","Europe Stock","Foreign Large Blend","Foreign Large Growth","Foreign Large Value","Foreign Small/Mid Blend","Foreign Small/Mid Growth","Foreign Small/Mid Value","Global Large-Stock Blend","Global Large-Stock Growth","Global Large-Stock Value","Global Small/Mid Stock","India Equity","Japan Stock","Latin America Stock","Miscellaneous Region","Pacific/Asia ex-Japan Stk"],"Municipal Bond": [ "High Yield Muni","Muni California Intermediate","Muni California Long","Muni Massachusetts","Muni Minnesota","Muni National Interm","Muni National Long","Muni National Short","Muni New Jersey","Muni New York Intermediate","Muni New York Long","Muni Ohio","Muni Pennsylvania","Muni Single State Interm","Muni Single State Long","Muni Single State Short","Muni Target Maturity"],"Miscellaneous": [ "Inverse Commodities","Inverse Debt","Inverse Equity","Leveraged Commodities","Leveraged Debt","Leveraged Equity","Miscellaneous"],"Taxable Bond": [ "Bank Loan","Corporate Bond","Emerging Markets Bond","Emerging-Markets Local-Currency Bond","Global Bond","Global Bond-USD Hedged","High Yield Bond","Inflation-Protected Bond","Intermediate Core Bond","Intermediate Core-Plus Bond","Intermediate Government","Long Government","Long-Term Bond","Multisector Bond","Nontraditional Bond","Preferred Stock","Short Government","Short-Term Bond","Single Currency","Target Maturity","Ultrashort Bond"],"Alternative": [ "Digital Assets","Equity Market Neutral","Event Driven","Macro Trading","Multistrategy","Options Trading","Relative Value Arbitrage","Systematic Trend"],"Allocation": [ "15% to 30% Equity","30% to 50% Equity","50% to 70% Equity","70% to 85% Equity","85%+ Equity","Convertibles","Global Allocation","Tactical Allocation","Target-Date 2000-2010","Target-Date 2015","Target-Date 2020","Target-Date 2025","Target-Date 2030","Target-Date 2035","Target-Date 2040","Target-Date 2045","Target-Date 2050","Target-Date 2055","Target-Date 2060","Target-Date 2065+","Target-Date Retirement"],"Commodities": [ "Commodities Broad Basket","Commodities Focused"],"U.S. Equity": [ "Large Blend","Large Growth","Large Value","Mid-Cap Blend","Mid-Cap Growth","Mid-Cap Value","Small Blend","Small Growth","Small Value"],"Sector Equity": [ "Communications","Consumer Cyclical","Consumer Defensive","Energy Limited Partnership","Equity Energy","Equity Precious Metals","Financial","Global Real Estate","Health","Industrials","Infrastructure","Miscellaneous Sector","Natural Resources","Real Estate","Technology","Utilities"],"Nontraditional Equity": [ "Derivative Income","Long-Short Equity"] };
+
+
+    function updateCategories() {
+        var assetClass=$("#assetClass").val();
+        if(assetClass) {
+            $('#categories').html('');
+            var options=mapping[assetClass];
+            var innerHTML='';
+            jQuery.each(options, function(index, item) {
+                innerHTML+='<option value="'+item+'">'+item+'</option>';
+            });
+            $('#categories').html(innerHTML);
+            $('#categories').trigger("chosen:updated");
+        }
+        $("#categories").closest('.form-group').toggle(assetClass.length>0);
+    }
+    $(function() {
+        updateCategories();
+        
+        
+        $("table.pagedTable").each(function() {
+            var options = {
+                "bFilter": true,
+                "bPaginate": true,
+                "bAutoWidth": false,
+                "sPaginationType": "full",
+                "bSort" : true,
+                "aaSorting" : [],
+                "bLengthChange" : false,
+                "iDisplayLength": 15,
+                "aLengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                "sDom": 't<"dataTables_bottom"fip>r<"clear">',
+                "bProcessing": true,
+                "bServerSide": true,
+                "ajax": "fund-screener",
+                "columns": [ null, null, null, null,
+                            
+                            { "class": "numberCell"},
+                           
+                           { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"}, { "class": "numberCell"} ],
+                oLanguage: {
+                    "sProcessing": "Loading. Please wait..."
+                }
+            };
+            $(this).dataTable(options);
+        });
+    });
+</script>
+</body>
+
+
+</html>

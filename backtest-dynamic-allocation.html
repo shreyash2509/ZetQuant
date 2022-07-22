@@ -1,0 +1,1151 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <title>Backtest Dynamic Allocation</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta name="description" content="Backtest dynamic asset allocation based on historical trades and related asset allocation weights">
+    <meta name="keywords" content="dynamic asset allocation backtest,portfolio backtest,backtest transaction history">
+    <link rel="canonical" href="backtest-dynamic-allocation.html">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="css/merged-4b5ddc42c451e5d0b325c5d10e865f35.min.css">
+
+
+
+<script>
+var autoCompleteTickers=true;
+var showFullName=false;
+var enableExport=false;
+var expiredAccount=false;
+var enablePDF=false;
+var bookmarkURL="backtest-dynamic-allocation.html";
+var showBookmarkLink=true;
+var showExportLinks=true;
+window.q=[];window.$=function(f){q.push(f)}
+</script>
+
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-43200681-1', 'portfoliovisualizer.com');
+    ga('send', 'pageview');
+</script>
+
+
+
+
+    <script>
+        $(function() {
+            toggleTimeframe();
+            toggleAdjustment();
+            toggleLeverage();
+            $('#leverageType').on('change', function (e) {
+                toggleLeverage();
+            });
+            var benchmarkField=$('#benchmark');
+            benchmarkField.on('change', function (e) {
+                $("#benchmarkSymbol").closest('.form-group').toggle($('#benchmark').val()==-1);
+            });
+            $("#benchmarkSymbol").closest('.form-group').toggle(benchmarkField.val()==-1);
+            
+        });
+        function toggleTimeframe() {
+            var showMonths=$("#timePeriod").val()==2;
+            $("#calendarAligned").closest('.form-group').toggle(showMonths);
+            $("#firstMonth").closest('.form-group').toggle(showMonths);
+            $("#lastMonth").closest('.form-group').toggle(showMonths);
+            toggleYTD();
+        }
+
+        function toggleLeverage() {
+            var leverageType=$("#leverageType").val();
+            var fixedRatio=leverageType==1;
+            var fixedDebt=leverageType==2;
+            $("#leverageRatio").closest('.form-group').toggle(fixedRatio);
+            $("#debtAmount").closest('.form-group').toggle(fixedDebt);
+            $("#debtInterest").closest('.form-group').toggle(fixedRatio || fixedDebt);
+            $("#maintenanceMargin").closest('.form-group').toggle(fixedDebt);
+            $("#leveragedBenchmark").closest('.form-group').toggle(fixedRatio || fixedDebt);
+        }
+
+        function toggleYTD() {
+            var showYTD=$("#timePeriod").val()==4 && $("#endYear").val()>=2022;
+            $("#includeYTD").closest('.form-group').toggle(showYTD);
+        }
+
+        function toggleAdjustment() {
+            var isComparison=$("#comparisonPortfolio").val()=='true';
+            $("#pfSection").toggle(isComparison);
+            $("#rebalanceType").closest('.form-group').toggle(isComparison);
+
+            var adjustmentType=$("#periodicAdjustment").val();
+            var adjustmentFieldGroup=$("#adjustmentAmount").closest('.form-group');
+            var showAmount=(adjustmentType==1 || adjustmentType==2);
+            var showPercentage=(adjustmentType==3);
+            if(showAmount) {
+                adjustmentFieldGroup.find('.control-label').text(adjustmentType==1 ? "Contribution Amount" : "Withdrawal Amount");
+            }
+            adjustmentFieldGroup.toggle(showAmount);
+            $("#inflationAdjusted").closest('.form-group').toggle(showAmount);
+            $("#adjustmentPercentage").closest('.form-group').toggle(showPercentage);
+            var frequencyFieldGroup=$("#adjustmentFrequency").closest('.form-group');
+            frequencyFieldGroup.find('.control-label').text(adjustmentType==1 ? "Contribution Frequency" : "Withdrawal Frequency");
+            frequencyFieldGroup.toggle(adjustmentType>0);
+        }
+
+        function saveReturnSeries(benchmarkSeries) {
+            
+            showLoginPrompt(true);
+            
+            return false;
+        }
+        var extraChartsCount=15;
+    </script>
+</head>
+<body>
+
+
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html"> PORTFOLIO <span class="pv-brand">VISUALIZER</span></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html" class="navbar-optional">Contact</a></li>
+                
+                <li><a href="pricing.html" class="navbar-optional">Pricing</a></li>
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Portfolio Analysis</li>
+                        <li><a href="backtest-asset-class-allocation.html">Backtest Asset Class Allocation</a></li>
+                        <li><a href="backtest-portfolio.html">Backtest Portfolio</a></li>
+                        <li><a href="monte-carlo-simulation.html">Monte Carlo Simulation</a></li>
+                        <li><a href="financial-goals.html">Financial Goals</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Optimization</li>
+                        <li><a href="efficient-frontier.html">Historical Efficient Frontier</a></li>
+                        <li><a href="efficient-frontier-forecast.html">Forecasted Efficient Frontier</a></li>
+                        <li><a href="optimize-portfolio.html">Portfolio Optimization</a></li>
+                        <li><a href="black-litterman-model.html">Black-Litterman Model</a></li>
+                        <li><a href="rolling-optimization.html">Rolling Optimization</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Asset Analytics</li>
+                        <li><a href="fund-screener.html">Fund Screener</a></li>
+                        <li><a href="fund-performance.html">Fund Performance</a></li>
+                        <li><a href="asset-correlations.html">Asset Correlations</a></li>
+                        <li><a href="asset-class-correlations.html">Asset Class Correlations</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Factor Analysis</li>
+                        <li><a href="factor-analysis.html">Factor Regression</a></li>
+                        <li><a href="risk-factor-allocation.html">Risk Factor Allocation</a></li>
+                        <li><a href="etf-and-mutual-fund-factor-regressions.html">Fund and ETF Factor Regressions</a></li>
+                        <li><a href="factor-performance-attribution.html">Factor Performance Attribution</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Market Timing</li>
+                        <li><a href="test-market-timing-model.html">Market Timing Models</a></li>
+                        <li><a href="test-market-timing-model5fea.html?timingModel=4&amp;coreSatellite=true">Core-Satellite</a></li>
+                    </ul>
+                </li>
+                
+                <li><div><a href="sign-up.html" class="btn btn-success navbar-btn">Sign Up</a></div></li>
+                <li><div><a href="login.html" class="btn btn-primary navbar-btn">Log In</a></div></li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div class="container-fluid">
+    <h1>Backtest Dynamic Allocation</h1>
+    <p>
+        This portfolio backtesting tool allows you to backtest a historical sequence of dynamic portfolio allocations where the portfolio model assets and their weights have changed over time.
+        The results include portfolio risk and return metrics, drawdowns, rolling returns, and returns based style analysis.
+        A periodic contribution or withdrawal can also be specified along with an optional static allocation portfolio or a benchmark for comparisons.
+    </p>
+    <p>
+        The historical assets and allocation weights can be imported in a standard Excel or CSV file format.
+        The file layout captures the start date for each allocation along with assets and their weights.
+        Calendar specific rebalancing can be optionally enabled, otherwise the allocation will drift freely between the specified trade dates.
+        Please refer to the sample files below for the supported data import formats.
+
+    </p>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Supported Data Import Formats</h3>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Column Based Format</td>
+                    <td>
+                        The column based format uses a separate column for each asset. The value in the column specifies the weight for the asset on the given day, and blank values are treated as 0%.
+                    </td>
+                    <td>
+                        <a href="history_columns_monthly91a2.csv_%3b?downloadSample=true&amp;sampleIndex=1" title="Download column based format example" style="white-space: nowrap;"><i class="fa fa-file-excel-o" aria-hidden="true" style="display: inline;"></i> Download</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Compact Format</td>
+                    <td>
+                        The compact format uses a single cell to specify the list of assets for the given date, and the second cell specifies the weight for each asset.
+                    </td>
+                    <td>
+                        <a href="history_compact_monthlyc3a2.csv_%3b?downloadSample=true&amp;sampleIndex=2" title="Download compact format example" style="white-space: nowrap;"><i class="fa fa-file-excel-o" aria-hidden="true" style="display: inline;"></i> Download</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    
+
+    <form action="https://www.portfoliovisualizer.com/backtest-dynamic-allocation#analysisResults" method="post" class="form-horizontal" enctype="multipart/form-data"  novalidate>
+
+        <input name="allocationHistoryJSON" type="hidden" id="allocationHistoryJSON"></input>
+        <input name="allocationHistoryFilename" type="hidden" id="allocationHistoryFilename"></input>
+        <div class="form-group">
+<label for="timePeriod" class="control-label col-sm-3">Time Period <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify time period in years or in months"></span>
+</label>
+<div class="col-sm-3">
+<select id="timePeriod" name="timePeriod" class="form-control" onchange="toggleTimeframe()" >
+<option value="2">Month-to-Month</option>
+<option value="4" selected>Year-to-Year</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="startYear" class="control-label col-sm-3">Start Year <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Start year for portfolio backtest"></span>
+</label>
+<div class="col-sm-2">
+<select id="startYear" name="startYear" class="form-control" >
+<option value="1985" selected>1985</option>
+<option value="1986">1986</option>
+<option value="1987">1987</option>
+<option value="1988">1988</option>
+<option value="1989">1989</option>
+<option value="1990">1990</option>
+<option value="1991">1991</option>
+<option value="1992">1992</option>
+<option value="1993">1993</option>
+<option value="1994">1994</option>
+<option value="1995">1995</option>
+<option value="1996">1996</option>
+<option value="1997">1997</option>
+<option value="1998">1998</option>
+<option value="1999">1999</option>
+<option value="2000">2000</option>
+<option value="2001">2001</option>
+<option value="2002">2002</option>
+<option value="2003">2003</option>
+<option value="2004">2004</option>
+<option value="2005">2005</option>
+<option value="2006">2006</option>
+<option value="2007">2007</option>
+<option value="2008">2008</option>
+<option value="2009">2009</option>
+<option value="2010">2010</option>
+<option value="2011">2011</option>
+<option value="2012">2012</option>
+<option value="2013">2013</option>
+<option value="2014">2014</option>
+<option value="2015">2015</option>
+<option value="2016">2016</option>
+<option value="2017">2017</option>
+<option value="2018">2018</option>
+<option value="2019">2019</option>
+<option value="2020">2020</option>
+<option value="2021">2021</option>
+<option value="2022">2022</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="firstMonth" class="control-label col-sm-3">First Month <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Start month for portfolio backtest"></span>
+</label>
+<div class="col-sm-2">
+<select id="firstMonth" name="firstMonth" class="form-control" >
+<option value="1" selected>Jan</option>
+<option value="2">Feb</option>
+<option value="3">Mar</option>
+<option value="4">Apr</option>
+<option value="5">May</option>
+<option value="6">Jun</option>
+<option value="7">Jul</option>
+<option value="8">Aug</option>
+<option value="9">Sep</option>
+<option value="10">Oct</option>
+<option value="11">Nov</option>
+<option value="12">Dec</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="endYear" class="control-label col-sm-3">End Year <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="End year for portfolio backtest"></span>
+</label>
+<div class="col-sm-2">
+<select id="endYear" name="endYear" class="form-control" onchange="toggleYTD()" >
+<option value="1985">1985</option>
+<option value="1986">1986</option>
+<option value="1987">1987</option>
+<option value="1988">1988</option>
+<option value="1989">1989</option>
+<option value="1990">1990</option>
+<option value="1991">1991</option>
+<option value="1992">1992</option>
+<option value="1993">1993</option>
+<option value="1994">1994</option>
+<option value="1995">1995</option>
+<option value="1996">1996</option>
+<option value="1997">1997</option>
+<option value="1998">1998</option>
+<option value="1999">1999</option>
+<option value="2000">2000</option>
+<option value="2001">2001</option>
+<option value="2002">2002</option>
+<option value="2003">2003</option>
+<option value="2004">2004</option>
+<option value="2005">2005</option>
+<option value="2006">2006</option>
+<option value="2007">2007</option>
+<option value="2008">2008</option>
+<option value="2009">2009</option>
+<option value="2010">2010</option>
+<option value="2011">2011</option>
+<option value="2012">2012</option>
+<option value="2013">2013</option>
+<option value="2014">2014</option>
+<option value="2015">2015</option>
+<option value="2016">2016</option>
+<option value="2017">2017</option>
+<option value="2018">2018</option>
+<option value="2019">2019</option>
+<option value="2020">2020</option>
+<option value="2021">2021</option>
+<option value="2022" selected>2022</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="lastMonth" class="control-label col-sm-3">Last Month <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="End month for portfolio backtest"></span>
+</label>
+<div class="col-sm-2">
+<select id="lastMonth" name="lastMonth" class="form-control" >
+<option value="1">Jan</option>
+<option value="2">Feb</option>
+<option value="3">Mar</option>
+<option value="4">Apr</option>
+<option value="5">May</option>
+<option value="6">Jun</option>
+<option value="7">Jul</option>
+<option value="8">Aug</option>
+<option value="9">Sep</option>
+<option value="10">Oct</option>
+<option value="11">Nov</option>
+<option value="12" selected>Dec</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="calendarAligned" class="control-label col-sm-3">Calendar Aligned <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Align quarterly and annual cashflows and rebalancing with calendar periods or count from the portfolio start month"></span>
+</label>
+<div class="col-sm-2">
+<select id="calendarAligned" name="calendarAligned" class="form-control" >
+<option value="true" selected>Yes</option>
+<option value="false">No</option>
+</select>
+</div>
+</div>
+
+        
+        <div class="form-group">
+<label for="includeYTD" class="control-label col-sm-3">Include YTD <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Include the month-to-date period of the current month for YTD results"></span>
+</label>
+<div class="col-sm-2">
+<select id="includeYTD" name="includeYTD" class="form-control" >
+<option value="true">Yes</option>
+<option value="false" selected>No</option>
+</select>
+</div>
+</div>
+
+        
+        <div class="form-group">
+<label for="initialAmount" class="control-label col-sm-3">Initial Amount <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Initial portfolio balance"></span>
+</label>
+<div class="col-sm-3">
+<div class="input-group">
+<span class="input-group-addon">$</span>
+<input type="number" id="initialAmount" name="initialAmount" class="form-control fmt-posint" value="10000" placeholder="Amount..." >
+<span class="input-group-addon">.00</span>
+</div>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="upload" class="control-label col-sm-3">Allocation History <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Excel or CSV format file for the allocation history"></span>
+</label>
+<div class="col-sm-6"><div class="input-group">
+<input type="text" class="form-control" readonly name="upload_info" id="upload_info" >
+<span class="input-group-btn">
+<span class="btn btn-default btn-file">
+Browse&hellip;
+<input type="file" id="upload" name="upload" accept=".csv,.xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,text/plain" >
+</span>
+</span>
+</div>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="dollarBalances" class="control-label col-sm-3">Imported Values <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify whether asset weights are in allocation weights or in dollar balances"></span>
+</label>
+<div class="col-sm-4">
+<select id="dollarBalances" name="dollarBalances" class="form-control" >
+<option value="false" selected>Allocation Weights</option>
+<option value="true">Dollar Balances</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="dynamicRebalanceType" class="control-label col-sm-3">Rebalance Between Trades <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify if any calendar based rebalancing is done for the imported transaction history"></span>
+</label>
+<div class="col-sm-4">
+<select id="dynamicRebalanceType" name="dynamicRebalanceType" class="form-control" >
+<option value="0" selected>No rebalancing</option>
+<option value="1">Rebalance annually</option>
+<option value="2">Rebalance semi-annually</option>
+<option value="3">Rebalance quarterly</option>
+<option value="4">Rebalance monthly</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="comparisonPortfolio" class="control-label col-sm-3">Compared Portfolio <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Optionally specify static allocation as benchmark comparison"></span>
+</label>
+<div class="col-sm-4">
+<select id="comparisonPortfolio" name="comparisonPortfolio" class="form-control" onchange="toggleAdjustment()" >
+<option value="true">Static Allocation</option>
+<option value="false" selected>None</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="rebalanceType" class="control-label col-sm-3">Portfolio Rebalancing <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify if any calendar based rebalancing is done for the benchmark portfolio"></span>
+</label>
+<div class="col-sm-4">
+<select id="rebalanceType" name="rebalanceType" class="form-control" >
+<option value="0">No rebalancing</option>
+<option value="1" selected>Rebalance annually</option>
+<option value="2">Rebalance semi-annually</option>
+<option value="3">Rebalance quarterly</option>
+<option value="4">Rebalance monthly</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="periodicAdjustment" class="control-label col-sm-3">Cashflows <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify whether any withdrawals or contributions are done"></span>
+</label>
+<div class="col-sm-4">
+<select id="periodicAdjustment" name="periodicAdjustment" class="form-control" onchange="toggleAdjustment()" >
+<option value="0" selected>None</option>
+<option value="1">Contribute fixed amount</option>
+<option value="2">Withdraw fixed amount</option>
+<option value="3">Withdraw fixed percentage</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="adjustmentAmount" class="control-label col-sm-3">Contribution Amount <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Withdrawal or contribution amount"></span>
+</label>
+<div class="col-sm-3">
+<div class="input-group">
+<span class="input-group-addon">$</span>
+<input type="number" id="adjustmentAmount" name="adjustmentAmount" class="form-control fmt-posint" value="0" placeholder="Amount..." >
+<span class="input-group-addon">.00</span>
+</div>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="inflationAdjusted" class="control-label col-sm-3">Inflation Adjusted <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Adjust contribution or withdrawal amount for inflation"></span>
+</label>
+<div class="col-sm-2">
+<select id="inflationAdjusted" name="inflationAdjusted" class="form-control" >
+<option value="true" selected>Yes</option>
+<option value="false">No</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="adjustmentPercentage" class="control-label col-sm-3">Withdrawal Percentage</label>
+<div class="col-sm-2">
+<div class="input-group">
+<input type="number" id="adjustmentPercentage" name="adjustmentPercentage" class="form-control fmt-pct" value="0.0" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="adjustmentFrequency" class="control-label col-sm-3">Frequency <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify frequency of any withdrawals or contributions"></span>
+</label>
+<div class="col-sm-3">
+<select id="adjustmentFrequency" name="adjustmentFrequency" class="form-control" >
+<option value="2">Monthly</option>
+<option value="3">Quarterly</option>
+<option value="4" selected>Annually</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="leverageType" class="control-label col-sm-3">Leverage Type <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify type of leverage used if any"></span>
+</label>
+<div class="col-sm-4">
+<select id="leverageType" name="leverageType" class="form-control" >
+<option value="0" selected>None</option>
+<option value="2">Fixed Debt Amount</option>
+<option value="1">Fixed Leverage Ratio</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="leverageRatio" class="control-label col-sm-3">Leverage Ratio <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Leverage ratio (debt/equity)"></span>
+</label>
+<div class="col-sm-2">
+<div class="input-group">
+<input type="number" id="leverageRatio" name="leverageRatio" class="form-control fmt-pct" value="0.0" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="debtAmount" class="control-label col-sm-3">Debt Amount <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Amount of debt used for leverage"></span>
+</label>
+<div class="col-sm-3">
+<div class="input-group">
+<span class="input-group-addon">$</span>
+<input type="number" id="debtAmount" name="debtAmount" class="form-control fmt-posint" value="0" placeholder="Amount..." >
+<span class="input-group-addon">.00</span>
+</div>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="debtInterest" class="control-label col-sm-3">Debt Interest <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Annual interest rate on borrowed funds"></span>
+</label>
+<div class="col-sm-2">
+<div class="input-group">
+<input type="number" id="debtInterest" name="debtInterest" class="form-control fmt-pct" value="0.0" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="maintenanceMargin" class="control-label col-sm-3">Maintenance Margin <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Maintenance margin requirement to prevent margin call"></span>
+</label>
+<div class="col-sm-2">
+<div class="input-group">
+<input type="number" id="maintenanceMargin" name="maintenanceMargin" class="form-control fmt-pct" value="25.0" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="leveragedBenchmark" class="control-label col-sm-3">Leveraged Benchmark <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify whether leverage is also applied to the selected benchmark"></span>
+</label>
+<div class="col-sm-2">
+<select id="leveragedBenchmark" name="leveragedBenchmark" class="form-control" >
+<option value="true">Yes</option>
+<option value="false" selected>No</option>
+</select>
+</div>
+</div>
+
+        <div class="form-group">
+<label for="benchmark" class="control-label col-sm-3">Benchmark <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Select benchmark index or an imported benchmark series"></span>
+</label>
+<div class="col-sm-4">
+<select id="benchmark" name="benchmark" class="form-control" >
+<option value="" selected>None</option>
+<option value="-1">Specify Ticker...</option>
+<option value="-2">Import Benchmark...</option>
+<optgroup label="Benchmark Portfolio">
+<option value="VFINX">Vanguard 500 Index Investor</option>
+<option value="VBINX">Vanguard Balanced Index Inv</option>
+</optgroup>
+</select>
+</div>
+</div>
+
+        <div class="form-group norender">
+<label for="benchmarkSymbol" class="control-label col-sm-3">Benchmark Ticker <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Ticker symbol for the benchmark asset"></span>
+</label>
+<div class="col-sm-4">
+<div class="input-group">
+<input type="text" id="benchmarkSymbol" name="benchmarkSymbol" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+</div>
+
+        
+
+        <div id="pfSection" class="portfolio-section norender pv-allow-expansion" data-count="1" data-maxrows="150" data-advanced="false" >
+<div class="row bottomBorder">
+<div class="col-sm-6 separateTop asset-header text-nowrap"><b>Portfolio Assets</b><div class="btn-group btn-group-sm left-margin hidden-print" role="group" aria-label="Portfolio allocation options"><button type="button" class="btn btn-default clearAllocation" title="Clear assets and allocations"><i class="glyphicon glyphicon-trash"></i></button><div id="allocation-menu-1" class="btn-group btn-group-sm allocation-menu hidden-print" role="group"><button id="allocationOptionsButton1" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-cog"></i> <span class="caret"></span></button><ul class="dropdown-menu scrollable-menu"><li class="dropdown-header">Allocation Weights</li><li><a href="#" onclick="equalWeightAllocations(1,'');return false;">Equal Weight</a></li><li><a href="#" onclick="normalizeAllocations(1,'');return false;">Normalize</a></li><li><a href="#" onclick="clearAllocations(1,'');return false;">Clear</a></li><li class="divider"></li><li class="dropdown-header">Import Portfolio</li><li><a href="#" onclick="importPortfolio(1,'');return false;">Upload Portfolio</a></li><li class="divider"></li><li class="dropdown-header">Lazy Portfolios</li><li><a href="#" onclick="populatePortfolio('Growth Portfolio',1,false,true,true,null,'');return false;">Growth Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Moderate Portfolio',1,false,true,true,null,'');return false;">Moderate Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Conservative Portfolio',1,false,true,true,null,'');return false;">Conservative Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Income Portfolio',1,false,true,true,null,'');return false;">Income Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Bill Bernstein No Brainer',1,false,true,true,null,'');return false;">Bill Bernstein No Brainer</a></li><li><a href="#" onclick="populatePortfolio('Bill Schultheis Coffee House',1,false,true,true,null,'');return false;">Bill Schultheis Coffee House</a></li><li><a href="#" onclick="populatePortfolio('Bogleheads Three Funds',1,false,true,true,null,'');return false;">Bogleheads Three Funds</a></li><li><a href="#" onclick="populatePortfolio('Bogleheads Four Funds',1,false,true,true,null,'');return false;">Bogleheads Four Funds</a></li><li><a href="#" onclick="populatePortfolio('David Swensen Lazy Portfolio',1,false,true,true,null,'');return false;">David Swensen Lazy Portfolio</a></li><li><a href="#" onclick="populatePortfolio('David Swensen Yale Endowment',1,false,true,true,null,'');return false;">David Swensen Yale Endowment</a></li><li><a href="#" onclick="populatePortfolio('FundAdvice Ultimate Buy & Hold Portfolio',1,false,true,true,null,'');return false;">FundAdvice Ultimate Buy &amp; Hold Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Harry Browne Permanent Portfolio',1,false,true,true,null,'');return false;">Harry Browne Permanent Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Larry Swedroe Simple Portfolio',1,false,true,true,null,'');return false;">Larry Swedroe Simple Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Larry Swedroe Minimize FatTails Portfolio',1,false,true,true,null,'');return false;">Larry Swedroe Minimize FatTails Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Mebane Faber Ivy Portfolio',1,false,true,true,null,'');return false;">Mebane Faber Ivy Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Ray Dalio All Seasons',1,false,true,true,null,'');return false;">Ray Dalio All Seasons</a></li><li><a href="#" onclick="populatePortfolio('Rick Ferri Core Four',1,false,true,true,null,'');return false;">Rick Ferri Core Four</a></li><li><a href="#" onclick="populatePortfolio('Scott Burns Couch Portfolio',1,false,true,true,null,'');return false;">Scott Burns Couch Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Stocks\/Bonds (60\/40)',1,false,true,true,null,'');return false;">Stocks/Bonds (60/40)</a></li><li><a href="#" onclick="populatePortfolio('Stocks\/Bonds (40\/60)',1,false,true,true,null,'');return false;">Stocks/Bonds (40/60)</a></li></ul></div>
+</div></div>
+<div class="col-sm-2 separateTop"><b>Allocation</b></div></div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-3 separateTop">Asset 1</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol1">Select asset 1</label></span>
+<input type="text" id="symbol1" name="symbol1" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation1_1">Enter percentage allocation for asset 1</label></span>
+<input type="number" id="allocation1_1" name="allocation1_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-3 separateTop">Asset 2</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol2">Select asset 2</label></span>
+<input type="text" id="symbol2" name="symbol2" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation2_1">Enter percentage allocation for asset 2</label></span>
+<input type="number" id="allocation2_1" name="allocation2_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-3 separateTop">Asset 3</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol3">Select asset 3</label></span>
+<input type="text" id="symbol3" name="symbol3" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation3_1">Enter percentage allocation for asset 3</label></span>
+<input type="number" id="allocation3_1" name="allocation3_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-3 separateTop">Asset 4</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol4">Select asset 4</label></span>
+<input type="text" id="symbol4" name="symbol4" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation4_1">Enter percentage allocation for asset 4</label></span>
+<input type="number" id="allocation4_1" name="allocation4_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-3 separateTop">Asset 5</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol5">Select asset 5</label></span>
+<input type="text" id="symbol5" name="symbol5" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation5_1">Enter percentage allocation for asset 5</label></span>
+<input type="number" id="allocation5_1" name="allocation5_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-3 separateTop">Asset 6</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol6">Select asset 6</label></span>
+<input type="text" id="symbol6" name="symbol6" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation6_1">Enter percentage allocation for asset 6</label></span>
+<input type="number" id="allocation6_1" name="allocation6_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-3 separateTop">Asset 7</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol7">Select asset 7</label></span>
+<input type="text" id="symbol7" name="symbol7" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation7_1">Enter percentage allocation for asset 7</label></span>
+<input type="number" id="allocation7_1" name="allocation7_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-3 separateTop">Asset 8</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol8">Select asset 8</label></span>
+<input type="text" id="symbol8" name="symbol8" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation8_1">Enter percentage allocation for asset 8</label></span>
+<input type="number" id="allocation8_1" name="allocation8_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-3 separateTop">Asset 9</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol9">Select asset 9</label></span>
+<input type="text" id="symbol9" name="symbol9" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation9_1">Enter percentage allocation for asset 9</label></span>
+<input type="number" id="allocation9_1" name="allocation9_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-3 separateTop">Asset 10</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol10">Select asset 10</label></span>
+<input type="text" id="symbol10" name="symbol10" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation10_1">Enter percentage allocation for asset 10</label></span>
+<input type="number" id="allocation10_1" name="allocation10_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row topBorder totals-row">
+<div class="col-sm-3 separateTop"><b>Total</b></div>
+<div class="col-sm-2 col-sm-offset-3 totals-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="total1">Total allocation for portfolio</label></span>
+<input type="number" id="total1" name="total1" class="form-control" readonly>
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+</div>
+
+
+        <div class="form-group form-buttons">
+<div class="col-sm-offset-3 col-sm-9">
+<input type="submit" id="submitButton" value="Analyze Model" class="btn btn-primary">
+<input type="button" id="cancelButton" value="Cancel" class="btn btn-default" onclick="document.location.href='index.html'">
+</div>
+</div>
+
+
+    </form>
+
+    
+</div>
+
+
+
+<div id="symbolPicker" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="symbolPickerTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2 class="modal-title" id="symbolPickerTitle">Find ETF, Mutual Fund or Stock Symbol</h2>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="assetType" class="control-label col-sm-2">Type</label>
+                        <div class="col-sm-4">
+                            <select name="assetType" id="assetType" class="form-control">
+                                <option value="2">ETF</option>
+                                <option value="5">Mutual Fund</option>
+                                <option value="4">Closed-End Fund</option>
+                                <option value="1">Stock</option>
+                                <option value="10">Asset Class</option>
+                                
+                                
+                                <option value="6">Cash</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="assetSearch" class="control-label col-sm-2">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="assetSearch" name="assetSearch" class="form-control typeahead" placeholder="Enter partial name (3 or more characters)" autofocus>
+                            <p class="help-block">Example: &quot;vanguard bond&quot;</p>
+                        </div>
+                    </div>
+                    <div class="form-group norender">
+                        <label for="cashAsset" class="control-label col-sm-2">Cash Asset</label>
+                        <div class="col-sm-10">
+                            <select name="cashAsset" id="cashAsset" class="form-control">
+                                <option value="CASHX">Money Market</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group norender" >
+                        <label for="assetClassAsset" class="control-label col-sm-2">Asset Class</label>
+                        <div class="col-sm-10">
+                            <select name="assetClassAsset" id="assetClassAsset" class="form-control">
+                                <optgroup label="US Equity">
+
+                                <option value="VTSMX">US Stock Market (VTSMX)</option>
+                                
+                                <option value="VFINX">US Large Cap (VFINX)</option>
+                                
+                                <option value="VIVAX">US Large Cap Value (VIVAX)</option>
+                                
+                                <option value="VIGRX">US Large Cap Growth (VIGRX)</option>
+                                
+                                <option value="VIMSX">US Mid Cap (VIMSX)</option>
+                                
+                                <option value="VMVIX">US Mid Cap Value (VMVIX)</option>
+                                
+                                <option value="VMGIX">US Mid Cap Growth (VMGIX)</option>
+                                
+                                <option value="NAESX">US Small Cap (NAESX)</option>
+                                
+                                <option value="VISVX">US Small Cap Value (VISVX)</option>
+                                
+                                <option value="VISGX">US Small Cap Growth (VISGX)</option>
+                                
+                                <option value="BRSIX">US Micro Cap (BRSIX)</option>
+                                </optgroup>
+<optgroup label="International Equity">
+
+                                <option value="VGTSX">Global ex-US Stock Market (VGTSX)</option>
+                                
+                                <option value="VTMGX">Intl Developed ex-US Market (VTMGX)</option>
+                                
+                                <option value="VSS">International ex-US Small Cap (VSS)</option>
+                                
+                                <option value="EFV">International ex-US Value (EFV)</option>
+                                
+                                <option value="VEURX">European Stocks (VEURX)</option>
+                                
+                                <option value="VPACX">Pacific Stocks (VPACX)</option>
+                                
+                                <option value="VEIEX">Emerging Markets (VEIEX)</option>
+                                </optgroup>
+<optgroup label="Fixed Income">
+
+                                <option value="CASHX">Cash (CASHX)</option>
+                                
+                                <option value="VFISX">Short Term Treasury (VFISX)</option>
+                                
+                                <option value="VFITX">Intermediate Term Treasury (VFITX)</option>
+                                
+                                <option value="IEF">10-year Treasury (IEF)</option>
+                                
+                                <option value="VUSTX">Long Term Treasury (VUSTX)</option>
+                                
+                                <option value="VBMFX">Total US Bond Market (VBMFX)</option>
+                                
+                                <option value="VIPSX">TIPS (VIPSX)</option>
+                                
+                                <option value="PIGLX">Global Bonds (Unhedged) (PIGLX)</option>
+                                
+                                <option value="PGBIX">Global Bonds (USD Hedged) (PGBIX)</option>
+                                
+                                <option value="VFSTX">Short-Term Investment Grade (VFSTX)</option>
+                                
+                                <option value="LQD">Corporate Bonds (LQD)</option>
+                                
+                                <option value="VWESX">Long-Term Corporate Bonds (VWESX)</option>
+                                
+                                <option value="VWEHX">High Yield Corporate Bonds (VWEHX)</option>
+                                
+                                <option value="VWSTX">Short-Term Tax-Exempt (VWSTX)</option>
+                                
+                                <option value="VWITX">Intermediate-Term Tax-Exempt (VWITX)</option>
+                                
+                                <option value="VWLTX">Long-Term Tax-Exempt (VWLTX)</option>
+                                </optgroup>
+<optgroup label="Alternatives">
+
+                                <option value="VGSIX">REIT (VGSIX)</option>
+                                
+                                <option value="GLD">Gold (GLD)</option>
+                                
+                                <option value="GDX">Precious Metals (GDX)</option>
+                                
+                                <option value="GSG">Commodities (GSG)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="form-buttons modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectTicker">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div id="importDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="importDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="importConfigForm" action="https://www.portfoliovisualizer.com/import" method="POST" data-messages="#importMessages" enctype="multipart/form-data">
+        <input type="hidden" id="importType" name="importType" value="portfolio">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="importDialogTitle">Import Portfolio</h2>
+                </div>
+                <div class="modal-body">
+                    <p id="importPortfolioInfo">
+                        You can upload a portfolio asset allocation by selecting a file below.
+                        The import uses a standard Excel or CSV file format with a ticker symbol followed by asset balance or weight on each row,
+                        and you can <a href="faq.html#portfolios">download sample files</a> for the supported data formats from the related documentation section.
+                    </p>
+                    <p id="importListInfo" class="norender">
+                        You can upload a list of tickers by selecting either a text file of an Excel file below.
+                        The tickers in the file can be listed either on separate lines or on the same line.
+                    </p>
+                    <div id="importMessages"></div>
+
+                    <div class="form-group">
+                        <label for="portfolio" class="control-label col-sm-2">File</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="hidden_jaws"><label for="portfolio_info">File</label></span>
+                                <input class="form-control" type="text" name="portfolio_info" id="portfolio_info" readonly>
+                                <span class="input-group-btn">
+                                    <span class="btn btn-default btn-file">
+                                    Browse...
+                                    <input type="file" id="portfolio" name="portfolio" accept=".csv,.xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,text/plain">
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="importConfigButton">Upload</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div id="confirmDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="confirmActionForm">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="confirmDialogTitle">Confirm Action</h2>
+                </div>
+                <div class="modal-body">
+                    <span id="confirmText"></span>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelConfirmButton">Cancel</button>
+                    <button type="button" class="btn" data-dismiss="modal" id="confirmButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<div id="footer" class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-5">
+                <span class="text-muted">&copy; 2022 Silicon Cloud Technologies LLC</span>
+            </div>
+            <div class="col-sm-1">
+                <a href="about.html">About</a>
+            </div>
+            <div class="col-sm-1">
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="col-sm-1">
+                <a href="pricing.html">Pricing</a>
+            </div>
+            
+            <div class="col-sm-2">
+                <a href="terms-of-service.html">Terms of Service</a>
+            </div>
+            <div class="col-sm-2">
+                <a href="privacy-policy.html">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="../cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="jquery/jquery-3.4.1.min.js">\x3C/script>')</script>           
+<script src="../cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script>jQuery.fn.modal || document.write('<script src="bootstrap/js/bootstrap.min6bf2.js?v=341">\x3C/script>')</script>    
+
+
+<script src="javascript/merged-cd97b9efd972c726e07a723ff74b40a0.min.js"></script>
+
+
+
+<script>
+$(function() {
+    $.each(q, function(index, f) {
+        f.call(document);
+    });
+    postPageInit();
+});
+</script>
+
+
+</body>
+
+
+</html>

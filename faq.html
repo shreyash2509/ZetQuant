@@ -1,0 +1,1529 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <title>Frequently Asked Questions</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta name="description" content="View frequently asked questions about the site">
+    <link rel="canonical" href="faq.html">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="css/merged-4b5ddc42c451e5d0b325c5d10e865f35.min.css">
+
+
+
+<script>
+var autoCompleteTickers=true;
+var showFullName=false;
+var enableExport=false;
+var expiredAccount=false;
+var enablePDF=false;
+var bookmarkURL="faq.html";
+var showBookmarkLink=true;
+var showExportLinks=true;
+window.q=[];window.$=function(f){q.push(f)}
+</script>
+
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-43200681-1', 'portfoliovisualizer.com');
+    ga('send', 'pageview');
+</script>
+
+
+
+    <link rel="stylesheet" href="../cdn.jsdelivr.net/npm/katex%400.12.0/dist/katex.min.css">
+    <script defer src="../cdn.jsdelivr.net/npm/katex%400.12.0/dist/katex.min.js" onload="renderExpressions();"></script>
+    
+    <script>
+        $(function() {
+            $('.collapse').on('shown.bs.collapse', function () {
+                var targetOffset=$(this).offset().top-60;
+                if(targetOffset<0) {
+                    targetOffset=0;
+                }
+                $('html, body').animate({scrollTop: targetOffset}, 500);
+            });
+            var sectionToExpand=location.hash && $(location.hash + '.collapse') ? location.hash : '#models';
+            expandSection(sectionToExpand);
+        });
+        function expandSection(sectionRef) {
+            var $section=$(sectionRef);
+            if(!$section.length) {
+                return false;
+            }
+            var sectionID=sectionRef.substring(1);
+            var expand=true;
+            $('.collapse').each(function() {
+                var item=$(this);
+                if(item.hasClass('in')) {
+                    if(this.id!=sectionID) {
+                        item.collapse('hide');
+                    }
+                    else {
+                        expand=false;
+                    }
+                }
+            });
+            if(expand) {
+                $section.collapse('show');
+            }
+            return false;
+        }
+        function renderExpressions() {
+            var exprs = document.querySelectorAll(".mathexpr");
+            for(var i=0;i<exprs.length;i++) {
+                var elem=exprs[i];
+                var expr=elem.innerText.trim();
+                try {
+                    katex.render(expr, elem, {
+                        displayMode: true
+                    });
+                } catch(err) {
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+
+
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html"> PORTFOLIO <span class="pv-brand">VISUALIZER</span></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html" class="navbar-optional">Contact</a></li>
+                
+                <li><a href="pricing.html" class="navbar-optional">Pricing</a></li>
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Portfolio Analysis</li>
+                        <li><a href="backtest-asset-class-allocation.html">Backtest Asset Class Allocation</a></li>
+                        <li><a href="backtest-portfolio.html">Backtest Portfolio</a></li>
+                        <li><a href="monte-carlo-simulation.html">Monte Carlo Simulation</a></li>
+                        <li><a href="financial-goals.html">Financial Goals</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Optimization</li>
+                        <li><a href="efficient-frontier.html">Historical Efficient Frontier</a></li>
+                        <li><a href="efficient-frontier-forecast.html">Forecasted Efficient Frontier</a></li>
+                        <li><a href="optimize-portfolio.html">Portfolio Optimization</a></li>
+                        <li><a href="black-litterman-model.html">Black-Litterman Model</a></li>
+                        <li><a href="rolling-optimization.html">Rolling Optimization</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Asset Analytics</li>
+                        <li><a href="fund-screener.html">Fund Screener</a></li>
+                        <li><a href="fund-performance.html">Fund Performance</a></li>
+                        <li><a href="asset-correlations.html">Asset Correlations</a></li>
+                        <li><a href="asset-class-correlations.html">Asset Class Correlations</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Factor Analysis</li>
+                        <li><a href="factor-analysis.html">Factor Regression</a></li>
+                        <li><a href="risk-factor-allocation.html">Risk Factor Allocation</a></li>
+                        <li><a href="etf-and-mutual-fund-factor-regressions.html">Fund and ETF Factor Regressions</a></li>
+                        <li><a href="factor-performance-attribution.html">Factor Performance Attribution</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Market Timing</li>
+                        <li><a href="test-market-timing-model.html">Market Timing Models</a></li>
+                        <li><a href="test-market-timing-model5fea.html?timingModel=4&amp;coreSatellite=true">Core-Satellite</a></li>
+                    </ul>
+                </li>
+                
+                <li><div><a href="sign-up.html" class="btn btn-success navbar-btn">Sign Up</a></div></li>
+                <li><div><a href="login.html" class="btn btn-primary navbar-btn">Log In</a></div></li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid">
+
+    <h1>Frequently Asked Questions</h1>
+    <ol>
+        <li><a href="#" onclick="return expandSection('#models')">Saving Portfolio and Simulation Models</a></li>
+        <li><a href="#" onclick="return expandSection('#benchmarks')">Importing Custom Data Series and Benchmarks</a></li>
+        <li><a href="#" onclick="return expandSection('#portfolios')">Importing Portfolios</a></li>
+        <li><a href="#" onclick="return expandSection('#backfills')">Backfilling Asset Returns</a></li>
+        <li><a href="#" onclick="return expandSection('#expectations')">Saving Capital Market Expectations</a></li>
+        <li><a href="#" onclick="return expandSection('#reports')">Customizing Reports</a></li>
+        <li><a href="#" onclick="return expandSection('#fees')">Modeling Advisor Fees</a></li>
+        <li><a href="#" onclick="return expandSection('#tickers')">Locating Ticker Symbols</a></li>
+        <li><a href="#" onclick="return expandSection('#inputs')">Entering Portfolio Allocations</a></li>
+        <li><a href="#" onclick="return expandSection('#misc')">Expense Ratios, Dividends and Short Positions</a></li>
+        <li><a href="#" onclick="return expandSection('#methodology')">Methodology</a></li>
+        <li><a href="#" onclick="return expandSection('#definitions')">Terms and Definitions</a></li>
+        <li><a href="#" onclick="return expandSection('#factorDataSources')">Data Sources for Factor Returns</a></li>
+        <li><a href="#" onclick="return expandSection('#dataSources')">Data Sources for Asset Class Returns</a></li>
+        <li><a href="#" onclick="return expandSection('#marketData')">Data Sources for Market Data</a></li>
+
+    </ol>
+
+    <div class="panel-group" id="accordion" role="tablist">
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingModels">
+                <h4 class="panel-title panel-heading-link">
+                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#models" aria-expanded="false" aria-controls="models">Saving Portfolio and Simulation Models</a>
+                </h4>
+            </div>
+            <div id="models" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingModels">
+                <div class="panel-body">
+                    <p>
+                        When you are signed in with your registered account you will see a "Save Portfolio" link under the portfolio asset allocation section of the results.
+                        Similarly, if the portfolio is already saved or you have selected an existing saved portfolio, the section will refer to the saved portfolio name.
+                        The results section for Monte Carlo simulations, portfolio optimization, and timing models also include a corresponding link to save the related model.
+                    </p>
+                    <p>
+                        There are two types of saved portfolios, ticker level portfolios consisting of specific mutual funds, ETFs and equities, and asset class level portfolios with asset class specific allocation weights.
+                        If you create and save an asset class level portfolio, it will be available in the dropdown list in the tools that are based on asset class level allocations, and vice versa for ticker based portfolios.
+                        You can see the list of saved portfolio models and their type in the <a href="loginf5fd.html">saved models section</a> under your preferences.
+                        When selecting a saved portfolio model from the dropdown menu the list will contain the portfolios for the selected portfolio type, i.e., if you choose "Asset classes"
+                        as the portfolio type in the Monte Carlo, Efficient Frontier, Optimization, or other tools, the dropdown menu will show saved asset class level portfolios.
+                        If you choose "Tickers" as the portfolio type, then the dropdown list will show securities based saved portfolios.
+                    </p>
+                    <p>
+                        You can also save both portfolio backtest and timing model results as benchmarks and custom data series. In the save dialog you can change the
+                        "Save As" option to "Benchmark", and you can then use the saved data series as a benchmark comparison or asset in any other models based on the assigned custom ticker symbol.
+                    </p>
+                    <p>
+                        The login menu in the top right-hand corner provides the options to view and manage the list of saved models and benchmarks.
+                        You can click on the screenshots below to see the links in detail.
+                    </p>
+                    <div class="image-row">
+                        <a class="doc-image-link" href="images/docs/SavePortfolioImage.png" data-lightbox="save-portfolio-images"><img class="doc-image" src="images/docs/SavePortfolioThumb.png" alt="Save portfolio link"></a>
+                        <a class="doc-image-link" href="images/docs/SelectSavedPortfolioImage.png" data-lightbox="save-portfolio-images"><img class="doc-image" src="images/docs/SelectSavedPortfolioThumb.png" alt="Select saved portfolio"></a>
+                        <a class="doc-image-link" href="images/docs/PreferencesMenuImage.png" data-lightbox="save-portfolio-images"><img class="doc-image" src="images/docs/PreferencesMenuThumb.png" alt="Profile menu dropdown"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingBenchmarks">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#benchmarks" aria-expanded="false" aria-controls="benchmarks">Importing Custom Data Series and Benchmarks</a>
+                </h4>
+            </div>
+            <div id="benchmarks" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingBenchmarks">
+                <div class="panel-body">
+                    <p>
+                        You can <a href="login9a52.html">import return series</a> for use as portfolio assets, risk factors, or benchmarks.
+                        The imported return series can be based on daily, monthly, or quarterly (e.g. private equity and hedge funds) returns or index values.
+                        The imported data series can be made available in all the tools based on the assigned custom ticker symbol and you can also indicate
+                        whether the return series should be made available as an asset class, e.g., in the Monte Carlo simulation tool.
+                    </p>
+                    <p>
+                        To import a data series, access the &quot;My Models&quot; menu in the top right-hand corner after signing in and select the &quot;Import Data Series&quot; option to open the page for imports.
+                        The import data series page provides options to download sample files showing the expected file layout for data series, and the import can be done using either Excel or CSV file format.
+                    </p>
+                    <div class="image-row">
+                        <a class="doc-image-link" href="images/docs/ImportBenchmarkImage.png" data-lightbox="save-benchmark-images"><img class="doc-image" src="images/docs/ImportBenchmarkThumb.png" alt="Import return series page"></a>
+                        <a class="doc-image-link" href="images/docs/ImportMenuImage.png" data-lightbox="save-benchmark-images"><img class="doc-image" src="images/docs/ImportMenuThumb.png" alt="Select import benchmark"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingPortfolios">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#portfolios" aria-expanded="false" aria-controls="portfolios">Importing Portfolios</a>
+                </h4>
+            </div>
+            <div id="portfolios" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingPortfolios">
+                <div class="panel-body">
+                    <p>
+                        You can <a href="loginf5fd.html#importPortfolio">import a portfolio</a> for use with any of the tools if you already have the portfolio allocation defined in or exported into a file.
+                        The import format requires two columns with the first column containing the ticker symbol for the asset and the second column containing either the balance or allocation weight for the asset.
+                        The import uses a standard Excel or CSV file format, and you can download a sample file from the import portfolio page.
+                        To import a portfolio access the &quot;My Models&quot; menu in the top right-hand corner after signing in and select the "Import Portfolio" option to open the page for portfolio imports.
+                        The import portfolio option is also available directly on all portfolio entry pages in the associated dropdown menu (see the gear icon <i class="glyphicon glyphicon-cog"></i> menu) for each portfolio allocation.
+                    </p>
+                    <p>
+                        In tools such as Monte Carlo simulations and portfolio optimization where user can provide forward looking capital market assumptions or allocation constraints the import
+                        format also supports providing these directly for the portfolio assets in the import file as shown in the example below.
+                    </p>
+                    <ol>
+                        <li>Portfolio import file with allocation weights: <a href="images/docs/portfolio_import1.csv" title="Portfolio import file with allocation weights"><i class="fa fa-download" aria-hidden="true"></i> Download</a></li>
+                        <li>Portfolio import file with asset balances: <a href="images/docs/portfolio_import2.csv" title="Portfolio import file with asset balances"><i class="fa fa-download" aria-hidden="true"></i> Download</a></li>
+                        <li>Portfolio import file with capital market expectations and allocation constraints: <a href="images/docs/portfolio_import3.csv" title="Portfolio import file with capital market expectations and allocation constraints"><i class="fa fa-download" aria-hidden="true"></i> Download</a></li>
+                    </ol>
+                    <div class="image-row">
+                        <a class="doc-image-link" href="images/docs/ImportPortfolioPageImage.png" data-lightbox="import-portfolio-images"><img class="doc-image" src="images/docs/ImportPortfolioPageThumb.png" alt="Import portfolio page"></a>
+                        <a class="doc-image-link" href="images/docs/ImportPortfolioMenuImage.png" data-lightbox="import-portfolio-images"><img class="doc-image" src="images/docs/ImportPortfolioMenuThumb.png" alt="Import portfolio menu link"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingBackfills">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#backfills" aria-expanded="false" aria-controls="backfills">Backfilling Asset Returns</a>
+                </h4>
+            </div>
+            <div id="backfills" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingBackfills">
+                <div class="panel-body">
+                    Sometimes a portfolio model can contain assets with a relatively short history, e.g., new ETFs with a recent inception date.
+                    To extend the available data for the portfolio model analysis you can map assets with a short history to their closest proxy,
+                    such as the tracked index or a similar passive index fund, which is then used to <a href="login89a3.html">backfill the asset returns</a>. for the longer time period.
+                    You can also configure the backfill to happen automatically based on the oldest share class of the fund.
+                    <div class="image-row">
+                        <a class="doc-image-link" href="images/docs/BackfillAssetsImage.png" data-lightbox="configure-backfills-images"><img class="doc-image" src="images/docs/BackfillAssetsThumb.png" alt="Configure backfills"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingExpectations">
+                <h4 class="panel-title panel-heading-link">
+                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#expectations" aria-expanded="false" aria-controls="expectations">Saving Capital Market Expectations</a>
+                </h4>
+            </div>
+            <div id="expectations" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingExpectations">
+                <div class="panel-body">
+                    Several tools such as efficient frontier and Monte Carlo simulation support the use of forward looking capital market expectations for asset returns and volatilities.
+                    In the related preferences section you can <a href="logind32a.html">save the capital market expectations</a> for later use, which then easily allow you
+                    to populate them on the efficient frontier and Monte Carlo simulation screens by accessing the related dropdown menu entry as shown in the image below.
+                    <div class="image-row">
+                        <a class="doc-image-link" href="images/docs/SaveExpectationsImage.png" data-lightbox="save-expectations-images"><img class="doc-image" src="images/docs/SaveExpectationsThumb.png" alt="Save expectations link"></a>
+                        <a class="doc-image-link" href="images/docs/PopulateExpectationsImage.png" data-lightbox="save-expectations-images"><img class="doc-image" src="images/docs/PopulateExpectationsThumb.png" alt="Populate expectations menu dropdown"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingReports">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#reports" aria-expanded="false" aria-controls="reports">Customizing Reports</a>
+                </h4>
+            </div>
+            <div id="reports" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingReports">
+                <div class="panel-body">
+                    You can <a href="login6b79.html">customize the report template</a> to use your own company name, cover page, logo, web site link, fonts, color palette, and disclosures in the generated PDF reports.
+                    <div class="image-row">
+                        <a class="doc-image-link" href="images/docs/ReportTemplateImage.png" data-lightbox="customize-reports-images"><img class="doc-image" src="images/docs/ReportTemplateThumb.png" alt="Report template page"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingFees">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#fees" aria-expanded="false" aria-controls="fees">Modeling Advisor Fees</a>
+                </h4>
+            </div>
+            <div id="fees" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingFees">
+                <div class="panel-body">
+                    You can model advisor fees and include them into portfolio backtesting. The supported fee structures include:
+                    <ul>
+                    <li>Fixed percentage of assets</li>
+                    <li>Fixed fee amount</li>
+                    <li>Tiered percentage based on assets</li>
+                    <li>Tiered fee amount based on assets</li>
+                    <li>Performance and assets based fee amount</li>
+                    </ul>
+                    The payment schedule for fees can be monthly, quarterly or annual. You can access and create fee structures on your <a href="login7ebb.html">preferences</a> page.
+                    In portfolio backtesting fees are applied first before any scheduled withdrawals or contributions.
+                    Note that the fee structure selection is only visible in portfolio backtesting if fee structures have been configured.
+                    <div class="image-row">
+                        <a class="doc-image-link" href="images/docs/FeeStructuresImage.png" data-lightbox="save-fees-images"><img class="doc-image" src="images/docs/FeeStructuresThumb.png" alt="Modeled fee structures"></a>
+                        <a class="doc-image-link" href="images/docs/EditFeesImage.png" data-lightbox="save-fees-images"><img class="doc-image" src="images/docs/EditFeesThumb.png" alt="Edit fee structure page"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingTickers">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#tickers" aria-expanded="false" aria-controls="tickers">Locating Ticker Symbols</a>
+                </h4>
+            </div>
+            <div id="tickers" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingTickers">
+                <div class="panel-body">
+                    The search icon next to the ticker entry fields (magnifying glass <i class="glyphicon glyphicon-search"></i>) can be used to quickly locate ticker symbols based on asset name or type.
+                    The search box also helps identifying special tickers such as CASHX used for cash and ^GOLD used for gold price index.
+                    In most ticker entry fields you can also just type a partial name or a set of name components, e.g., "vanguard bond" to enable the ticker symbol lookup.
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingInputs">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#inputs" aria-expanded="false" aria-controls="inputs">Entering Portfolio Allocations</a>
+                </h4>
+            </div>
+            <div id="inputs" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingInputs">
+                <div class="panel-body">
+                    By default portfolio asset weights are entered as percentages. The related context menu for allocation weights allows you to quickly clear the existing allocation weights, populate weights for an equal-weight allocation,
+                    or normalize the weights so that they add up to 100%. You can also choose to enter the portfolio allocations as dollar amounts, and then use the normalize option to switch from dollar amounts to percentages.
+                    <div class="image-row">
+                        <a class="doc-image-link" href="images/docs/NormalizeWeightsImage.png" data-lightbox="normalize-weights-images"><img class="doc-image" src="images/docs/NormalizeWeightsThumb.png" alt="Normalize weights"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingMisc">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#misc" aria-expanded="false" aria-controls="misc">Expense Ratios, Dividends and Short Positions</a>
+                </h4>
+            </div>
+            <div id="misc" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingModels">
+                <div class="panel-body">
+                    <p>
+                        The performance history of a mutual fund or an ETF includes all embedded fees, costs, and expenses of the fund, such as the manager's advisory fee,
+                        brokerage commissions associated with the acquisition of portfolio securities, and fund operating costs like legal and accounting fees.
+                        These fees are reflected in each fund's expense ratio and are deducted from the value of each fund share.
+                        The displayed performance is then calculated based on the value of fund shares and is thus net of these fees.
+                        This <a href="https://www.sec.gov/reportspubs/investor-publications/investorpubsinwsmfhtm.html">SEC publication</a> provides more information on how the mutual fund share prices are calculated and how any fees are handled.
+                        Any commissions associated with the sale or purchase of fund shares are not included,
+                        and investors who also engage an investment adviser to manage their assets generally also pay a separate advisory fee to their advisor.
+                    </p>
+                    <p>
+                        All returns for long positions are based on total return including dividends and capital gains distributions. Short positions can be entered by specifying a negative allocation weight for the shorted assets.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingMethodology">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#methodology" aria-expanded="false" aria-controls="methodology">Methodology</a>
+                </h4>
+            </div>
+            <div id="methodology" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingMethodology">
+                <div class="panel-body">
+                    <p>This section provides additional technical information and clarifications regarding the tools to address common questions.</p>
+
+                    <h3>Asset Class Allocation Backtesting</h3>
+                    <p>
+                        The asset allocation backtesting tool uses <a href="#" onclick="return expandSection('#dataSources')">asset class return data</a> to backtest simulated portfolio returns.
+                        The asset allocation backtesting tool calculates portfolio returns (end balance, CAGR, IRR), risk characteristics (standard deviation, Sharpe ratio, Sortino ratio, maximum drawdown), and rolling returns based on monthly data.
+                        The risk free rate is based on historical 3-month treasury bill rates published by FRED.
+                        Inflation adjusted returns, withdrawals and contributions are based on the CPI-U data from the Bureau of Labor and Statistics.
+                        Internal rate of return (IRR) is shown for portfolios with periodic withdrawals or contributions.
+                        By default the simulated portfolio is rebalanced annually. Asset allocation drift data is displayed under the results section if rebalancing is disabled.
+                        Calendar based rebalancing can also be set to monthly, quarterly, or semi-annual frequency. Rebalancing bands are also supported, and
+                        the default rebalancing bands are based on 5% absolute deviation from the target allocation (large allocations), or 25% relative deviation from the target allocation (small allocations).
+                        If the target allocation for an asset is 60%, then the absolute deviation threshold would trigger rebalancing when the asset's weight in the portfolio hits 65% or 55%.
+                        If the target allocation for an asset is 10%, then the relative deviation threshold would trigger rebalancing when the asset's weight in the portfolio hits 12.5% or 7.5%.
+                    </p>
+
+                    <h3>Portfolio Backtesting</h3>
+                    <p>
+                        The portfolio backtesting tool calculates portfolio returns (end balance, CAGR, IRR) based on monthly asset returns.
+                        Risk characteristics (standard deviation, Sharpe ratio, Sortino ratio) are calculated from monthly returns and annualized, and maximum drawdown is calculated from monthly portfolio balances.
+                        The portfolio backtesting tool uses total return data for the specified mutual funds, ETFs and stocks, and assumes by default that all dividends and capital gains distributions are reinvested.
+                        The risk free rate is based on historical 3-month treasury bill rates published by FRED.
+                        Inflation adjusted returns, withdrawals and contributions are based on the CPI-U data from the Bureau of Labor and Statistics.
+                        Internal rate of return (IRR) is shown for portfolios with periodic withdrawals or contributions.
+                        By default the simulated portfolio is rebalanced annually. Asset allocation drift data is displayed under the results section if rebalancing is disabled.
+                        Calendar based rebalancing can also be set to monthly, quarterly, or semi-annual frequency. Rebalancing bands are also supported, and
+                        the default rebalancing bands are based on 5% absolute deviation from the target allocation (large allocations), or 25% relative deviation from the target allocation (small allocations).
+                        If the target allocation for an asset is 60%, then the absolute deviation threshold would trigger rebalancing when the asset's weight in the portfolio hits 65% or 55%.
+                        If the target allocation for an asset is 10%, then the relative deviation threshold would trigger rebalancing when the asset's weight in the portfolio hits 12.5% or 7.5%.
+                    </p>
+
+                    <h3>Portfolio Optimization</h3>
+                    <p>
+                        The portfolio optimization tool supports optimizing portfolios based on the following strategies:
+                    </p>
+                    <ul>
+                        <li>
+                            Mean Variance Optimization &ndash; Mean variance optimization finds the optimal risk adjusted portfolio that lies on the <a href="https://en.wikipedia.org/wiki/Efficient_frontier">efficient frontier</a>.
+                            The approach is based on the <a href="https://en.wikipedia.org/wiki/Modern_portfolio_theory">modern portfolio theory</a> developed by Harry Markowitz.
+                            Markowitz stated that a rational investor should either maximize his expected return for a given level of risk, or minimize his risk for a given expected return.
+                            Modern portfolio theory supports portfolio risk optimization via diversification, i.e., an investor can reduce portfolio risk simply by holding a combination of assets that
+                            are not perfectly correlated, and may get the same portfolio expected return with reduced risk. Mean variance optimization calculates the optimal portfolio asset allocation weights
+                            in order to maximize the expected return of the portfolio for a given level of risk. However, while intuitively straight-forward, mean variance optimization has several underlying
+                            weaknesses including:
+                            <ul>
+                                <li>Assumption that asset returns follow the normal distribution (ignores skewness and kurtosis)</li>
+                                <li>Optimization concentrates the portfolio assets into the best performers based on past performance thus losing future diversification benefits</li>
+                                <li>Instability of results as even small changes to the input parameters, especially expected returns, change the optimization results significantly, and asset returns, volatilities and correlations change over time rather than being exact fixed values</li>
+                                <li>Diversification is done across portfolio assets rather than risk factors</li>
+                                <li>Optimization is based on a single-period model</li>
+                            </ul>
+                            Several options are supported to address the mean variance optimization weaknesses:
+                            <ul>
+                                <li>Constraints can be used to enforce allocation level ranges and portfolio diversification</li>
+                                <li>Return estimates can be based on forward looking capital market assumptions rather than historical data or derived via reserve optimization (Black-Litterman model)</li>
+                                <li>Monte Carlo method can be used to resample the optimization inputs to mitigate the impact of estimation error in the mean variance optimization inputs and improve diversification</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Risk parity &ndash; This portfolio optimization strategy finds the portfolio that equalizes the risk contribution of portfolio assets
+                        </li>
+                        <li>
+                            Tracking Error &ndash; This portfolio optimization strategy finds the portfolio with the minimum tracking error against the selected benchmark
+                        </li>
+                        <li>
+                            Information Ratio &ndash; This portfolio optimization strategy finds the portfolio with the maximum information ratio against the selected benchmark
+                        </li>
+                        <li>
+                            Conditional Value-at-Risk &ndash; Conditional Value-at-Risk (CVaR), also known as expected shortfall and expected tail loss, considers the downside part of the portfolio return distribution.
+                            Optimizing the portfolio to minimize Conditional Value-at-Risk finds the portfolio with the smallest expected tail loss.
+                            For the purposes of optimization the left tail is defined as the bottom 5% of returns and the optimization minimizes the 5%-quantile expected shortfall.
+                        </li>
+                        
+                        <li>
+                            Kelly Criterion &ndash; This portfolio optimization strategy finds the portfolio with the maximum expected value of the logarithm of wealth, which is equivalent to maximizing the expected geometric growth rate.
+                        </li>
+                        <li>
+                            Sortino ratio &ndash; This portfolio optimization strategy finds the portfolio that maximizes the Sortino ratio for the given minimum acceptable return.
+                            The Sortino ratio measures the risk-adjusted return of a portfolio, or strategy, but unlike the Sharpe ratio, it only penalizes for returns falling below the target return, whereas the Sharpe ratio penalizes both upside and downside volatility equally.
+                        </li>
+                        <li>
+                            Omega ratio &ndash; This portfolio optimization strategy finds the portfolio that maximizes the Omega ratio for the given minimum acceptable return.
+                            The Omega ratio is the probability weighted ratio of gains versus losses against the given target return.
+                            A higher Omega ratio implies greater probability that the given target return will be met or exceeded
+                        </li>
+                        <li>
+                            Maximum drawdown &ndash; This portfolio optimization strategy finds the portfolio with the minimum worst case drawdown with optional minimum acceptable return
+                        </li>
+                    </ul>
+                    <p>
+                        The optimizer uses differential evolution algorithm for optimizing problems that cannot be solved directly with linear or quadratic programming solvers.
+                        The results from the evolutionary algorithm for non-convex optimization problems may vary slightly between optimization runs depending on convergence to global optimum.
+                    <p>
+                        References:
+                    </p>
+                    <ul>
+                        <li>Harry Markowitz - Portfolio Selection (Journal of Finance, March 1952)</li>
+                        <li>Richard O. Michaud - Efficient Asset Management (Harvard Business School Press, 1998)</li>
+                        <li><a href="https://cowles.yale.edu/sites/default/files/files/pub/mon/m16-all.pdf">Harry Markowitz - Portfolio Selection: Efficient Diversification of Investment</a> (John Wiley &amp; Sons, 1959)</li>
+                        <li><a href="https://www.aqr.com/library/journal-articles/leverage-aversion-and-risk-parity">Clifford S. Asness, Andrea Frazzini, and Lasse H. Pedersen - Leverage Aversion and Risk Parity</a> (2012)</li>
+                        <li><a href="http://www.ise.ufl.edu/uryasev/files/2011/11/CVaR1_JOR.pdf">R. Tyrrell Rockafellar and Stanislav Uryasev - Optimization of Conditional Value-At-Risk</a> (2000)</li>
+                        <li><a href="http://www.ise.ufl.edu/uryasev/files/2011/11/kro_CVaR.pdf">Pavlo Krokhmal, Jonas Palmquist, and Stanislav Uryasev - Portfolio Optimization With Conditional Value-At-Risk Objective And Constraints</a> (2001)</li>
+                        
+                    </ul>
+
+                    <h3>Black-Litterman Model</h3>
+                    <p>
+                        The Black-Litterman asset allocation model combines ideas from the Capital Asset Pricing Model (CAPM) and the Markowitz’s mean-variance optimization model
+                        to provide a method to calculate the optimal portfolio weights based on the given inputs. The model first calculates the implied market equilibrium returns
+                        based on the given benchmark asset allocation weights, and then allows the investor to adjust these expected returns based on the investor's views.
+                        The opinion adjusted returns are then passed to the mean variance optimizer to derive the optimal asset allocation weights.
+                        The Black-Litterman model supports both absolute views (expected return for the given asset) and relative views (asset #1 will outperform asset #2 by X),
+                        and addresses many of the shortcomings of mean-variance optimization, which often results in concentrated portfolios based on past asset performance.
+                    </p>
+                    <p>
+                        References:
+                    </p>
+                    <ul>
+                        <li>Black, Fischer and Robert Litterman - Global Portfolio Optimization (Financial Analysts Journal, vol. 48, no. 5, September/October 1992)</li>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1117574">Attilio Meucci - The Black-Litterman Approach: Original Model and Extensions</a> (2010)</li>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1314585">Jay Walters - The Black-Litterman Model in Detail</a> (2014)</li>
+                        <li>Thomas M. Idzorek - A Step-By-Step Guide To The Black-Litterman Model (2005)</li>
+                        <li>Simon Benninga - Financial Modeling, Fourth Edition (MIT Press 2014)</li>
+                    </ul>
+
+                    <h3>Monte Carlo Simulation</h3>
+                    <p>
+                        The Monte Carlo portfolio simulation tool provides a means to test long term expected portfolio growth and portfolio survival based on withdrawals.
+                        The following simulation models are supported for portfolio returns:
+                    </p>
+                    <ul>
+                        <li>
+                            Historical Returns -
+                            Simulates future returns by randomly sampling returns from the database of available historical returns (empirical sampling). Supported bootstrapping options for sampling including:
+                            <ul>
+                                <li>Single Month &dash; This option generates return series by selecting the returns for each month from a randomly selected past year and month. The cross correlation of assets is retained but sampling individual monthly returns will not capture any serial correlation.
+                                <li>Single Year &dash; This option generates return series by selecting the returns for each year from a randomly selected past year. Sampling full calendar year returns avoids any seasonality bias and captures both cross correlation and some of the serial correlation of assets.
+                                <li>Block of Years &dash; This option selects a random sequence of annual returns and better captures the serial correlation and mean reversion of assets. Block bootstrapping may overweight the central periods unless circular block bootstrapping is used, in which case the year range for the block sequence is allowed to wrap around, e.g., selecting a 10-year block with random start year of 2010 would first use returns from 2010-2014 and then wrap around to 1972-1976.
+                            </ul>
+                            The differences between the bootstrapping options relate to how well they capture the serial correlation of assets and how many different return paths they can support.
+                            Capturing the serial correlation of portfolio assets in the simulation better reflects the typical market behavior, e.g., bull vs bear market year returns and the mean reversion of asset class returns throughout market cycles.
+                            However, as the sampling period grows less granular, the number of possible simulated returns paths will decrease.
+                            With historical inflation model the inflation for each simulated year and month is based on the selected historical data point's inflation rate.
+                        </li>
+                        <li>
+                            Statistical Returns -
+                            Simulates future returns for portfolio assets based on each asset's historical mean and standard deviation, and the correlation of the assets.
+                            Supported time series models include normal returns, in which case asset returns are modeled as multivariate correlated normal samples,
+                            and GARCH model, which models asset returns using stochastic volatility model based on the fitted GARCH(1,1) model for each asset
+                            in order to better capture time varying and serially correlated volatility and fat tails of the return distribution.
+                            At least 5 full years of data for selected portfolio assets is required for this simulation model, and the portfolio assets are assumed to be rebalanced annually.
+                            The inflation for each simulated year is based on either historical data, or user provided distribution. The inflation samples are created so that inflation
+                            correlation with simulated portfolio assets is preserved.
+                        </li>
+                        <li>
+                            Forecasted Returns -
+                            Simulates future returns for portfolio assets based on the user provided mean and standard deviation of assets combined with historical or imported asset correlations.
+                            Supported time series models include normal returns, in which case asset returns are modeled as multivariate correlated normal samples,
+                            and GARCH model, which models asset returns using stochastic volatility model based on the fitted GARCH(1,1) model for each asset
+                            in order to better capture time varying and serially correlated volatility and fat tails of the return distribution.
+                            At least 5 full years of data for selected portfolio assets is required for this simulation model, and the portfolio assets are assumed to be rebalanced annually.
+                            The inflation for each simulated year is based on either historical data, or user provided distribution. The inflation samples are created so that inflation
+                            correlation with simulated portfolio assets is preserved.
+                        </li>
+                        <li>
+                            Parameterized Returns -
+                            Simulates future returns based on the specified statistical distribution with the given mean and standard deviation.
+                            The supported distributions include normal distribution, and a fat-tailed Student's t-distribution.
+                            The inflation for each simulated year is by default based on normal distribution matching the historical annual CPI-U data mean and standard deviation. Alternatively the mean and standard deviation for inflation can be specified explicitly.
+                        </li>
+                    </ul>
+                    <p>
+                        Periodic contributions and withdrawals are supported, and the amounts can be adjusted for the simulated inflation.
+                        For withdrawals the tool also supports withdrawing a fixed percentage from the portfolio periodically, or withdrawing a variable percentage based on remaining life expectancy.
+                        Fixed percentage based withdrawals can be smoothed with spending rules. Rolling average spending rule calculates the withdrawal amount as a percentage of the rolling average portfolio balance,
+                        and geometric spending rule calculates a weighted sum of the prior period's spending level adjusted for inflation and the percentage of the current portfolio balance where the former is multiplied by the smoothing rate and the latter by one minus the smoothing rate.
+                        For life expectancy based withdrawals the current age is a required parameter, and the age is assumed to increase by 1 before the end of the first simulated year, i.e.,
+                        if the current age is 70, then the first year's withdrawal is based on remaining life expectancy at age 71. If the withdrawal frequency is not annual, then the percentage
+                        is adjusted automatically, e.g., quarterly withdrawals would use one quarter of the annual percentage amount (one divided by remaining life expectancy).
+                        Life expectancy tables are based on <a href="https://www.irs.gov/publications/p590b/index.html">IRS Publication 590-B</a>.
+                        For percentage based withdrawals the tool displays the withdrawals both in nominal dollars and in present dollars per the simulated inflation model.
+                    </p>
+                    <p>
+                        The cashflows for withdrawals and contributions can also be imported from a file. The file can be a text, CSV or Excel file with the cashflow amounts, one amount per line/row.
+                        Positive amounts are contributions, negative amounts are withdrawals. The frequency of the cashflows is specified in the user interface, i.e., if you mark the cashflows as annual,
+                        each input line would correspond to annual cashflow, with monthly cashflow frequency each row would be a monthly cashflow.
+                        If there are periods without cashflows, the cashflow amount would be zero for those periods.
+                    </p>
+                    <p>
+                        The simulation model supports testing for the sequence of returns risk. The sequence of returns risk is the risk of receiving poor returns early in a period when
+                        withdrawals are taken from a portfolio, e.g., when starting retirement. These poor early returns may cause the portfolio to be depleted much faster than expected
+                        based on historical averages. The stress testing model allows the user to specify the number of years of poor early returns, and the simulated return series is
+                        adjusted so that the worst returns occur upfront. For example, if the sequence of generated returns is [1%, 5%, -2%, -7%, 4%], then stress testing for 1 poor return
+                        upfront would adjust the return series to [-7%, 1%, 5%, -2%, 4%], and stress testing for 2 poor returns upfront would adjust the return series to [-7%, -2%, 1%, 5%, 4%].
+                    </p>
+                    <h3>Efficient Frontiers</h3>
+                    <p>
+                        The efficient frontier is a concept in modern portfolio theory introduced by Harry Markowitz in 1952.
+                        The efficient frontier tool shows the return and risk curve for the mix of the selected assets that minimizes the portfolio risk measured by volatility for the given expected return.
+                        The tool also supports rendering the geometric mean efficient frontier, which addresses the single period nature of
+                        traditional mean variance optimization by displaying the expected portfolio growth rate in a multi-period context, where the return is given by the geometric rather than the arithmetic mean.
+                        Since the arithmetic mean of any return series is always greater than the geometric mean, the return predicted by the Markowitz efficient frontier is always greater than the true long term
+                        return that would have been obtained by using the actual rebalanced allocation.
+                        Efficient frontiers can be constructed based on historical returns, or forecasted returns for and volatilities.
+                        Forward-looking efficient frontier portfolios are based on the user-specified expected returns and volatility combined with historical asset correlations.
+                        Monte Carlo method can be used for more robust optimization that resamples the optimization inputs to mitigate the impact of estimation error in the mean variance optimization inputs and improve diversification.
+                    </p>
+                    <p>
+                        References:
+                    </p>
+                    <ul>
+                        <li>Harry Markowitz - Portfolio Selection (Journal of Finance, March 1952)</li>
+                        <li>Richard O. Michaud - Efficient Asset Management (Harvard Business School Press, 1998)</li>
+                        <li><a href="http://www.effisols.com/basics/rebal.pdf">William J. Bernstein and David Wilkinson - Diversification, Rebalancing, And The Geometric Mean Frontier</a></li>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1421232">Javier Estrada - Geometric Mean Maximization: An Overlooked Portfolio Approach?</a></li>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2083915">Dimitry Mindlin - On the Relationship between Arithmetic and Geometric Returns</a></li>
+                        <li>Richard O. Michaud - A Practical Framework For Portfolio Choice (Journal Of Investment Management, Vol. 1, No. 2, 2003)</li>
+                    </ul>
+                    <h3>Asset Correlations</h3>
+                    <p>
+                        The asset correlation tool computes the Pearson correlation for the selected assets based on daily, monthly or annual asset returns.
+                        The tool also shows the annualized return for the selected assets based on the compound annual growth rate formula and the selected asset return series.
+                        Monthly standard deviation is calculated based on full calendar months within the time period for the selected tickers.
+                    </p>
+
+                    <h3>Factor Regression</h3>
+                    <p>
+                        The factor regression analysis tool enables risk factor exposure analysis of mutual funds, ETFs, and portfolios.
+                        The supported equity models include:
+                    </p>
+                        <ul>
+                            <li>The capital asset pricing model (CAPM) with market factor (MKT)</li>
+                            <li>The Fama-French three factor model with market, size, and value factors (MKT, SMB, HML)</li>
+                            <li>The Carhart four-factor model with market, size, value, and momentum factors (MKT, SMB, HML, MOM)</li>
+                            <li>The Fama-French five factor model with market, size, value, profitability, and investment factors (MKT, SMB, HML, RMW, CMA)</li>
+                            <li>The q-factor model with market, size, investment, return on equity, and expected growth factors (MKT, ME, I/A, ROE, EG)</li>
+                        </ul>
+                    <p>
+                        Additional supported equity risk factor models include:
+                    </p>
+                    <ul>
+                        <li>Short and long-term reversal factors (STREV, LTREV) based on Fama-French factor data</li>
+                        <li>Quality (QMJ) based on both AQR and Alpha Architect factor data</li>
+                        <li>Bet against beta (BAB) factor based on AQR factor data</li>
+                    </ul>
+                    <p>
+                        The multiple linear regression shows how well the returns of the given assets or a portfolio are explained by the risk factor exposures.
+                        The analysis is based on monthly asset returns (total return) and <a href="#" onclick="return expandSection('#factorDataSources')">monthly factor returns</a>.
+                        Term and credit risk factors are also supported to enable analysis of fixed income funds and balanced funds. The supported fixed income factor models include:
+                    </p>
+                    <ul>
+                        <li>Term and credit risk based 2-factor model where the term risk premium is calculated as the difference between long-term treasuries and treasury bills and
+                            the credit risk premium is calculated as the difference between long-term corporates and long-term treasuries. This model is not adjusted to account
+                            for the differences in the interest rate sensitivities of long-term treasuries and corporate bonds (refer to the Hallerbach and Houweling, and Asvanunt and Richardson papers listed below).</li>
+                        <li>Term and credit risk based 2-factor model where the term risk premium is calculated as the difference between long-term treasuries and treasury bills and
+                            the credit risk premium is calculated from the long-term corporates and long-term treasuries while accounting for the differences in the interest rate sensitivities of long-term treasuries and corporate bonds (refer to the Hallerbach and Houweling, and Asvanunt and Richardson papers listed below).</li>
+                        <li>Term and credit risk based 4-factor model where term factor is split to intermediate term (intermediate term treasuries minus the risk free rate) and long term (long minus intermediate term treasuries) interest rate risk factors,
+                            and high yield credit risk (high yield corporates minus intermediate term treasuries adjusted for interest rate sensitivity) is added as an additional credit risk factor in addition to
+                            the credit risk premium calculated from the long-term corporates and long-term treasuries while accounting for the differences in the interest rate sensitivities of long-term treasuries and corporate bonds (refer to the Hallerbach and Houweling, and Asvanunt and Richardson papers listed below).</li>
+                    </ul>
+                    <p>
+                        The fixed income factor premiums are calculated using the following funds:
+                    </p>
+                    <ul>
+                        <li>Long-term treasury bond returns are based on Vanguard Long-Term Treasury Bond Index (VUSUX)</li>
+                        <li>Intermediate-term treasury bond returns are based on Vanguard Intermediate-Term Treasury Fund (VFIUX)</li>
+                        <li>Long-term corporate bond returns are based on Vanguard Long-Term Corporate Bond Index (VLTCX)</li>
+                        <li>High-yield corporate bond returns are based on Vanguard High-Yield Corporate Fund (VWEAX)</li>
+                    </ul>
+                    <p>
+                        The factor regression tool supports the use of robust standard errors based on the Newey–West estimator.
+                        The estimator can be used to try to overcome autocorrelation and heteroscedasticity of the residuals,
+                        which can impact the standard errors and thus the calculated t-statistics and p-values.
+                    </p>
+                    <p>
+                        Note that historical equity factor returns are sometimes revised based on changes to CRSP database. Examples include updating and correcting the number of shares outstanding
+                        in past periods and changes in the treatment of deferred taxes described in FASB 109, i.e., factor returns published after August 2016 no longer add Deferred Taxes and
+                        Investment Tax Credit to BE for fiscal years ending in 1993 or later.
+                    </p>
+                    <p>
+                        References:
+                    </p>
+                    <ul>
+                        <li>Eugene F. Fama, Kenneth R. French - The Cross-Section of Expected Stock Returns (Journal of Finance, June 1992)</li>
+                        <li>Mark M. Carhart - On Persistence in Mutual Fund Performance (Journal of Finance, March 1997)</li>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2049939">Andrea Frazzini, Lasse Heje Pedersen - Betting Against Beta</a></li>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2312432">Clifford S. Asness, Andrea Frazzini, Lasse Heje Pedersen - Quality Minus Junk</a></li>
+                        <li>Winfried G. Hallerbach, Patrick Houweling - Ibbotson's Default Premium: Risky Data (The Journal of Investing, Summer, Vol. 22 No. 2)</li>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2563482">Attakrit Asvanunt, Scott A. Richardson - Credit Risk Premium: Its Existence and Implications for Asset Allocation</a></li>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2287202">Eugene F. Fama, Kenneth R. French - A Five-Factor Asset Pricing Model</a></li>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2503174">Eugene F. Fama, Kenneth R. French - Dissecting Anomalies with a Five-Factor Model</a></li>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2595747">Clifford S. Asness, Andrea Frazzini, Ronen Israel, Tobias J. Moskowitz - Fact, Fiction, and Value Investing</a></li>
+                        <li><a href="http://global-q.org/uploads/1/2/2/6/122679606/houxuezhang2015rfs.pdf">Kewei Hou, Chen Xue, and Lu Zhang - Digesting Anomalies: An Investment Approach</a></li>
+                        <li><a href="http://global-q.org/uploads/1/2/2/6/122679606/houmoxuezhang2019rf.pdf">Kewei Hou, Haitao Mo, Chen Xue, and Lu Zhang - Which Factors?</a></li>
+                        <li><a href="http://global-q.org/uploads/1/2/2/6/122679606/q5_2020jan_stylerf.pdf">Kewei Hou, Haitao Mo, Chen Xue, and Lu Zhang - An Augmented q-factor Model with Expected Growth</a></li>
+                    </ul>
+
+                    <h3>Factor Exposure Matching</h3>
+                    <p>
+                        The factor exposure matching tool enables testing whether the factor exposures and performance of the given asset
+                        can be replicated using other available assets, e.g., by using cheaper and more widely available funds or ETFs
+                        with same factor exposures and performance rather than investing in a more expensive product.
+
+                        The tool computes the factor exposures of the target asset using the specified factor model and time period,
+                        and then explores the combinations of the given alternative assets to find the closest match. The factor matching
+                        can be weighted equally, in which case the tool tries to minimize the sum square of factor loading differences
+                        for statistically significant factors, or based on t-stat, in which case the absolute t-stat value of the factor
+                        loading is used to weight the squared differences to prioritize matching based on the most significant factors.
+
+                        The tool also displays the closest match based on straight performance matching for comparison purposes. The straight
+                        performance matching is based on a combination of alternative assets that minimizes the sum square of monthly return
+                        differences.
+                    </p>
+
+                    <h3>Market Timing</h3>
+                    <h4>Valuation-based market timing with Shiller PE10 ratio</h4>
+                    <p>
+                        This model compares a baseline balanced portfolio (60% stocks, 40% treasury notes) with a portfolio that adjusts the stock and bond allocation based on the market valuation.
+                        The baseline portfolio is rebalanced annually, and the timing portfolio adjusts its allocation at the start of each year based on the Shiller PE10 ratio.
+                        The allocation changes to the timing portfolio are based on market valuation differing significantly from PE10 value of 18 (PE10 average since 1950).
+                    </p>
+                    <p>
+                        References:
+                    </p>
+                    <ul>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2544636">Wade D. Pfau - Long-term investors and valuation-based asset allocation</a></li>
+                        <li><a href="https://www.aqr.com/library/books-periodicals/back-in-the-hunt">Cliff Asness, Antti Ilmanen, Thomas Maloney - Back in the Hunt</a></li>
+                        <li><a href="https://www.aqr.com/Insights/Research/White-Papers/Market-Timing-Sin-a-Little">Cliff Asness, Antti Ilmanen, Thomas Maloney - Market Timing: Sin a Little</a></li>
+                    </ul>
+                    <h4>Moving average model</h4>
+                    <p>
+                        Moving average model uses the crossover of the moving average with the price or another moving average to decide whether to invest in the given asset.
+                        If the end-of-period price is greater than or equal to the moving average, the model will invest in the selected asset (risk on).
+                        If the end-of-period price is less than the moving average, the model will invest in an alternative safe asset, e.g., cash (risk off).
+                        Alternatively the crossover of price and moving average can be replaced with the crossover of two moving averages, typically using a shorter term moving
+                        average being higher than the longer term moving average as the buy signal.
+                        The moving average is calculated from adjusted close prices either based on end-of-month prices for monthly moving averages or daily prices when the moving average is specified in trading days.
+                        The start year of the timing model backtest is adjusted forward if necessary, so that there is enough historical data to trigger the timing signal from the start of the timing period.
+                        Trades are performed at either the end-of-period close price, or at next trading day's close based on defined trading policy.
+                        The delayed trading accounts for the fact that typically in practice one would not be able to execute the trade at the point in time when the signal becomes available.
+                    </p>
+                    <p>
+                        References:
+                    </p>
+                    <ul>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=962461">Mebane T. Faber - A Quantitative Approach to Tactical Asset Allocation</a></li>
+                    </ul>
+                    <h4>Relative strength based momentum model</h4>
+                    <p>
+                        The relative strength model uses the relative strength of an asset compared to other assets to decide which assets to invest in.
+                        The model favors assets with the best recent performance (momentum), and invests in one or more assets based on a performance ranked list of assets.
+                        The returns based momentum can be calculated over the specified time period directly, or by excluding the most recent month. The latter option addresses the
+                        short-term reversal effect, which is why academic momentum definition generally uses 2-12 momentum (last 12-month returns excluding the previous month).
+                        Two options for relative strength timing windows are provided:
+                    </p>
+                    <ul>
+                        <li>
+                            Single Period - Single period model uses one timing window to calculate each asset's past performance.
+                            The calculated performance number is the asset's total return over the timing period.
+                            The calculated performance number can be risk adjusted based on volatility, in which case the model adjusts the asset return performance
+                            by calculating the average daily return over the timing period divided by the standard deviation of daily total returns over the volatility window period.
+                            The cash ticker (CASHX), if used, is excluded from the volatility adjustment.
+                        </li>
+                        <li>
+                            Multiple Period - This model uses multiple weighted timing periods. The model first calculates the relative performance of the assets
+                            for each timing period based on total return, and then weights either the rankings or the asset performance based on user supplied weights for the timing periods.
+                            When assets are ranked by performance across multiple timing windows, you can specify whether the returns are normalized to annualized returns for each period before weighting, or whether the return over the timing period is used directly.
+                            If weighted rankings are used and two or more assets have the same weighted rank, then the performance or volatility window with the largest weighting determines the order.
+                            If the window weights are also equal, then the first specified time window is used to break the tie.
+                            Volatility can be used as an additional negative ranking factor, i.e., the asset with the lowest volatility is ranked first for the volatility window.
+                            Volatility calculations are based on the standard deviation of daily total returns.
+                        </li>
+                    </ul>
+                    <p>
+                        Both models above also support moving average based risk controls, which allows the relative strength model selections to be overridden so that the model
+                        invests in cash instead of the asset if the price of the asset is below its moving average. The moving average can also be based on an external asset, e.g., SPY,
+                        rather than the invididual assets themselves for market regime based models. The moving average is calculated as described above.
+                        The start year of the timing model backtest is adjusted forward if necessary, so that there is enough historical data to trigger the timing signal from the start of the timing period.
+                        The months in the timing period are calendar months, and monthly changes are based on the end-of-month adjusted close price.
+                        Trades are performed at either the end-of-period close price, or at next trading day's close based on defined trading policy.
+                        The delayed trading accounts for the fact that typically in practice one would not be able to execute the trade at the point in time when the signal becomes available.
+                    </p>
+                    <p>
+                        Stop-loss can also be used as an additional risk control measure and be applied either at individual asset or at the portfolio level. The stop-loss trigger is specific to each trade period
+                        and the loss is measured against the balance at the start of the timing period. If a stop-loss is triggered the model will stay out of the market until a new trade for the following timing period occurs.
+                    </p>
+                    <p>
+                        References:
+                    </p>
+                    <ul>
+                        <li>Narasimhan Jegadeesh, Sheridan Titman - Returns to Buying Winners and Selling Losers: Implications for Stock Market Efficiency (Journal of Finance, Volume 48, Issue 1, March 1993)</li>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1585517">Mebane T. Faber - Relative Strength Strategies for Investing</a></li>
+                    </ul>
+                    <h4>Dual momentum model</h4>
+                    <p>
+                        The dual momentum model combines relative momentum and absolute momentum based timing. Relative strength is used to select the best performing
+                        model asset(s) and absolute momentum is then applied as a trend-following filter to only invest in the selected asset(s) if the excess return over
+                        the risk free rate has been positive. If the excess return is negative, then the model invests in short- to intermediate-term fixed income instruments
+                        (the out-of-market asset) until the trend turns positive. The relative momentum performance is calculated as the asset's total return over the timing
+                        period, and the return of 3-month treasury bills is used as the risk free rate for the absolute momentum filter.
+                        The months in the timing period are calendar months, and monthly changes are based on the end-of-month adjusted close price.
+                        Trades are performed at either the end-of-month close price, or at next trading day's close based on defined trading policy.
+                        The delayed trading accounts for the fact that typically in practice one would not be able to execute the trade at the point in time when the signal becomes available.
+                    </p>
+                    <p>
+                        Rapach and Strauss and Zhou (2013) find that the US stock market leads the world markets even at the monthly frequency, so the supported options include
+                        specifying a single asset to be used for  absolute momentum. As discussed in Gary Antonacci's Dual Momentum book, we can first apply absolute momentum
+                        based on the US stock market (e.g. S&amp;P 500 TR) and assuming the excess return over the risk-free rate is positive, we use relative momentum to choose between
+                        US equity and international equity. If the absolute momentum excess return is negative, the model is invested in the selected out-of-market asset, e.g., Barclays U.S. Aggregate Bond Index.
+                    </p>
+                    <p>
+                        References:
+                    </p>
+                    <ul>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2042750">Gary Antonacci - Risk Premia Harvesting Through Dual Momentum</a></li>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2244633">Gary Antonacci - Absolute Momentum: A Simple Rule-Based Strategy and Universal Trend-Following Overlay</a></li>
+                        <li>David Rapach, Jack K. Strauss, and Guofu Zhou - International Stock Market Return Predictability (Journal of Finance, Volume 68, Issue 4, August 2013)</li>
+                    </ul>
+                    <h4>Adaptive asset allocation model</h4>
+                    <p>
+                        The adaptive asset allocation model combines relative strength momentum model with different asset weighting. The relative strength model
+                        uses an equal weight allocation for the model selected assets, whereas the adaptive asset allocation uses either risk parity
+                        allocation or minimum variance allocation for the model assets, i.e., it either equalizes the risk contribution across the selected
+                        assets or weights the assets in order to minimize the expected volatility. Both the relative strength momentum timing period and the period
+                        for daily volatility and return calculations can be specified. The default model uses 6-month relative momentum with 60-day volatility window.
+                    </p>
+                    
+                    <p>
+                        References:
+                    </p>
+                    <ul>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2328254">Adam Butler, Mike Philbrick, Rodrigo Gordillo, David Varadi - Adaptive Asset Allocation: A Primer</a></li>
+                    </ul>
+                    <h4>Target volatility model</h4>
+                    <p>
+                        The target volatility model uses dynamic asset allocation to achieve a stable level of volatility. The model manages volatility by forecasting
+                        future equity volatility based on historic realized volatility and then dynamically adjusts the market exposure to target a set level of volatility.
+                        The historic realized volatility calculation assumes that the given portfolio allocation is maintained (no adjustment for asset allocation drift).
+                        The model calculates the realized portfolio volatility (annualized daily volatility) based on daily total returns, and then either increases or decreases
+                        the equity exposure of the portfolio to maintain the target risk level. If the predicted volatility of the portfolio is above the set target level,
+                        the model shifts assets to a risk free asset, typically cash, so that the predicted volatility is in line with the target volatility. For example,
+                        if the target annual volatility is 4% and the realized volatility is 6%, then the portfolio asset weights are multiplied by 40/60 and the remaining
+                        assets are allocated to the selected risk free asset. The strategy aims to sell assets when their risk-adjusted expected return is falling
+                        (rising market volatility) and buying equities when their risk-adjusted expected return is rising (falling market volatility) to provide better
+                        risk-adjusted portfolio returns and to account for investor's risk tolerance. However, volatility targeting tends to reduce equity exposure after
+                        a sharp market drop, which means the portfolio may miss the early part of the market recovery.
+                    </p>
+                    <p>
+                        References:
+                    </p>
+                    <ul>
+                        <li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2521007">Diana Barro, Elio Canestrelli, Fabio Lanza - Volatility vs. Downside Risk: Optimally Protecting Against Drawdowns and Maintaining Portfolio Performance</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingDefinitions">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#definitions" aria-expanded="false" aria-controls="definitions">Terms and Definitions</a>
+                </h4>
+            </div>
+            <div id="definitions" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingDefinitions">
+                <div class="panel-body">
+                    <dl>
+                        <dt>Annualized Return</dt>
+                        <dd>
+                            The annualized return is calculated as the compounded mean return. The average monthly return R<sub>m</sub> is annualized as
+                            <div class="mathexpr">
+                                Annualized\:Return = (1+R_m)^{12}-1
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Arithmetic Mean</dt>
+                        <dd>
+                            The arithmetic mean is used to measure average return and it is calculated as the sum of individual returns (R<sub>1</sub>...R<sub>n</sub>) divided by the number of returns.
+                            <div class="mathexpr">
+                                \overline{R} = \frac{1}{n}\sum_{i=1}^{n}R_i = \frac{R_1+R_2+\dotso+R_n}{n}
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Geometric Mean</dt>
+                        <dd>
+                            Geometric mean is used to measure the time-weighted rate of return, i.e., compounded growth rate. For individual returns (R<sub>1</sub>...R<sub>n</sub>) is calculated as
+                            <div class="mathexpr">
+                                \Big(\prod_{i=1}^n(1+R_i)\Big)^{\frac{1}{n}}-1 = \Big((1+R_1)(1+R_2)\dotso(1+R_n)\Big)^{\frac{1}{n}}-1
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Compound Annualized Growth Rate (CAGR)</dt>
+                        <dd>
+                            Compound annualized growth rate is the annualized geometric mean return of the portfolio. It is calculated directly from the portfolio start and end balance
+                            and is thus impacted by any cashflows. In the presence of cashflows other return metrics such as time-weighted rate of return (TWRR) and
+                            money weighted rate of return (MWRR) are preferred. For an investment time period of T years, the compound annualized growth rate is calculated as
+                            <div class="mathexpr">
+                                \Big(\frac{End\:Balance}{Start\:Balance}\Big)^\frac{1}{T}-1
+                            </div>
+                        </dd>
+                    </dl>
+
+                    <dl>
+                        <dt>Time-Weighted Rate of Return (TWRR)</dt>
+                        <dd>
+                            The time-weighted rate of return (TWRR) is a measure of the compound rate of growth in a portfolio. This is calculated from the holding period returns (e.g. monthly returns),
+                            and TWRR will thus not be impacted by cashflows. If there are no external cashflows, the annualized TWRR will equal CAGR.
+                            <br><br>
+                        </dd>
+                    </dl>
+
+                    <dl>
+                        <dt>Money-Weighted Rate of Return (MWRR)</dt>
+                        <dd>
+                            The money-weighted rate of return (MWRR) is the internal rate of return (IRR) taking into account cashflows.
+                            This is the discount rate at which the present value of cash inflows equals the present value of cash outflows.
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Standard Deviation and Variance</dt>
+                        <dd>
+                            Variance (&sigma;<sup>2</sup>) is used to measure the dispersion of returns around the mean, and it is calculated as the average squared distance from the mean.
+                            Standard deviation (&sigma;) is the square root of variance, and it is the most commonly used volatility and risk metric for portfolio returns. Unlike variance, standard deviation
+                            is expressed in the same unit as the inputs. If the returns are normally distributed, 68% of returns will be within one standard deviation from the mean
+                            and 95% of returns will be within two standard deviations from the mean.
+                            <div class="mathexpr">
+                                \sigma=\sqrt{\frac{1}{n-1}\sum_{i=1}^n(R_i-\overline{R})^2}
+                            </div>
+                            Annualized standard deviation can be calculated based on the standard deviation of monthly or daily returns.
+                            <div class="mathexpr">
+                                \sigma_{annualized}=\sqrt{12}\times\sigma_{monthly} \\
+                                \sigma_{annualized}=\sqrt{252}\times\sigma_{daily}
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Covariance</dt>
+                        <dd>
+                            Covariance measures the joint variability of two random variables.
+                            <div class="mathexpr">
+                                Cov(X,Y) = \frac{1}{n}\sum_{i=1}^{n}(X_i - \overline{X})(Y_i - \overline{Y})
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Correlation</dt>
+                        <dd>
+                            Correlation is the normalized version of covariance, and measures to what degree the returns of the two assets move in relation to each other.
+                            Correlation coefficient is a numerical value between -1 and +1.
+                            <div class="mathexpr">
+                                \rho_{X,Y} = \frac{Cov(X,Y)}{\sigma_x\sigma_y} = \frac{\sum_{i=1}^{n}(X_i - \overline{X})(Y_i - \overline{Y})}{\sqrt{\sum_{i=1}^n(X_i-\overline{X})^2}\sqrt{\sum_{i=1}^n(Y_i-\overline{Y})^2}}
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Downside Deviation</dt>
+                        <dd>
+                            Downside deviation measures the downside volatility of the portfolio returns unlike standard deviation, which includes both upside and downside volatility.
+                            Downside volatility focuses on the negative returns that hurt the portfolio performance.
+                            <div class="mathexpr">
+                                L_i = min(0, R_{Pi})
+                            </div>
+                            <div class="mathexpr">
+                                Downside\:Deviation = \sqrt{\frac{1}{n}\sum_{i=1}^nL_i^2}
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Beta and Alpha</dt>
+                        <dd>
+                            Beta is a measure of systematic risk and measures the volatility of a particular investment relative to the market or its benchmark as a whole.
+                            Alpha measures the active return of the investment compared to the market benchmark return.
+                            <div class="mathexpr">
+                                \beta = \frac{Cov(R_P,R_M)}{\sigma_{R_M}^2} = \rho_{P,M}\frac{\sigma_P}{\sigma_M}
+                            </div>
+                            <div class="mathexpr">
+                                R_P = R_{RF} + \beta(R_M - R_{RF}) + \alpha
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Sharpe Ratio</dt>
+                        <dd>
+
+                            The Sharpe ratio is a measure of risk-adjusted performance of the portfolio and it is calculated by dividing the mean excess return of the portfolio over the risk-free rate by the standard deviation of excess return.
+                            Risk-free rate of return is typically based on either 1-month or 3-month treasury bill return. Risk-free asset is typically assumed to have zero correlation with risky assets and zero standard deviation,
+                            in which case the standard deviation of portfolio returns is the same as the standard deviation of excess returns. Sharpe ratio can be used to rank portfolios based on their risk-adjusted performance.
+                            <div class="mathexpr">
+                                Sharpe\:Ratio = \frac{ R_P - R_{RF}}{\sigma_P}
+                            </div>
+                            When the return series for both the portfolio and the risk-free asset are available, the ex-post Sharpe Ratio is calculated as
+                            <div class="mathexpr">
+                                D_i = R_{Pi} - R_{RFi}
+                            </div>
+                            <div class="mathexpr">
+                                Sharpe\:Ratio = \frac{\overline{D}}{\sigma_D} = \frac{\frac{1}{n}\sum_{i=1}^{n}D_i}{\sqrt{\frac{1}{n-1}\sum_{i=1}^n(D_i-\overline{D})^2}}
+                            </div>
+                            The Sharpe Ratio based on monthly returns is annualized as
+                            <div class="mathexpr">
+                                Sharpe\:Ratio_{annualized}=\sqrt{12} \times Sharpe\:Ratio_{monthly}
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Sortino Ratio</dt>
+                        <dd>
+                            The Sortino ratio is a measure of risk-adjusted performance of the portfolio. It is similar to the Sharpe ratio,
+                            but it substitutes a minimum acceptable rate of return for the risk free rate and uses the downside deviation of returns below the minimum acceptable return as the risk metric.
+                            Compared to the Sharpe Ratio, the Sortino ratio does not penalize for upside volatility.
+                            By default, Portfolio Visualizer uses the risk-free rate of return as the minimum acceptable return when calculating the Sortino Ratio.
+                            <div class="mathexpr">
+                                L_i = min(0, R_{Pi} - R_{MARi})
+                            </div>
+                            <div class="mathexpr">
+                                Sortino\:Ratio = \frac{ R_P - R_{MAR}}{Downside\:Deviation} = \frac{\frac{1}{n}\sum_{i=1}^{n}(R_{Pi} - R_{MARi})}{\sqrt{\frac{1}{n}\sum_{i=1}^nL_i^2}}
+                            </div>
+                            The Sortino Ratio based on monthly returns is annualized as
+                            <div class="mathexpr">
+                                Sortino\:Ratio_{annualized}=\sqrt{12} \times Sortino\:Ratio_{monthly}
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Treynor Ratio</dt>
+                        <dd>
+                            The Treynor ratio is a measure of risk-adjusted performance of the portfolio. It is similar to the Sharpe ratio,
+                            but it uses beta (systematic risk) as the risk metric in the denominator.
+                            <div class="mathexpr">
+                                Treynor\:Ratio = \frac{ R_P - R_{RF}}{\beta_P}
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Calmar Ratio</dt>
+                        <dd>
+                            The Calmar ratio is a measure of risk-adjusted performance of the portfolio. It is calculated as the annualized return over the past 36 months divided by the maximum drawdown over the past 36 months.
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Upside and Downside Capture Ratios</dt>
+                        <dd>
+                            The upside capture ratio measures how well the fund performed relative to the benchmark when the market was up, and the downside capture ratio measures how well the fund performed relative to the benchmark when the market was down.
+                            An upside capture ratio greater than 100 would indicate that the fund outperformed its benchmark when the market was up, and a downside capture ratio below 100 would indicate that the fund lost less than its benchmark when the market was down.
+                            Given the portfolio (R<sub>P</sub>) and benchmark (R<sub>B</sub>) return series for a time period of Y years, the ratios as calculated as
+                            <div class="mathexpr">
+                                R_{PUi} = max(0, R_{Pi}) \\
+                                R_{PDi} = min(0, R_{Pi}) \\
+                                R_{BUi} = max(0, R_{Bi}) \\
+                                R_{BDi} = min(0, R_{Bi})
+                            </div>
+                            <div class="mathexpr">
+                                Upside\:Capture\:Ratio = \frac{\Big(\prod_{i=1}^n(1+R_{PUi})\Big)^{\frac{1}{y}}-1}{\Big(\prod_{i=1}^n(1+R_{BUi})\Big)^{\frac{1}{y}}-1}
+                            </div>
+                            <div class="mathexpr">
+                                Downside\:Capture\:Ratio = \frac{\Big(\prod_{i=1}^n(1+R_{PDi})\Big)^{\frac{1}{y}}-1}{\Big(\prod_{i=1}^n(1+R_{BDi})\Big)^{\frac{1}{y}}-1}
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Gain/Loss Ratio</dt>
+                        <dd>
+                            The Gain/Loss ratio is a measure of downside risk and it is calculated as the average positive return in up periods divided by the average negative return in down periods.
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Active Return</dt>
+                        <dd>
+                            Active return is the investment return minus the return of its benchmark. This is displayed as annualized value, i.e., annualized investment return minus annualized benchmark return.
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Tracking Error</dt>
+                        <dd>
+                            Tracking error is the standard deviation of active return. This is displayed as annualized value based on the standard deviation of monthly active returns.
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Information Ratio</dt>
+                        <dd>
+                            Information ratio is the active return divided by the tracking error. It measures whether the investment outperformed its benchmark consistently.
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Value at Risk (VaR)</dt>
+                        <dd>
+                            Value at Risk (VaR) measures the scale of loss at a given confidence level. If the 5% VaR is -3% the portfolio return is expected to be greater than -3% 95% of the time and less than -3% 5% of the time.
+                            Value at Risk can be calculated directly based on historical returns based on a given percentile or analytically based on the mean and standard deviation of the returns:
+                            <div class="mathexpr">
+                                5\%\:VaR = E[R]-1.645\times\sigma
+                            </div>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Conditional Value at Risk (CVaR)</dt>
+                        <dd>
+                            Conditional Value at Risk (CVaR) measures the scale of the expected loss once the specific Value at Risk (VaR) breakpoint has been breached, i.e., it calculates the average tail loss.
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Safe Withdrawal Rate</dt>
+                        <dd>
+                            Safe withdrawal rate is the percentage of the original portfolio balance that can be withdrawn at the end of each year with inflation adjustment without the portfolio running out of money (dollar amount withdrawal).
+                            Safe withdrawal rate is specific to the time period and return path, so is mostly useful as a relative comparison metric, not as an absolute value.
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Perpetual Withdrawal Rate</dt>
+                        <dd>
+                            Perpetual withdrawal rate is the percentage of portfolio balance that can be withdrawn at the end of each year while retaining the inflation adjusted portfolio balance (percentage withdrawal).
+                            Perpetual withdrawal rate is specific to the time period and return path, so is mostly useful as a relative comparison metric, not as an absolute value.
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Returns Based Style Analysis</dt>
+                        <dd>
+                            Returns based style analysis solves the constrained regression parameters for asset class weights (coefficients &gt;= 0 with 1 as the sum) using monthly returns as inputs.
+                            The R squared tells us how well a monthly rebalanced portfolio with the given asset class weights explains the portfolio returns.
+                            Since the regression is focused on explaining the returns, it does not necessarily tell us anything about the portfolio holdings.
+                            The regression results also depend on the asset classes used in the regression, e.g., including commodities or global bonds as asset classes would change the resulting weights.
+                            Typical usages of returns based style analysis include identifying asset class exposures if holdings data is not available or detecting manager style drift.
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Holdings Based Style Analysis</dt>
+                        <dd>
+                            Holdings based style analysis shows the portfolio breakdown based on fund holdings, and includes both equity breakdown (market capitalization, sectors) and
+                            fixed income breakdown (credit quality, maturity). The holdings based break-down data is provided by Morningstar's fund fundamentals data.
+                            For example, if a portfolio has 60% in global equity fund and 40% in fixed income, and the global equity fund weighting is 50% domestic stocks and 50% international stocks,
+                            then the international equity exposure would be 60% x 50% = 30%.
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Risk Attribution Analysis</dt>
+                        <dd>
+                            Risk attribution decomposes portfolio risk into its constituent parts and identifies the contribution to overall volatility by each of the holdings.
+                            We can express the portfolio volatility in terms of marginal contribution to risk (MCTR), which measures the marginal amount of risk an individual security contributes to overall risk, as follows:
+                            <div class="mathexpr">
+                                \sigma_P = \sqrt{\sum_{i=1}^n\sum_{j=1}^nw_iw_jCov(R_i,R_j)} = \sum_{i=1}^nw_i \times MCTR_i = \sum_{i=1}^nw_i \times \sigma_i \times \rho_{i,P}
+                            </div>
+                            <div class="mathexpr">
+
+                                MCTR_i = \frac{\partial \sigma_P}{\partial w_i} = \frac{Cov(R_i,R_P)}{\sigma_P} = \sigma_i \times \rho_{i,P}
+                            </div>
+                            Note that the risk contribution can be slightly negative for some assets, e.g., short-term treasuries, which indicates a relatively strong degree of volatility reduction that the given asset brings to the portfolio.
+                            Overall assets with higher weight, volatility, and correlation with the portfolio will contribute more to the portfolio risk.
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Drawdowns</dt>
+                        <dd>
+                            A maximum drawdown (MDD) is the maximum observed loss from a peak to a trough of a portfolio before a new peak is attained. Each drawdown has:
+                            <ul>
+                                <li><b>Drawdown Length</b> - Measures the time from the start of the drawdown (previous peak) to the through point in time</li>
+                                <li><b>Recovery Time</b> - Measures the time from the through point to the new peak</li>
+                                <li><b>Underwater Period</b> - Measures the total time from the start of the drawdown (previous peak) to the new peak (drawdown length + recovery time)</li>
+                            </ul>
+                            <div class="mathexpr">
+                                MDD = \frac{Through\:Value - Peak\:Value}{Peak\:Value}
+                            </div>
+                            <br>
+                            <a class="doc-image-link" href="images/docs/DrawdownChart.png" data-lightbox="drawdown-images"><img class="doc-image center-block" src="images/docs/DrawdownChart.png" alt="Drawdown chart" style="width:40%; height: auto;"></a>
+                            <br><br>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>Percentile</dt>
+                        <dd>
+                            A percentile is a measure used in statistics indicating the value below which a given percentage of observations in a group of observations falls.
+                            For example, if the end balance of Monte Carlo simulation for the 25th percentile is $850,000, it means that 25% of simulated portfolios had lower end balance,
+                            and 75% of portfolios had higher end balance.
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingFactorReturnSources">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#factorDataSources" aria-expanded="false" aria-controls="factorDataSources">Data Sources for Factor Returns</a>
+                </h4>
+            </div>
+            <div id="factorDataSources" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingFactorReturnSources">
+                <div class="panel-body">
+                    <p>
+                        The data sources for factor analysis are listed below.
+                    </p>
+                    <ul>
+                        <li><a href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html">Professor Kenneth French's Data Library - Mkt, HmL, SmB, UmD, RmW, CmA factors for US and developed market stocks</a></li>
+                        <li><a href="https://www.aqr.com/Insights/Datasets/">AQR Factors - Mkt, HmL, SmB, UmD, QmJ, BaB factors for US and international developed markets</a></li>
+                        <li><a href="https://alphaarchitect.com/indexes/#returndownload">Alpha Architect Factors - Mkt, HmL, SmB, UmD, QmJ factors for US and international developed markets</a></li>
+                        <li><a href="http://global-q.org/factors.html">q-Factors - MKT, ME, I/A, ROE, EG for the US market</a></li>
+                        <li><a href="http://rnm.simon.rochester.edu/data_lib/index.html">Professor Robert Novy-Marx's Data Library - Profitability factor (PMU) data for US stocks</a></li>
+                    </ul>
+                    <p>
+                        The bond factors for term risk and credit risk are calculated as follows:
+                    </p>
+                    <ul>
+                        <li>Term Risk = Difference between long-term treasuries and treasury bills</li>
+                        <li>Credit Risk = Difference between long-term corporates and long-term treasuries</li>
+                        <li>Long-term treasury bond returns are based on Vanguard Long-Term Treasury Bond Index (VUSTX)</li>
+                        <li>Long-term corporate bond returns are based on Vanguard Long-Term Corporate Bond Index (VLTCX)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingAssetDataSources">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#dataSources" aria-expanded="false" aria-controls="dataSources">Data Sources for Asset Class Returns</a>
+                </h4>
+            </div>
+            <div id="dataSources" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingAssetDataSources">
+                <div class="panel-body">
+                    <p>
+                        The data sources for monthly asset class returns are listed below.
+                        The table of <a href="historical-asset-class-returns.html">annual asset class returns</a> shows the calculated annual returns based on the data sources below.
+                        You can also <a href="login9a52.html">import a custom return series</a> to be used as an asset class, as a portfolio asset, or as a benchmark.
+                    </p>
+                    <dl class="asset-class-return-data gap">
+                        <dt>US Stock Market</dt>
+                        <dd>AQR US MKT Factor Returns 1972-1992 (<a href="https://www.aqr.com/Insights/Datasets">AQR Data Sets</a>)</dd>
+                        <dd>Vanguard Total Stock Market Index Fund (VTSMX) 1993+</dd>
+                        <dt>US Large Cap</dt>
+                        <dd>Professor Kenneth French's Research Data<sup>1</sup> 1972-1976</dd>
+                        <dd>Vanguard 500 Index Fund (VFINX) 1977+</dd>
+                        <dt>US Large Cap Value</dt>
+                        <dd>Professor Kenneth French's Research Data<sup>1</sup> 1972-1992</dd>
+                        <dd>Vanguard Value Index Fund (VIVAX) 1993+</dd>
+                        <dt>US Large Cap Growth</dt>
+                        <dd>Professor Kenneth French's Research Data<sup>1</sup> 1972-1992</dd>
+                        <dd>Vanguard Growth Index Fund (VIGRX) 1993+</dd>
+                        <dt>US Mid Cap</dt>
+                        <dd>Professor Kenneth French's Research Data<sup>1</sup> 1972-1998</dd>
+                        <dd>Vanguard Mid Cap Index Fund (VIMSX) 1999+</dd>
+                        <dt>US Mid Cap Value</dt>
+                        <dd>Professor Kenneth French's Research Data<sup>1</sup> 1972-2006</dd>
+                        <dd>Vanguard Mid Cap Value Index Fund (VMVIX) 2007+</dd>
+                        <dt>US Mid Cap Growth</dt>
+                        <dd>Professor Kenneth French's Research Data<sup>1</sup> 1972-2006</dd>
+                        <dd>Vanguard Mid Cap Growth Index Fund (VMGIX) 2007+</dd>
+                        <dt>US Small Cap</dt>
+                        <dd>Professor Kenneth French's Research Data<sup>1</sup> 1972-1989</dd>
+                        <dd>Vanguard Small Cap Index Fund (NAESX) 1990+</dd>
+                        <dt>US Small Cap Value</dt>
+                        <dd>Professor Kenneth French's Research Data<sup>1</sup> 1972-1998</dd>
+                        <dd>Vanguard Small Cap Value Index Fund (VISVX) 1999+</dd>
+                        <dt>US Small Cap Growth</dt>
+                        <dd>Professor Kenneth French's Research Data<sup>1</sup> 1972-1998</dd>
+                        <dd>Vanguard Small Cap Growth Index Fund (VISGX) 1999+</dd>
+                        <dt>US Micro Cap</dt>
+                        <dd>Professor Kenneth French's Research Data<sup>1</sup> 1972-1981</dd>
+                        <dd>DFA US Micro Cap I (DFSCX) 1982-1997</dd>
+                        <dd>Bridgeway Ultra Small Market (BRSIX) 1998+</dd>
+                        <dt>Global ex-US Stock Market</dt>
+                        <dd>AQR Global ex US MKT Factor (<a href="https://www.aqr.com/Insights/Datasets">AQR Data Sets</a>) 1986-1996</dd>
+                        <dd>Vanguard Total International Stock Index Fund (VGTSX) 1997+</dd>
+                        <dt>International ex-US Developed Markets (EAFE)</dt>
+                        <dd>AQR Global ex US MKT Factor (<a href="https://www.aqr.com/Insights/Datasets">AQR Data Sets</a>) 1986-1999</dd>
+                        <dd>Vanguard Developed Markets Index Fund (VTMGX) 2000+</dd>
+                        <dt>International ex-US Small Cap</dt>
+                        <dd>DFA International Small Cap Value I (DISVX) 1995-2009</dd>
+                        <dd>Vanguard FTSE All-World ex-US Small-Cap ETF (VSS) 2010+</dd>
+                        <dt>International ex-US Value</dt>
+                        <dd>DFA International Value I (DFIVX) 1995-2005</dd>
+                        <dd>iShares MSCI EAFE Value ETF (EFV) 2006+</dd>
+                        <dt>European Stocks</dt>
+                        <dd>AQR Europe MKT Factor (<a href="https://www.aqr.com/Insights/Datasets">AQR Data Sets</a>) 1986-1990</dd>
+                        <dd>Vanguard European Stock Index Fund (VEURX) 1991+</dd>
+                        <dt>Pacific Region Stocks</dt>
+                        <dd>AQR Pacific MKT Factor (<a href="https://www.aqr.com/Insights/Datasets">AQR Data Sets</a>) 1986-1990</dd>
+                        <dd>Vanguard Pacific Stock Index Fund (VPACX) 1991+</dd>
+                        <dt>Emerging Markets</dt>
+                        <dd>Vanguard Emerging Markets Stock Index Fund (VEIEX) 1995+</dd>
+                        <dt>Total Bond Market</dt>
+                        <dd>Vanguard Total Bond Market Index Fund (VBMFX) 1987+</dd>
+                        <dt>Short Term Treasuries</dt>
+                        <dd>FRED Interest Rate Data (2-year maturity) 1977-1991</dd>
+                        <dd>Vanguard Short Term Treasury Fund (VFISX) 1992+</dd>
+                        <dt>Intermediate Term Treasuries</dt>
+                        <dd>FRED Interest Rate Data (5-year maturity) 1972-1991</dd>
+                        <dd>Vanguard Intermediate-Term Treasury Fund (VFITX) 1992+</dd>
+                        <dt>10-year Treasury</dt>
+                        <dd>FRED Interest Rate Data (10-year maturity) 1972+</dd>
+                        <dt>Long Term Government Bonds</dt>
+                        <dd>FRED Interest Rate Data (30-year maturity) 1978-1986</dd>
+                        <dd>Vanguard Long Term Treasury Fund (VUSTX) 1987+</dd>
+                        <dt>TIPS</dt>
+                        <dd>Vanguard Inflation-Protected Security Fund (VIPSX) 2001+</dd>
+                        <dt>Treasury Bills / Cash - Risk Free Return Benchmark</dt>
+                        <dd>3-month Treasury Bills (<a href="https://fred.stlouisfed.org/data/DTB3.txt">FRED Data</a>) 1972+</dd>
+                        <dt>Short Term Tax Exempt</dt>
+                        <dd>Vanguard Short-Term Tax-Exempt Fund (VWSTX) 1978+</dd>
+                        <dt>Intermediate Term Tax Exempt</dt>
+                        <dd>Vanguard Intermediate-Term Tax-Exempt Fund (VWITX) 1978+</dd>
+                        <dt>Long Term Tax Exempt</dt>
+                        <dd>Vanguard Long-Term Tax-Exempt Fund (VWLTX) 1978+</dd>
+                        <dt>Short Term Investment Grade</dt>
+                        <dd>Vanguard Short-Term Investment Grade Fund (VFSTX) 1983+</dd>
+                        <dt>Corporate Bonds</dt>
+                        <dd>iShares Investment Grade Corporate Bond ETF (LQD) 2003+</dd>
+                        <dt>Long Term Corporate Bonds</dt>
+                        <dd>Vanguard Long-Term Investment Grade Fund (VWESX) 1974+</dd>
+                        <dt>High Yield Corporate Bonds</dt>
+                        <dd>Vanguard High Yield Corporate Fund (VWEHX) 1979+</dd>
+                        <dt>Global Bonds (Unhedged)</dt>
+                        <dd>PIMCO Global Bond Fund (PIGLX) 1994+</dd>
+                        <dt>Global Bonds (USD Hedged)</dt>
+                        <dd>PIMCO Global Bond (US Dollar-Hedged) Fund (PGBIX) 1994+</dd>
+                        <dt>Real Estate (REIT)</dt>
+                        <dd>DFA Real Estate Securities I (DFREX) 1994-1996</dd>
+                        <dd>Vanguard REIT Index Fund (VGSIX) 1997+</dd>
+                        <dt>Gold</dt>
+                        <dd>Gold Fixing Price in London Bullion Market 3:00 PM (London time) 1972-2004</dd>
+                        <dd>SPDR Gold Shares (GLD) 2005+</dd>
+                        <dt>Precious Metals</dt>
+                        <dd>Vanguard Precious Metals Fund (VGPMX) 1985-2017</dd>
+                        <dd>VanEck Vectors Gold Miners ETF (GDX) 2018+</dd>
+                        <dt>Commodities</dt>
+                        <dd>iShares S&amp;P GSCI Commodity-Indexed Trust (GSG) 2007+</dd>
+                        <dt>Inflation (CPI-U)</dt>
+                        <dd>Bureau of Labor and Statistics <a href="https://fred.stlouisfed.org/series/CPIAUCNS">Consumer Price Index (CPI-U)</a> 1972+</dd>
+                    </dl>
+
+                    <dl class="asset-class-return-data">
+                        <dt><sup>1</sup> Synthetic Equity Index Details</dt>
+                        <dd>The &quot;100 Portfolios Formed on Size and Book-to-Market&quot; data from <a href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html">Professor Kenneth French's research data library</a> is used to derive synthetic index data for US market equities.
+                            The methodology used is identical to the one discussed in this <a href="https://portfoliocharts.com/stock-index-calculator/">online article</a> at <a href="https://portfoliocharts.com/">Portfolio Charts</a>. The market capitalization ranges used match the CRSP index ranges:
+                            <ul>
+                                <li>Large Cap - Includes U.S. companies that comprise the top 85% of investable market capitalization</li>
+                                <li>Mid Cap - Includes U.S. companies that fall between the top 70%-85% of investable market capitalization</li>
+                                <li>Small Cap - Includes U.S. companies that fall between the bottom 2%-15% of the investable market capitalization</li>
+                                <li>Micro Cap - Includes U.S. companies that comprise the bottom 2% of investable market capitalization</li>
+                            </ul>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingMarketDataSources">
+                <h4 class="panel-title panel-heading-link">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#marketData" aria-expanded="false" aria-controls="marketData">Data Sources for Market Data</a>
+                </h4>
+            </div>
+            <div id="marketData" class="panel-collapse collapse panel-anchor" role="tabpanel" aria-labelledby="headingMarketDataSources">
+                <div class="panel-body">
+                    <p>
+                        Data for U.S. and Canadian securities, mutual funds, and ETFs is provided by Morningstar Inc and Commodity Systems Inc.
+                        Fund distributions for mutual funds are typically reflected within two business days of the ex-dividend date, and for
+                        ETFs and stocks on the ex-dividend date.
+                        If you identify a potential data error, please use the <a href="contact.html">contact form</a> to report it.
+                    </p>
+                    <p>
+                        A reference list of additional market data sources is provided below:
+                    </p>
+                    <dl class="asset-class-return-data">
+                        <dt>US Equities, Mutual Funds and ETFs</dt>
+                        <dd>Morningstar (<a href="https://www.morningstar.com/">www.morningstar.com</a>)</dd>
+                        <dd>CSI (<a href="http://www.csidata.com/">www.csidata.com</a>)</dd>
+                        <dt>Canadian Equities and ETFs</dt>
+                        <dd>Morningstar (<a href="https://www.morningstar.com/">www.morningstar.com</a>)</dd>
+                        <dd>CSI (<a href="http://www.csidata.com/">www.csidata.com</a>)</dd>
+                        <dt>Historical Returns on Stocks and Treasuries</dt>
+                        <dd><a href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html">Professor Kenneth French's Data Library</a> (<a aria-label="Download data for US Stock Market and 1-Month T-Bill returns" href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_TXT.zip">Download Data</a>)</dd>
+                        <dd><a href="http://pages.stern.nyu.edu/~adamodar/New_Home_Page/data.html">Professor Aswath Damodaran's Data Library</a> (<a aria-label="Download data for historical stock, 10-year treasury note and t-bill returns" href="http://people.stern.nyu.edu/adamodar/pc/datasets/histretSP.xls">Download Data</a>)</dd>
+                        <dd><a href="http://www.econ.yale.edu/~shiller/data.htm">Professor Robert Shiller's Data Library</a></dd>
+                        <dd><a href="https://www.aqr.com/Insights/Datasets">AQR Data Sets</a></dd>
+                        <dt>US Treasury Interest Rates</dt>
+
+                        <dd><a href="https://www.federalreserve.gov/datadownload/Choose.aspx?rel=H15">Federal Reserve Interest Rates Data</a></dd>
+                        
+                        <dt>Gold Prices</dt>
+                        <dd><a href="https://research.stlouisfed.org/fred2/series/GOLDAMGBD228NLBM">London AM Gold Price in USD</a></dd>
+                        <dd><a href="https://research.stlouisfed.org/fred2/series/GOLDPMGBD228NLBM">London PM Gold Price in USD</a></dd>
+                        
+                        <dt>Canadian Data</dt>
+                        <dd>Canada Inflation Rates (<a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1810000501">Statistics Canada</a>)</dd>
+                        <dd>Canada Treasury Interest Rates (<a href="https://www.bankofcanada.ca/rates/interest-rates/">Bank of Canada</a>)</dd>
+                        <dt>Shiller PE Ratio</dt>
+                        <dd><a href="https://www.multpl.com/shiller-pe/">Shiller PE Ratio Site</a></dd>
+                        <dt>Exchange Rates</dt>
+                        <dd><a href="https://fred.stlouisfed.org/categories/15">FRED Exchange Rates Data</a></dd>
+                        <dt>Cryptocurrency Prices</dt>
+                        <dd><a href="https://www.coindesk.com/">Coindesk</a></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        
+                        
+        
+    </div>
+    <p>
+    Last Modified: November 11th, 2021
+    </p>
+</div>
+
+
+
+<div id="footer" class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-5">
+                <span class="text-muted">&copy; 2022 Silicon Cloud Technologies LLC</span>
+            </div>
+            <div class="col-sm-1">
+                <a href="about.html">About</a>
+            </div>
+            <div class="col-sm-1">
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="col-sm-1">
+                <a href="pricing.html">Pricing</a>
+            </div>
+            
+            <div class="col-sm-2">
+                <a href="terms-of-service.html">Terms of Service</a>
+            </div>
+            <div class="col-sm-2">
+                <a href="privacy-policy.html">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="../cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="jquery/jquery-3.4.1.min.js">\x3C/script>')</script>           
+<script src="../cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script>jQuery.fn.modal || document.write('<script src="bootstrap/js/bootstrap.min6bf2.js?v=341">\x3C/script>')</script>    
+
+
+<script src="javascript/merged-cd97b9efd972c726e07a723ff74b40a0.min.js"></script>
+
+
+
+<script>
+$(function() {
+    $.each(q, function(index, f) {
+        f.call(document);
+    });
+    postPageInit();
+});
+</script>
+
+
+</body>
+
+
+</html>

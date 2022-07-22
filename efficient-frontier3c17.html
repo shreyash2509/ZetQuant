@@ -1,0 +1,1985 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <title>Efficient Frontier</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta name="description" content="Calculate and plot efficient frontier for the given asset classes, mutual funds, ETFs or stocks">
+    <meta name="keywords" content="efficient frontier,portfolio efficient frontier,modern portfolio theory,efficient frontier chart,Markowitz">
+    <link rel="canonical" href="efficient-frontier.html">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="css/merged-4b5ddc42c451e5d0b325c5d10e865f35.min.css">
+
+
+
+<script>
+var autoCompleteTickers=true;
+var showFullName=false;
+var enableExport=false;
+var expiredAccount=false;
+var enablePDF=false;
+var bookmarkURL="efficient-frontier3c17.html?s=y&amp;startYear=1978&amp;asset1=TotalStockMarket&amp;asset2=LongTreasury&amp;minimumVarianceFrontier=true";
+var showBookmarkLink=true;
+var showExportLinks=true;
+window.q=[];window.$=function(f){q.push(f)}
+</script>
+
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-43200681-1', 'portfoliovisualizer.com');
+    ga('send', 'pageview');
+</script>
+
+
+
+
+    <script>
+        var addRowsLinkText="More";
+        $(function() {
+            toggleForm();
+            $("#toggleEF1").on('click', function (e) {
+                var checked=$('#toggleEF1').is(':checked');
+                $("input[id^='ff']").prop('checked', checked);
+            });
+            $("#toggleEF2").on('click', function (e) {
+                var checked=$('#toggleEF2').is(':checked');
+                $("input[id^='sf']").prop('checked', checked);
+            });
+            $("#robustOptimization").on('change', function (e) {
+                toggleForm();
+            });
+            $("#excessReturns").on('change', function (e) {
+                toggleForm();
+            });
+            $("#benchmark").on('change', function (e) {
+                toggleForm();
+            });
+            $("#geometric").on('change', function (e) {
+                toggleForm();
+            });
+        });
+        function toggleForm() {
+            var dualFrontier=$("#type").val()==2;
+            var groupConstraints=$("#groupConstraints").val()=='true';
+            var resampling=$("#robustOptimization").val()=='true';
+            var geometric=$("#geometric").val()=='true';
+            var showExcessReturnOption=!(dualFrontier || geometric);
+            var excessReturns=$("#excessReturns").val()=='true' && showExcessReturnOption;
+
+            $("#excessReturns").closest('.form-group').toggle(showExcessReturnOption);
+            if(!showExcessReturnOption) {
+                $("#excessReturns").val('false').trigger("chosen:updated");
+            }
+            $("#benchmark").closest('.form-group').toggle(excessReturns);
+            $("#benchmarkSymbol").closest('.form-group').toggle(excessReturns && $('#benchmark').val()==-1);
+            if(resampling || excessReturns) {
+                $("#geometric").val('false').trigger("chosen:updated");
+            }
+            $("#geometric").closest('.form-group').toggle(!(resampling || excessReturns));
+            $("#minimumVarianceFrontier").closest('.form-group').toggle(!excessReturns);
+
+            if(dualFrontier && groupConstraints) {
+                $(".weight-column").hide();
+                $(".totals-row").hide();
+                $(".frontier").toggle(dualFrontier);
+                clearAllocations(1);
+            }
+            else {
+                $(".frontier").toggle(dualFrontier);
+                $(".weight-column").show();
+                $(".totals-row").show();
+            }
+            $(".groupConstraint").toggle(groupConstraints);
+        }
+        function switchType() {
+            var field=$('#submitType');
+            if(field.val()!='Refresh') {
+                clearPortfolios();
+                field.val('Refresh');
+                field.prop('form').submit();
+            }
+        }
+    </script>
+</head>
+<body>
+
+
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html"> PORTFOLIO <span class="pv-brand">VISUALIZER</span></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html" class="navbar-optional">Contact</a></li>
+                
+                <li><a href="pricing.html" class="navbar-optional">Pricing</a></li>
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Portfolio Analysis</li>
+                        <li><a href="backtest-asset-class-allocation.html">Backtest Asset Class Allocation</a></li>
+                        <li><a href="backtest-portfolio.html">Backtest Portfolio</a></li>
+                        <li><a href="monte-carlo-simulation.html">Monte Carlo Simulation</a></li>
+                        <li><a href="financial-goals.html">Financial Goals</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Optimization</li>
+                        <li><a href="efficient-frontier.html">Historical Efficient Frontier</a></li>
+                        <li><a href="efficient-frontier-forecast.html">Forecasted Efficient Frontier</a></li>
+                        <li><a href="optimize-portfolio.html">Portfolio Optimization</a></li>
+                        <li><a href="black-litterman-model.html">Black-Litterman Model</a></li>
+                        <li><a href="rolling-optimization.html">Rolling Optimization</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Asset Analytics</li>
+                        <li><a href="fund-screener.html">Fund Screener</a></li>
+                        <li><a href="fund-performance.html">Fund Performance</a></li>
+                        <li><a href="asset-correlations.html">Asset Correlations</a></li>
+                        <li><a href="asset-class-correlations.html">Asset Class Correlations</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Factor Analysis</li>
+                        <li><a href="factor-analysis.html">Factor Regression</a></li>
+                        <li><a href="risk-factor-allocation.html">Risk Factor Allocation</a></li>
+                        <li><a href="etf-and-mutual-fund-factor-regressions.html">Fund and ETF Factor Regressions</a></li>
+                        <li><a href="factor-performance-attribution.html">Factor Performance Attribution</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Market Timing</li>
+                        <li><a href="test-market-timing-model.html">Market Timing Models</a></li>
+                        <li><a href="test-market-timing-model5fea.html?timingModel=4&amp;coreSatellite=true">Core-Satellite</a></li>
+                    </ul>
+                </li>
+                
+                <li><div><a href="sign-up.html" class="btn btn-success navbar-btn">Sign Up</a></div></li>
+                <li><div><a href="login.html" class="btn btn-primary navbar-btn">Log In</a></div></li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="container-fluid">
+<h1>Efficient Frontier</h1>
+<p>
+    This tool uses mean-variance optimization to calculate and plot the efficient frontier for the specified asset classes, mutual funds, ETFs or stocks for the specified time period. The efficient frontier shows the set of optimal portfolios that provide the best possible expected return for the level of risk in the portfolio. Monte Carlo method can be used for more robust optimization that resamples the optimization inputs in order to mitigate the impact of input estimation errors and improve diversification. You can also use the <a href="efficient-frontier-forecast.html">efficient frontier forecast</a> tool to specify expected future returns for the assets. The required inputs for the efficient frontier include the portfolio assets. You can optionally specify the asset allocation and allocation constraints for the portfolio assets. If an asset allocation is specified, the provided portfolio will be rendered on the efficient frontier chart.
+</p>
+
+
+
+<form action="https://www.portfoliovisualizer.com/efficient-frontier#analysisResults" method="post" class="form-horizontal"  novalidate>
+
+    <input type="hidden" id="submitType" name="submitType" value="">
+    <div class="form-group">
+<label for="type" class="control-label col-sm-2">Chart <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Optionally render two efficient frontiers based on different assets in the same chart"></span>
+</label>
+<div class="col-sm-4">
+<select id="type" name="type" class="form-control" onchange="toggleForm()" >
+<option value="1" selected>Single Efficient Frontier</option>
+<option value="2">Dual Efficient Frontier</option>
+</select>
+</div>
+</div>
+
+    
+    <div class="form-group">
+<label for="mode" class="control-label col-sm-2">Portfolio Type <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Use asset class level or security level portfolios"></span>
+</label>
+<div class="col-sm-4">
+<select id="mode" name="mode" class="form-control" onchange="switchType()" >
+<option value="1" selected>Asset Classes</option>
+<option value="2">Tickers</option>
+</select>
+</div>
+</div>
+
+    
+    <div class="form-group">
+<label for="startYear" class="control-label col-sm-2">Start Year <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Start year for historical asset data"></span>
+</label>
+<div class="col-sm-2">
+<select id="startYear" name="startYear" class="form-control" >
+<option value="1972">1972</option>
+<option value="1973">1973</option>
+<option value="1974">1974</option>
+<option value="1975">1975</option>
+<option value="1976">1976</option>
+<option value="1977">1977</option>
+<option value="1978" selected>1978</option>
+<option value="1979">1979</option>
+<option value="1980">1980</option>
+<option value="1981">1981</option>
+<option value="1982">1982</option>
+<option value="1983">1983</option>
+<option value="1984">1984</option>
+<option value="1985">1985</option>
+<option value="1986">1986</option>
+<option value="1987">1987</option>
+<option value="1988">1988</option>
+<option value="1989">1989</option>
+<option value="1990">1990</option>
+<option value="1991">1991</option>
+<option value="1992">1992</option>
+<option value="1993">1993</option>
+<option value="1994">1994</option>
+<option value="1995">1995</option>
+<option value="1996">1996</option>
+<option value="1997">1997</option>
+<option value="1998">1998</option>
+<option value="1999">1999</option>
+<option value="2000">2000</option>
+<option value="2001">2001</option>
+<option value="2002">2002</option>
+<option value="2003">2003</option>
+<option value="2004">2004</option>
+<option value="2005">2005</option>
+<option value="2006">2006</option>
+<option value="2007">2007</option>
+<option value="2008">2008</option>
+<option value="2009">2009</option>
+<option value="2010">2010</option>
+<option value="2011">2011</option>
+<option value="2012">2012</option>
+<option value="2013">2013</option>
+<option value="2014">2014</option>
+<option value="2015">2015</option>
+<option value="2016">2016</option>
+<option value="2017">2017</option>
+<option value="2018">2018</option>
+<option value="2019">2019</option>
+<option value="2020">2020</option>
+<option value="2021">2021</option>
+<option value="2022">2022</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="endYear" class="control-label col-sm-2">End Year <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="End year for historical asset data"></span>
+</label>
+<div class="col-sm-2">
+<select id="endYear" name="endYear" class="form-control" >
+<option value="1972">1972</option>
+<option value="1973">1973</option>
+<option value="1974">1974</option>
+<option value="1975">1975</option>
+<option value="1976">1976</option>
+<option value="1977">1977</option>
+<option value="1978">1978</option>
+<option value="1979">1979</option>
+<option value="1980">1980</option>
+<option value="1981">1981</option>
+<option value="1982">1982</option>
+<option value="1983">1983</option>
+<option value="1984">1984</option>
+<option value="1985">1985</option>
+<option value="1986">1986</option>
+<option value="1987">1987</option>
+<option value="1988">1988</option>
+<option value="1989">1989</option>
+<option value="1990">1990</option>
+<option value="1991">1991</option>
+<option value="1992">1992</option>
+<option value="1993">1993</option>
+<option value="1994">1994</option>
+<option value="1995">1995</option>
+<option value="1996">1996</option>
+<option value="1997">1997</option>
+<option value="1998">1998</option>
+<option value="1999">1999</option>
+<option value="2000">2000</option>
+<option value="2001">2001</option>
+<option value="2002">2002</option>
+<option value="2003">2003</option>
+<option value="2004">2004</option>
+<option value="2005">2005</option>
+<option value="2006">2006</option>
+<option value="2007">2007</option>
+<option value="2008">2008</option>
+<option value="2009">2009</option>
+<option value="2010">2010</option>
+<option value="2011">2011</option>
+<option value="2012">2012</option>
+<option value="2013">2013</option>
+<option value="2014">2014</option>
+<option value="2015">2015</option>
+<option value="2016">2016</option>
+<option value="2017">2017</option>
+<option value="2018">2018</option>
+<option value="2019">2019</option>
+<option value="2020">2020</option>
+<option value="2021">2021</option>
+<option value="2022" selected>2022</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="robustOptimization" class="control-label col-sm-2">Robust Optimization <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Use Monte Carlo method to resample the efficient frontier inputs"></span>
+</label>
+<div class="col-sm-2">
+<select id="robustOptimization" name="robustOptimization" class="form-control" >
+<option value="false" selected>No</option>
+<option value="true">Yes</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="groupConstraints" class="control-label col-sm-2">Group Constraints <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify asset group level allocation constraints"></span>
+</label>
+<div class="col-sm-2">
+<select id="groupConstraints" name="groupConstraints" class="form-control" onchange="toggleForm()" >
+<option value="false" selected>No</option>
+<option value="true">Yes</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="excessReturns" class="control-label col-sm-2">Excess Return Frontier <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Show efficient frontier of active return and tracking error against the selected benchmark"></span>
+</label>
+<div class="col-sm-2">
+<select id="excessReturns" name="excessReturns" class="form-control" >
+<option value="false" selected>No</option>
+<option value="true">Yes</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="benchmark" class="control-label col-sm-2">Benchmark <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Select benchmark index or an imported benchmark series"></span>
+</label>
+<div class="col-sm-4">
+<select id="benchmark" name="benchmark" class="form-control" >
+<option value="">None</option>
+<option value="-1" selected>Specify Ticker...</option>
+<option value="-2">Import Benchmark...</option>
+<optgroup label="Benchmark Portfolio">
+<option value="VFINX">Vanguard 500 Index Investor</option>
+<option value="VBINX">Vanguard Balanced Index Inv</option>
+</optgroup>
+</select>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="benchmarkSymbol" class="control-label col-sm-2">Benchmark Ticker <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Ticker symbol for the benchmark asset"></span>
+</label>
+<div class="col-sm-4">
+<div class="input-group">
+<input type="text" id="benchmarkSymbol" name="benchmarkSymbol" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="geometric" class="control-label col-sm-2">Geometric Mean <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Show efficient frontier based on geometric returns"></span>
+</label>
+<div class="col-sm-2">
+<select id="geometric" name="geometric" class="form-control" >
+<option value="false" selected>No</option>
+<option value="true">Yes</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="minimumVarianceFrontier" class="control-label col-sm-2">Min Variance Frontier <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Render full minimum variance frontier rather than efficient frontier"></span>
+</label>
+<div class="col-sm-2">
+<select id="minimumVarianceFrontier" name="minimumVarianceFrontier" class="form-control" >
+<option value="false">No</option>
+<option value="true" selected>Yes</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="fromOrigin" class="control-label col-sm-2">Chart from Origin <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Render efficient frontier chart from origin"></span>
+</label>
+<div class="col-sm-2">
+<select id="fromOrigin" name="fromOrigin" class="form-control" >
+<option value="false" selected>No</option>
+<option value="true">Yes</option>
+</select>
+</div>
+</div>
+
+
+    <div id="pfSection" class="portfolio-section pv-asset-classes pv-allow-expansion" data-count="1" data-maxrows="50" data-advanced="false" >
+<div class="row bottomBorder">
+<div class="col-sm-4 separateTop text-nowrap asset-header">
+<b>Efficient Frontier Assets</b>
+<div class="btn-group btn-group-sm left-margin hidden-print" role="group" aria-label="Portfolio allocation options">
+<button type="button" class="btn btn-default clearAllocation" title="Clear assets and allocations"><i class="glyphicon glyphicon-trash"></i></button><div id="allocation-menu-1" class="btn-group btn-group-sm allocation-menu hidden-print" role="group"><button id="allocationOptionsButton1" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-cog"></i> <span class="caret"></span></button><ul class="dropdown-menu scrollable-menu"><li class="dropdown-header">Allocation Weights</li><li><a href="#" onclick="equalWeightAllocations(1,'');return false;">Equal Weight</a></li><li><a href="#" onclick="normalizeAllocations(1,'');return false;">Normalize</a></li><li><a href="#" onclick="clearAllocations(1,'');return false;">Clear</a></li><li class="divider"></li><li class="dropdown-header">Lazy Portfolios</li><li><a href="#" onclick="populatePortfolio('Growth Portfolio',1,true,true,true,null,'');return false;">Growth Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Moderate Portfolio',1,true,true,true,null,'');return false;">Moderate Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Conservative Portfolio',1,true,true,true,null,'');return false;">Conservative Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Income Portfolio',1,true,true,true,null,'');return false;">Income Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Bill Bernstein No Brainer',1,true,true,true,null,'');return false;">Bill Bernstein No Brainer</a></li><li><a href="#" onclick="populatePortfolio('Bill Schultheis Coffee House',1,true,true,true,null,'');return false;">Bill Schultheis Coffee House</a></li><li><a href="#" onclick="populatePortfolio('Bogleheads Three Funds',1,true,true,true,null,'');return false;">Bogleheads Three Funds</a></li><li><a href="#" onclick="populatePortfolio('Bogleheads Four Funds',1,true,true,true,null,'');return false;">Bogleheads Four Funds</a></li><li><a href="#" onclick="populatePortfolio('David Swensen Lazy Portfolio',1,true,true,true,null,'');return false;">David Swensen Lazy Portfolio</a></li><li><a href="#" onclick="populatePortfolio('David Swensen Yale Endowment',1,true,true,true,null,'');return false;">David Swensen Yale Endowment</a></li><li><a href="#" onclick="populatePortfolio('FundAdvice Ultimate Buy & Hold Portfolio',1,true,true,true,null,'');return false;">FundAdvice Ultimate Buy &amp; Hold Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Harry Browne Permanent Portfolio',1,true,true,true,null,'');return false;">Harry Browne Permanent Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Larry Swedroe Simple Portfolio',1,true,true,true,null,'');return false;">Larry Swedroe Simple Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Larry Swedroe Minimize FatTails Portfolio',1,true,true,true,null,'');return false;">Larry Swedroe Minimize FatTails Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Mebane Faber Ivy Portfolio',1,true,true,true,null,'');return false;">Mebane Faber Ivy Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Ray Dalio All Seasons',1,true,true,true,null,'');return false;">Ray Dalio All Seasons</a></li><li><a href="#" onclick="populatePortfolio('Rick Ferri Core Four',1,true,true,true,null,'');return false;">Rick Ferri Core Four</a></li><li><a href="#" onclick="populatePortfolio('Scott Burns Couch Portfolio',1,true,true,true,null,'');return false;">Scott Burns Couch Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Stocks\/Bonds (60\/40)',1,true,true,true,null,'');return false;">Stocks/Bonds (60/40)</a></li><li><a href="#" onclick="populatePortfolio('Stocks\/Bonds (40\/60)',1,true,true,true,null,'');return false;">Stocks/Bonds (40/60)</a></li></ul></div>
+</div>
+</div>
+<div class="col-sm-2 separateTop weight-column"><b>Allocation</b></div><div class="col-sm-2 separateTop text-nowrap constraint"><b>Min. Weight</b></div><div class="col-sm-2 separateTop text-nowrap constraint"><b>Max. Weight</b></div><div class="col-sm-2 separateTop text-nowrap groupConstraint"><b>Group</b></div><div class="col-sm-1 separateTop text-nowrap frontier"><b>EF #1</b></div><div class="col-sm-1 separateTop text-nowrap frontier"><b>EF #2</b></div></div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">1</div>
+<div class="col-sm-3 asset-column">
+<span class="hidden_jaws"><label for="asset1">Select asset 1</label></span>
+<select id="asset1" name="asset1" class="form-control" >
+<option value="">Select asset class...</option>
+<optgroup label="US Equity">
+<option value="TotalStockMarket" selected>US Stock Market</option>
+<option value="LargeCapBlend">US Large Cap</option>
+<option value="LargeCapValue">US Large Cap Value</option>
+<option value="LargeCapGrowth">US Large Cap Growth</option>
+<option value="MidCapBlend">US Mid Cap</option>
+<option value="MidCapValue">US Mid Cap Value</option>
+<option value="MidCapGrowth">US Mid Cap Growth</option>
+<option value="SmallCapBlend">US Small Cap</option>
+<option value="SmallCapValue">US Small Cap Value</option>
+<option value="SmallCapGrowth">US Small Cap Growth</option>
+<option value="MicroCap">US Micro Cap</option>
+</optgroup>
+<optgroup label="International Equity">
+<option value="IntlStockMarket">Global ex-US Stock Market</option>
+<option value="IntlDeveloped">Intl Developed ex-US Market</option>
+<option value="IntlSmall">International ex-US Small Cap</option>
+<option value="IntlValue">International ex-US Value</option>
+<option value="Europe">European Stocks</option>
+<option value="Pacific">Pacific Stocks</option>
+<option value="EmergingMarket">Emerging Markets</option>
+</optgroup>
+<optgroup label="Fixed Income">
+<option value="ShortTreasury">Short Term Treasury</option>
+<option value="IntermediateTreasury">Intermediate Term Treasury</option>
+<option value="TreasuryNotes">10-year Treasury</option>
+<option value="LongTreasury">Long Term Treasury</option>
+<option value="TotalBond">Total US Bond Market</option>
+<option value="TIPS">TIPS</option>
+<option value="GlobalBond">Global Bonds (Unhedged)</option>
+<option value="GlobalBondHedged">Global Bonds (USD Hedged)</option>
+<option value="ShortInvBond">Short-Term Investment Grade</option>
+<option value="CorpBond">Corporate Bonds</option>
+<option value="LongCorpBond">Long-Term Corporate Bonds</option>
+<option value="HighYield">High Yield Corporate Bonds</option>
+<option value="ShortTaxExempt">Short-Term Tax-Exempt</option>
+<option value="InterTaxExempt">Intermediate-Term Tax-Exempt</option>
+<option value="LongTaxExempt">Long-Term Tax-Exempt</option>
+</optgroup>
+<optgroup label="Alternatives">
+<option value="REIT">REIT</option>
+<option value="Gold">Gold</option>
+<option value="PreciousMetals">Precious Metals</option>
+<option value="Commodities">Commodities</option>
+</optgroup>
+</select>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation1_1">Enter percentage allocation for asset 1</label></span>
+<input type="number" id="allocation1_1" name="allocation1_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight1">Minimum allocation for asset 1</label></span>
+<input type="number" id="minWeight1" name="minWeight1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight1">Maximum allocation for asset 1</label></span>
+<input type="number" id="maxWeight1" name="maxWeight1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup1">Group assignment for asset 1</label></span>
+<select id="assetGroup1" name="assetGroup1" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff1">Add asset 1 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff1" value="true" id="ff1"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf1">Add asset 1 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf1" value="true" id="sf1"></div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">2</div>
+<div class="col-sm-3 asset-column">
+<span class="hidden_jaws"><label for="asset2">Select asset 2</label></span>
+<select id="asset2" name="asset2" class="form-control" >
+<option value="">Select asset class...</option>
+<optgroup label="US Equity">
+<option value="TotalStockMarket">US Stock Market</option>
+<option value="LargeCapBlend">US Large Cap</option>
+<option value="LargeCapValue">US Large Cap Value</option>
+<option value="LargeCapGrowth">US Large Cap Growth</option>
+<option value="MidCapBlend">US Mid Cap</option>
+<option value="MidCapValue">US Mid Cap Value</option>
+<option value="MidCapGrowth">US Mid Cap Growth</option>
+<option value="SmallCapBlend">US Small Cap</option>
+<option value="SmallCapValue">US Small Cap Value</option>
+<option value="SmallCapGrowth">US Small Cap Growth</option>
+<option value="MicroCap">US Micro Cap</option>
+</optgroup>
+<optgroup label="International Equity">
+<option value="IntlStockMarket">Global ex-US Stock Market</option>
+<option value="IntlDeveloped">Intl Developed ex-US Market</option>
+<option value="IntlSmall">International ex-US Small Cap</option>
+<option value="IntlValue">International ex-US Value</option>
+<option value="Europe">European Stocks</option>
+<option value="Pacific">Pacific Stocks</option>
+<option value="EmergingMarket">Emerging Markets</option>
+</optgroup>
+<optgroup label="Fixed Income">
+<option value="ShortTreasury">Short Term Treasury</option>
+<option value="IntermediateTreasury">Intermediate Term Treasury</option>
+<option value="TreasuryNotes">10-year Treasury</option>
+<option value="LongTreasury" selected>Long Term Treasury</option>
+<option value="TotalBond">Total US Bond Market</option>
+<option value="TIPS">TIPS</option>
+<option value="GlobalBond">Global Bonds (Unhedged)</option>
+<option value="GlobalBondHedged">Global Bonds (USD Hedged)</option>
+<option value="ShortInvBond">Short-Term Investment Grade</option>
+<option value="CorpBond">Corporate Bonds</option>
+<option value="LongCorpBond">Long-Term Corporate Bonds</option>
+<option value="HighYield">High Yield Corporate Bonds</option>
+<option value="ShortTaxExempt">Short-Term Tax-Exempt</option>
+<option value="InterTaxExempt">Intermediate-Term Tax-Exempt</option>
+<option value="LongTaxExempt">Long-Term Tax-Exempt</option>
+</optgroup>
+<optgroup label="Alternatives">
+<option value="REIT">REIT</option>
+<option value="Gold">Gold</option>
+<option value="PreciousMetals">Precious Metals</option>
+<option value="Commodities">Commodities</option>
+</optgroup>
+</select>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation2_1">Enter percentage allocation for asset 2</label></span>
+<input type="number" id="allocation2_1" name="allocation2_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight2">Minimum allocation for asset 2</label></span>
+<input type="number" id="minWeight2" name="minWeight2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight2">Maximum allocation for asset 2</label></span>
+<input type="number" id="maxWeight2" name="maxWeight2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup2">Group assignment for asset 2</label></span>
+<select id="assetGroup2" name="assetGroup2" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff2">Add asset 2 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff2" value="true" id="ff2"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf2">Add asset 2 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf2" value="true" id="sf2"></div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">3</div>
+<div class="col-sm-3 asset-column">
+<span class="hidden_jaws"><label for="asset3">Select asset 3</label></span>
+<select id="asset3" name="asset3" class="form-control" >
+<option value="">Select asset class...</option>
+<optgroup label="US Equity">
+<option value="TotalStockMarket">US Stock Market</option>
+<option value="LargeCapBlend">US Large Cap</option>
+<option value="LargeCapValue">US Large Cap Value</option>
+<option value="LargeCapGrowth">US Large Cap Growth</option>
+<option value="MidCapBlend">US Mid Cap</option>
+<option value="MidCapValue">US Mid Cap Value</option>
+<option value="MidCapGrowth">US Mid Cap Growth</option>
+<option value="SmallCapBlend">US Small Cap</option>
+<option value="SmallCapValue">US Small Cap Value</option>
+<option value="SmallCapGrowth">US Small Cap Growth</option>
+<option value="MicroCap">US Micro Cap</option>
+</optgroup>
+<optgroup label="International Equity">
+<option value="IntlStockMarket">Global ex-US Stock Market</option>
+<option value="IntlDeveloped">Intl Developed ex-US Market</option>
+<option value="IntlSmall">International ex-US Small Cap</option>
+<option value="IntlValue">International ex-US Value</option>
+<option value="Europe">European Stocks</option>
+<option value="Pacific">Pacific Stocks</option>
+<option value="EmergingMarket">Emerging Markets</option>
+</optgroup>
+<optgroup label="Fixed Income">
+<option value="ShortTreasury">Short Term Treasury</option>
+<option value="IntermediateTreasury">Intermediate Term Treasury</option>
+<option value="TreasuryNotes">10-year Treasury</option>
+<option value="LongTreasury">Long Term Treasury</option>
+<option value="TotalBond">Total US Bond Market</option>
+<option value="TIPS">TIPS</option>
+<option value="GlobalBond">Global Bonds (Unhedged)</option>
+<option value="GlobalBondHedged">Global Bonds (USD Hedged)</option>
+<option value="ShortInvBond">Short-Term Investment Grade</option>
+<option value="CorpBond">Corporate Bonds</option>
+<option value="LongCorpBond">Long-Term Corporate Bonds</option>
+<option value="HighYield">High Yield Corporate Bonds</option>
+<option value="ShortTaxExempt">Short-Term Tax-Exempt</option>
+<option value="InterTaxExempt">Intermediate-Term Tax-Exempt</option>
+<option value="LongTaxExempt">Long-Term Tax-Exempt</option>
+</optgroup>
+<optgroup label="Alternatives">
+<option value="REIT">REIT</option>
+<option value="Gold">Gold</option>
+<option value="PreciousMetals">Precious Metals</option>
+<option value="Commodities">Commodities</option>
+</optgroup>
+</select>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation3_1">Enter percentage allocation for asset 3</label></span>
+<input type="number" id="allocation3_1" name="allocation3_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight3">Minimum allocation for asset 3</label></span>
+<input type="number" id="minWeight3" name="minWeight3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight3">Maximum allocation for asset 3</label></span>
+<input type="number" id="maxWeight3" name="maxWeight3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup3">Group assignment for asset 3</label></span>
+<select id="assetGroup3" name="assetGroup3" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff3">Add asset 3 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff3" value="true" id="ff3"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf3">Add asset 3 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf3" value="true" id="sf3"></div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">4</div>
+<div class="col-sm-3 asset-column">
+<span class="hidden_jaws"><label for="asset4">Select asset 4</label></span>
+<select id="asset4" name="asset4" class="form-control" >
+<option value="">Select asset class...</option>
+<optgroup label="US Equity">
+<option value="TotalStockMarket">US Stock Market</option>
+<option value="LargeCapBlend">US Large Cap</option>
+<option value="LargeCapValue">US Large Cap Value</option>
+<option value="LargeCapGrowth">US Large Cap Growth</option>
+<option value="MidCapBlend">US Mid Cap</option>
+<option value="MidCapValue">US Mid Cap Value</option>
+<option value="MidCapGrowth">US Mid Cap Growth</option>
+<option value="SmallCapBlend">US Small Cap</option>
+<option value="SmallCapValue">US Small Cap Value</option>
+<option value="SmallCapGrowth">US Small Cap Growth</option>
+<option value="MicroCap">US Micro Cap</option>
+</optgroup>
+<optgroup label="International Equity">
+<option value="IntlStockMarket">Global ex-US Stock Market</option>
+<option value="IntlDeveloped">Intl Developed ex-US Market</option>
+<option value="IntlSmall">International ex-US Small Cap</option>
+<option value="IntlValue">International ex-US Value</option>
+<option value="Europe">European Stocks</option>
+<option value="Pacific">Pacific Stocks</option>
+<option value="EmergingMarket">Emerging Markets</option>
+</optgroup>
+<optgroup label="Fixed Income">
+<option value="ShortTreasury">Short Term Treasury</option>
+<option value="IntermediateTreasury">Intermediate Term Treasury</option>
+<option value="TreasuryNotes">10-year Treasury</option>
+<option value="LongTreasury">Long Term Treasury</option>
+<option value="TotalBond">Total US Bond Market</option>
+<option value="TIPS">TIPS</option>
+<option value="GlobalBond">Global Bonds (Unhedged)</option>
+<option value="GlobalBondHedged">Global Bonds (USD Hedged)</option>
+<option value="ShortInvBond">Short-Term Investment Grade</option>
+<option value="CorpBond">Corporate Bonds</option>
+<option value="LongCorpBond">Long-Term Corporate Bonds</option>
+<option value="HighYield">High Yield Corporate Bonds</option>
+<option value="ShortTaxExempt">Short-Term Tax-Exempt</option>
+<option value="InterTaxExempt">Intermediate-Term Tax-Exempt</option>
+<option value="LongTaxExempt">Long-Term Tax-Exempt</option>
+</optgroup>
+<optgroup label="Alternatives">
+<option value="REIT">REIT</option>
+<option value="Gold">Gold</option>
+<option value="PreciousMetals">Precious Metals</option>
+<option value="Commodities">Commodities</option>
+</optgroup>
+</select>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation4_1">Enter percentage allocation for asset 4</label></span>
+<input type="number" id="allocation4_1" name="allocation4_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight4">Minimum allocation for asset 4</label></span>
+<input type="number" id="minWeight4" name="minWeight4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight4">Maximum allocation for asset 4</label></span>
+<input type="number" id="maxWeight4" name="maxWeight4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup4">Group assignment for asset 4</label></span>
+<select id="assetGroup4" name="assetGroup4" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff4">Add asset 4 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff4" value="true" id="ff4"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf4">Add asset 4 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf4" value="true" id="sf4"></div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">5</div>
+<div class="col-sm-3 asset-column">
+<span class="hidden_jaws"><label for="asset5">Select asset 5</label></span>
+<select id="asset5" name="asset5" class="form-control" >
+<option value="">Select asset class...</option>
+<optgroup label="US Equity">
+<option value="TotalStockMarket">US Stock Market</option>
+<option value="LargeCapBlend">US Large Cap</option>
+<option value="LargeCapValue">US Large Cap Value</option>
+<option value="LargeCapGrowth">US Large Cap Growth</option>
+<option value="MidCapBlend">US Mid Cap</option>
+<option value="MidCapValue">US Mid Cap Value</option>
+<option value="MidCapGrowth">US Mid Cap Growth</option>
+<option value="SmallCapBlend">US Small Cap</option>
+<option value="SmallCapValue">US Small Cap Value</option>
+<option value="SmallCapGrowth">US Small Cap Growth</option>
+<option value="MicroCap">US Micro Cap</option>
+</optgroup>
+<optgroup label="International Equity">
+<option value="IntlStockMarket">Global ex-US Stock Market</option>
+<option value="IntlDeveloped">Intl Developed ex-US Market</option>
+<option value="IntlSmall">International ex-US Small Cap</option>
+<option value="IntlValue">International ex-US Value</option>
+<option value="Europe">European Stocks</option>
+<option value="Pacific">Pacific Stocks</option>
+<option value="EmergingMarket">Emerging Markets</option>
+</optgroup>
+<optgroup label="Fixed Income">
+<option value="ShortTreasury">Short Term Treasury</option>
+<option value="IntermediateTreasury">Intermediate Term Treasury</option>
+<option value="TreasuryNotes">10-year Treasury</option>
+<option value="LongTreasury">Long Term Treasury</option>
+<option value="TotalBond">Total US Bond Market</option>
+<option value="TIPS">TIPS</option>
+<option value="GlobalBond">Global Bonds (Unhedged)</option>
+<option value="GlobalBondHedged">Global Bonds (USD Hedged)</option>
+<option value="ShortInvBond">Short-Term Investment Grade</option>
+<option value="CorpBond">Corporate Bonds</option>
+<option value="LongCorpBond">Long-Term Corporate Bonds</option>
+<option value="HighYield">High Yield Corporate Bonds</option>
+<option value="ShortTaxExempt">Short-Term Tax-Exempt</option>
+<option value="InterTaxExempt">Intermediate-Term Tax-Exempt</option>
+<option value="LongTaxExempt">Long-Term Tax-Exempt</option>
+</optgroup>
+<optgroup label="Alternatives">
+<option value="REIT">REIT</option>
+<option value="Gold">Gold</option>
+<option value="PreciousMetals">Precious Metals</option>
+<option value="Commodities">Commodities</option>
+</optgroup>
+</select>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation5_1">Enter percentage allocation for asset 5</label></span>
+<input type="number" id="allocation5_1" name="allocation5_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight5">Minimum allocation for asset 5</label></span>
+<input type="number" id="minWeight5" name="minWeight5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight5">Maximum allocation for asset 5</label></span>
+<input type="number" id="maxWeight5" name="maxWeight5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup5">Group assignment for asset 5</label></span>
+<select id="assetGroup5" name="assetGroup5" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff5">Add asset 5 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff5" value="true" id="ff5"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf5">Add asset 5 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf5" value="true" id="sf5"></div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">6</div>
+<div class="col-sm-3 asset-column">
+<span class="hidden_jaws"><label for="asset6">Select asset 6</label></span>
+<select id="asset6" name="asset6" class="form-control" >
+<option value="">Select asset class...</option>
+<optgroup label="US Equity">
+<option value="TotalStockMarket">US Stock Market</option>
+<option value="LargeCapBlend">US Large Cap</option>
+<option value="LargeCapValue">US Large Cap Value</option>
+<option value="LargeCapGrowth">US Large Cap Growth</option>
+<option value="MidCapBlend">US Mid Cap</option>
+<option value="MidCapValue">US Mid Cap Value</option>
+<option value="MidCapGrowth">US Mid Cap Growth</option>
+<option value="SmallCapBlend">US Small Cap</option>
+<option value="SmallCapValue">US Small Cap Value</option>
+<option value="SmallCapGrowth">US Small Cap Growth</option>
+<option value="MicroCap">US Micro Cap</option>
+</optgroup>
+<optgroup label="International Equity">
+<option value="IntlStockMarket">Global ex-US Stock Market</option>
+<option value="IntlDeveloped">Intl Developed ex-US Market</option>
+<option value="IntlSmall">International ex-US Small Cap</option>
+<option value="IntlValue">International ex-US Value</option>
+<option value="Europe">European Stocks</option>
+<option value="Pacific">Pacific Stocks</option>
+<option value="EmergingMarket">Emerging Markets</option>
+</optgroup>
+<optgroup label="Fixed Income">
+<option value="ShortTreasury">Short Term Treasury</option>
+<option value="IntermediateTreasury">Intermediate Term Treasury</option>
+<option value="TreasuryNotes">10-year Treasury</option>
+<option value="LongTreasury">Long Term Treasury</option>
+<option value="TotalBond">Total US Bond Market</option>
+<option value="TIPS">TIPS</option>
+<option value="GlobalBond">Global Bonds (Unhedged)</option>
+<option value="GlobalBondHedged">Global Bonds (USD Hedged)</option>
+<option value="ShortInvBond">Short-Term Investment Grade</option>
+<option value="CorpBond">Corporate Bonds</option>
+<option value="LongCorpBond">Long-Term Corporate Bonds</option>
+<option value="HighYield">High Yield Corporate Bonds</option>
+<option value="ShortTaxExempt">Short-Term Tax-Exempt</option>
+<option value="InterTaxExempt">Intermediate-Term Tax-Exempt</option>
+<option value="LongTaxExempt">Long-Term Tax-Exempt</option>
+</optgroup>
+<optgroup label="Alternatives">
+<option value="REIT">REIT</option>
+<option value="Gold">Gold</option>
+<option value="PreciousMetals">Precious Metals</option>
+<option value="Commodities">Commodities</option>
+</optgroup>
+</select>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation6_1">Enter percentage allocation for asset 6</label></span>
+<input type="number" id="allocation6_1" name="allocation6_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight6">Minimum allocation for asset 6</label></span>
+<input type="number" id="minWeight6" name="minWeight6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight6">Maximum allocation for asset 6</label></span>
+<input type="number" id="maxWeight6" name="maxWeight6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup6">Group assignment for asset 6</label></span>
+<select id="assetGroup6" name="assetGroup6" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff6">Add asset 6 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff6" value="true" id="ff6"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf6">Add asset 6 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf6" value="true" id="sf6"></div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">7</div>
+<div class="col-sm-3 asset-column">
+<span class="hidden_jaws"><label for="asset7">Select asset 7</label></span>
+<select id="asset7" name="asset7" class="form-control" >
+<option value="">Select asset class...</option>
+<optgroup label="US Equity">
+<option value="TotalStockMarket">US Stock Market</option>
+<option value="LargeCapBlend">US Large Cap</option>
+<option value="LargeCapValue">US Large Cap Value</option>
+<option value="LargeCapGrowth">US Large Cap Growth</option>
+<option value="MidCapBlend">US Mid Cap</option>
+<option value="MidCapValue">US Mid Cap Value</option>
+<option value="MidCapGrowth">US Mid Cap Growth</option>
+<option value="SmallCapBlend">US Small Cap</option>
+<option value="SmallCapValue">US Small Cap Value</option>
+<option value="SmallCapGrowth">US Small Cap Growth</option>
+<option value="MicroCap">US Micro Cap</option>
+</optgroup>
+<optgroup label="International Equity">
+<option value="IntlStockMarket">Global ex-US Stock Market</option>
+<option value="IntlDeveloped">Intl Developed ex-US Market</option>
+<option value="IntlSmall">International ex-US Small Cap</option>
+<option value="IntlValue">International ex-US Value</option>
+<option value="Europe">European Stocks</option>
+<option value="Pacific">Pacific Stocks</option>
+<option value="EmergingMarket">Emerging Markets</option>
+</optgroup>
+<optgroup label="Fixed Income">
+<option value="ShortTreasury">Short Term Treasury</option>
+<option value="IntermediateTreasury">Intermediate Term Treasury</option>
+<option value="TreasuryNotes">10-year Treasury</option>
+<option value="LongTreasury">Long Term Treasury</option>
+<option value="TotalBond">Total US Bond Market</option>
+<option value="TIPS">TIPS</option>
+<option value="GlobalBond">Global Bonds (Unhedged)</option>
+<option value="GlobalBondHedged">Global Bonds (USD Hedged)</option>
+<option value="ShortInvBond">Short-Term Investment Grade</option>
+<option value="CorpBond">Corporate Bonds</option>
+<option value="LongCorpBond">Long-Term Corporate Bonds</option>
+<option value="HighYield">High Yield Corporate Bonds</option>
+<option value="ShortTaxExempt">Short-Term Tax-Exempt</option>
+<option value="InterTaxExempt">Intermediate-Term Tax-Exempt</option>
+<option value="LongTaxExempt">Long-Term Tax-Exempt</option>
+</optgroup>
+<optgroup label="Alternatives">
+<option value="REIT">REIT</option>
+<option value="Gold">Gold</option>
+<option value="PreciousMetals">Precious Metals</option>
+<option value="Commodities">Commodities</option>
+</optgroup>
+</select>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation7_1">Enter percentage allocation for asset 7</label></span>
+<input type="number" id="allocation7_1" name="allocation7_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight7">Minimum allocation for asset 7</label></span>
+<input type="number" id="minWeight7" name="minWeight7" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight7">Maximum allocation for asset 7</label></span>
+<input type="number" id="maxWeight7" name="maxWeight7" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup7">Group assignment for asset 7</label></span>
+<select id="assetGroup7" name="assetGroup7" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff7">Add asset 7 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff7" value="true" id="ff7"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf7">Add asset 7 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf7" value="true" id="sf7"></div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">8</div>
+<div class="col-sm-3 asset-column">
+<span class="hidden_jaws"><label for="asset8">Select asset 8</label></span>
+<select id="asset8" name="asset8" class="form-control" >
+<option value="">Select asset class...</option>
+<optgroup label="US Equity">
+<option value="TotalStockMarket">US Stock Market</option>
+<option value="LargeCapBlend">US Large Cap</option>
+<option value="LargeCapValue">US Large Cap Value</option>
+<option value="LargeCapGrowth">US Large Cap Growth</option>
+<option value="MidCapBlend">US Mid Cap</option>
+<option value="MidCapValue">US Mid Cap Value</option>
+<option value="MidCapGrowth">US Mid Cap Growth</option>
+<option value="SmallCapBlend">US Small Cap</option>
+<option value="SmallCapValue">US Small Cap Value</option>
+<option value="SmallCapGrowth">US Small Cap Growth</option>
+<option value="MicroCap">US Micro Cap</option>
+</optgroup>
+<optgroup label="International Equity">
+<option value="IntlStockMarket">Global ex-US Stock Market</option>
+<option value="IntlDeveloped">Intl Developed ex-US Market</option>
+<option value="IntlSmall">International ex-US Small Cap</option>
+<option value="IntlValue">International ex-US Value</option>
+<option value="Europe">European Stocks</option>
+<option value="Pacific">Pacific Stocks</option>
+<option value="EmergingMarket">Emerging Markets</option>
+</optgroup>
+<optgroup label="Fixed Income">
+<option value="ShortTreasury">Short Term Treasury</option>
+<option value="IntermediateTreasury">Intermediate Term Treasury</option>
+<option value="TreasuryNotes">10-year Treasury</option>
+<option value="LongTreasury">Long Term Treasury</option>
+<option value="TotalBond">Total US Bond Market</option>
+<option value="TIPS">TIPS</option>
+<option value="GlobalBond">Global Bonds (Unhedged)</option>
+<option value="GlobalBondHedged">Global Bonds (USD Hedged)</option>
+<option value="ShortInvBond">Short-Term Investment Grade</option>
+<option value="CorpBond">Corporate Bonds</option>
+<option value="LongCorpBond">Long-Term Corporate Bonds</option>
+<option value="HighYield">High Yield Corporate Bonds</option>
+<option value="ShortTaxExempt">Short-Term Tax-Exempt</option>
+<option value="InterTaxExempt">Intermediate-Term Tax-Exempt</option>
+<option value="LongTaxExempt">Long-Term Tax-Exempt</option>
+</optgroup>
+<optgroup label="Alternatives">
+<option value="REIT">REIT</option>
+<option value="Gold">Gold</option>
+<option value="PreciousMetals">Precious Metals</option>
+<option value="Commodities">Commodities</option>
+</optgroup>
+</select>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation8_1">Enter percentage allocation for asset 8</label></span>
+<input type="number" id="allocation8_1" name="allocation8_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight8">Minimum allocation for asset 8</label></span>
+<input type="number" id="minWeight8" name="minWeight8" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight8">Maximum allocation for asset 8</label></span>
+<input type="number" id="maxWeight8" name="maxWeight8" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup8">Group assignment for asset 8</label></span>
+<select id="assetGroup8" name="assetGroup8" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff8">Add asset 8 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff8" value="true" id="ff8"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf8">Add asset 8 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf8" value="true" id="sf8"></div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">9</div>
+<div class="col-sm-3 asset-column">
+<span class="hidden_jaws"><label for="asset9">Select asset 9</label></span>
+<select id="asset9" name="asset9" class="form-control" >
+<option value="">Select asset class...</option>
+<optgroup label="US Equity">
+<option value="TotalStockMarket">US Stock Market</option>
+<option value="LargeCapBlend">US Large Cap</option>
+<option value="LargeCapValue">US Large Cap Value</option>
+<option value="LargeCapGrowth">US Large Cap Growth</option>
+<option value="MidCapBlend">US Mid Cap</option>
+<option value="MidCapValue">US Mid Cap Value</option>
+<option value="MidCapGrowth">US Mid Cap Growth</option>
+<option value="SmallCapBlend">US Small Cap</option>
+<option value="SmallCapValue">US Small Cap Value</option>
+<option value="SmallCapGrowth">US Small Cap Growth</option>
+<option value="MicroCap">US Micro Cap</option>
+</optgroup>
+<optgroup label="International Equity">
+<option value="IntlStockMarket">Global ex-US Stock Market</option>
+<option value="IntlDeveloped">Intl Developed ex-US Market</option>
+<option value="IntlSmall">International ex-US Small Cap</option>
+<option value="IntlValue">International ex-US Value</option>
+<option value="Europe">European Stocks</option>
+<option value="Pacific">Pacific Stocks</option>
+<option value="EmergingMarket">Emerging Markets</option>
+</optgroup>
+<optgroup label="Fixed Income">
+<option value="ShortTreasury">Short Term Treasury</option>
+<option value="IntermediateTreasury">Intermediate Term Treasury</option>
+<option value="TreasuryNotes">10-year Treasury</option>
+<option value="LongTreasury">Long Term Treasury</option>
+<option value="TotalBond">Total US Bond Market</option>
+<option value="TIPS">TIPS</option>
+<option value="GlobalBond">Global Bonds (Unhedged)</option>
+<option value="GlobalBondHedged">Global Bonds (USD Hedged)</option>
+<option value="ShortInvBond">Short-Term Investment Grade</option>
+<option value="CorpBond">Corporate Bonds</option>
+<option value="LongCorpBond">Long-Term Corporate Bonds</option>
+<option value="HighYield">High Yield Corporate Bonds</option>
+<option value="ShortTaxExempt">Short-Term Tax-Exempt</option>
+<option value="InterTaxExempt">Intermediate-Term Tax-Exempt</option>
+<option value="LongTaxExempt">Long-Term Tax-Exempt</option>
+</optgroup>
+<optgroup label="Alternatives">
+<option value="REIT">REIT</option>
+<option value="Gold">Gold</option>
+<option value="PreciousMetals">Precious Metals</option>
+<option value="Commodities">Commodities</option>
+</optgroup>
+</select>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation9_1">Enter percentage allocation for asset 9</label></span>
+<input type="number" id="allocation9_1" name="allocation9_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight9">Minimum allocation for asset 9</label></span>
+<input type="number" id="minWeight9" name="minWeight9" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight9">Maximum allocation for asset 9</label></span>
+<input type="number" id="maxWeight9" name="maxWeight9" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup9">Group assignment for asset 9</label></span>
+<select id="assetGroup9" name="assetGroup9" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff9">Add asset 9 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff9" value="true" id="ff9"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf9">Add asset 9 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf9" value="true" id="sf9"></div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">10</div>
+<div class="col-sm-3 asset-column">
+<span class="hidden_jaws"><label for="asset10">Select asset 10</label></span>
+<select id="asset10" name="asset10" class="form-control" >
+<option value="">Select asset class...</option>
+<optgroup label="US Equity">
+<option value="TotalStockMarket">US Stock Market</option>
+<option value="LargeCapBlend">US Large Cap</option>
+<option value="LargeCapValue">US Large Cap Value</option>
+<option value="LargeCapGrowth">US Large Cap Growth</option>
+<option value="MidCapBlend">US Mid Cap</option>
+<option value="MidCapValue">US Mid Cap Value</option>
+<option value="MidCapGrowth">US Mid Cap Growth</option>
+<option value="SmallCapBlend">US Small Cap</option>
+<option value="SmallCapValue">US Small Cap Value</option>
+<option value="SmallCapGrowth">US Small Cap Growth</option>
+<option value="MicroCap">US Micro Cap</option>
+</optgroup>
+<optgroup label="International Equity">
+<option value="IntlStockMarket">Global ex-US Stock Market</option>
+<option value="IntlDeveloped">Intl Developed ex-US Market</option>
+<option value="IntlSmall">International ex-US Small Cap</option>
+<option value="IntlValue">International ex-US Value</option>
+<option value="Europe">European Stocks</option>
+<option value="Pacific">Pacific Stocks</option>
+<option value="EmergingMarket">Emerging Markets</option>
+</optgroup>
+<optgroup label="Fixed Income">
+<option value="ShortTreasury">Short Term Treasury</option>
+<option value="IntermediateTreasury">Intermediate Term Treasury</option>
+<option value="TreasuryNotes">10-year Treasury</option>
+<option value="LongTreasury">Long Term Treasury</option>
+<option value="TotalBond">Total US Bond Market</option>
+<option value="TIPS">TIPS</option>
+<option value="GlobalBond">Global Bonds (Unhedged)</option>
+<option value="GlobalBondHedged">Global Bonds (USD Hedged)</option>
+<option value="ShortInvBond">Short-Term Investment Grade</option>
+<option value="CorpBond">Corporate Bonds</option>
+<option value="LongCorpBond">Long-Term Corporate Bonds</option>
+<option value="HighYield">High Yield Corporate Bonds</option>
+<option value="ShortTaxExempt">Short-Term Tax-Exempt</option>
+<option value="InterTaxExempt">Intermediate-Term Tax-Exempt</option>
+<option value="LongTaxExempt">Long-Term Tax-Exempt</option>
+</optgroup>
+<optgroup label="Alternatives">
+<option value="REIT">REIT</option>
+<option value="Gold">Gold</option>
+<option value="PreciousMetals">Precious Metals</option>
+<option value="Commodities">Commodities</option>
+</optgroup>
+</select>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation10_1">Enter percentage allocation for asset 10</label></span>
+<input type="number" id="allocation10_1" name="allocation10_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight10">Minimum allocation for asset 10</label></span>
+<input type="number" id="minWeight10" name="minWeight10" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight10">Maximum allocation for asset 10</label></span>
+<input type="number" id="maxWeight10" name="maxWeight10" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup10">Group assignment for asset 10</label></span>
+<select id="assetGroup10" name="assetGroup10" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff10">Add asset 10 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff10" value="true" id="ff10"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf10">Add asset 10 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf10" value="true" id="sf10"></div>
+</div>
+<div class="row topBorder totals-row">
+<div class="col-sm-1 separateTop"><b>Total</b></div>
+<div class="col-sm-2 col-sm-offset-3 totals-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="total1">Total allocation for portfolio</label></span>
+<input type="number" id="total1" name="total1" class="form-control" readonly>
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-1 col-sm-offset-5 frontier"><span class="hidden_jaws"><label for="toggleEF1">Select or unselect all assets for efficient frontier #1</label></span>
+<input type="checkbox" name="toggleEF1" value="true" id="toggleEF1" title="Select or unselect all assets for efficient frontier #1"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="toggleEF2">Select or unselect all assets for efficient frontier #2</label></span>
+<input type="checkbox" name="toggleEF2" value="true" id="toggleEF2" title="Select or unselect all assets for efficient frontier #2"></div>
+</div>
+<div id="groupConstraintsSection" class="groupConstraint">
+<hr>
+<div class="row">
+<div class="col-sm-4 separateTop text-nowrap">
+<b>Asset Groups</b>
+<button type="button" class="btn btn-default btn-sm left-margin hidden-print" id="resetGroups" title="Reset group constraints"><i class="glyphicon glyphicon-trash"></i></button>
+</div>
+<div class="col-sm-2 separateTop text-nowrap"><b>Min. Weight</b></div>
+<div class="col-sm-2 separateTop text-nowrap"><b>Max. Weight</b></div>
+</div>
+<div class="row highlightRow">
+<div class="col-sm-1 separateTop">A</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName1">Full name for group A at index 1</label></span>
+<input type="text" id="assetGroupName1" name="assetGroupName1" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight1">Minimum allocation for group A at index 1</label></span>
+<input type="number" id="minGroupWeight1" name="minGroupWeight1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight1">Maximum allocation for group A at index 1</label></span>
+<input type="number" id="maxGroupWeight1" name="maxGroupWeight1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-1 separateTop">B</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName2">Full name for group B at index 2</label></span>
+<input type="text" id="assetGroupName2" name="assetGroupName2" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight2">Minimum allocation for group B at index 2</label></span>
+<input type="number" id="minGroupWeight2" name="minGroupWeight2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight2">Maximum allocation for group B at index 2</label></span>
+<input type="number" id="maxGroupWeight2" name="maxGroupWeight2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow">
+<div class="col-sm-1 separateTop">C</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName3">Full name for group C at index 3</label></span>
+<input type="text" id="assetGroupName3" name="assetGroupName3" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight3">Minimum allocation for group C at index 3</label></span>
+<input type="number" id="minGroupWeight3" name="minGroupWeight3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight3">Maximum allocation for group C at index 3</label></span>
+<input type="number" id="maxGroupWeight3" name="maxGroupWeight3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-1 separateTop">D</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName4">Full name for group D at index 4</label></span>
+<input type="text" id="assetGroupName4" name="assetGroupName4" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight4">Minimum allocation for group D at index 4</label></span>
+<input type="number" id="minGroupWeight4" name="minGroupWeight4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight4">Maximum allocation for group D at index 4</label></span>
+<input type="number" id="maxGroupWeight4" name="maxGroupWeight4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow">
+<div class="col-sm-1 separateTop">E</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName5">Full name for group E at index 5</label></span>
+<input type="text" id="assetGroupName5" name="assetGroupName5" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight5">Minimum allocation for group E at index 5</label></span>
+<input type="number" id="minGroupWeight5" name="minGroupWeight5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight5">Maximum allocation for group E at index 5</label></span>
+<input type="number" id="maxGroupWeight5" name="maxGroupWeight5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-1 separateTop">F</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName6">Full name for group F at index 6</label></span>
+<input type="text" id="assetGroupName6" name="assetGroupName6" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight6">Minimum allocation for group F at index 6</label></span>
+<input type="number" id="minGroupWeight6" name="minGroupWeight6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight6">Maximum allocation for group F at index 6</label></span>
+<input type="number" id="maxGroupWeight6" name="maxGroupWeight6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+    <div class="form-group form-buttons">
+<div class="col-sm-offset-2 col-sm-10">
+<input type="submit" id="submitButton" value="View" class="btn btn-primary">
+<input type="button" id="cancelButton" value="Cancel" class="btn btn-default" onclick="document.location.href='index.html'">
+</div>
+</div>
+
+</form>
+
+    
+    
+    <h2 class="anchor" id="analysisResults">Efficient Frontier Results <span class="resultsRange">(Jan 1978 - May 2022)</span> <span class="directLink"></span> <span class="directPrint"></span> <span class="directExport"></span></h2>
+
+    <ul id="tabs" class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#chartTab" data-toggle="tab">Efficient Frontier</a></li>
+        <li role="presentation"><a href="#correlations" data-toggle="tab">Assets and Correlations</a></li>
+        
+        <li role="presentation"><a href="#tableTab" data-toggle="tab">Data Points</a></li>
+        
+        
+    </ul>
+
+    <div id="result-content" class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="chartTab">
+        
+        <div class="alert alert-info" role="alert">
+            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <b>Note:</b> The time period was constrained by the available data for Long Term Treasury [Jan 1978 - May 2022].
+        </div>
+        
+
+    
+        <h3>Portfolio Allocations</h3>
+        
+        <div class="row" style="margin: 0"> 
+            <div class="col-sm-8" style="padding-left: 0; padding-right: 15px;"> 
+                <table class="table table-striped table-condensed">
+                    <caption>Max Sharpe Ratio Portfolio</caption>
+                    <thead>
+                    <tr>
+                        
+                        <th>Asset Class</th>
+                        
+                        <th class="numberCell">Allocation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    
+                    <tr>
+                        
+                        <td>US Stock Market</td>
+                        <td class="numberCell">53.54%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>Long Term Treasury</td>
+                        <td class="numberCell">46.46%</td>
+                    </tr>
+                    
+                    </tbody>
+                    
+                    <tfoot class="hidden-print">
+                    <tr>
+                        <td colspan="2">
+                            
+                            
+                            <span id="saveConfirmMsg1">
+                            
+                            </span>
+                            <a id="saveIcon1" href="#" onclick="showLoginPrompt(true); return false;" title="Save portfolio"><span class="fa fa-save"></span></a>
+                            <a id="saveLink1" href="#" onclick="showLoginPrompt(true); return false;">Save portfolio &raquo;</a>
+                        </td>
+                    </tr>
+                    </tfoot>
+                    
+                </table>
+            </div>
+            <div class="col-sm-4" style="padding: 0"> 
+                <div id="chartDiv1" style="min-width: 250px; min-height: 250px; max-width: 375px; max-height: 375px;"></div>
+<script>
+function getChartData1() {
+var chart1 = { chart: { type: 'pie', spacing: [0, 0, 0, 0] }, title: { text: '' }, series: [{ name: 'Allocation', data: [{name: 'US Stock Market', y: 53.54},{name: 'Long Term Treasury', y: 46.46}]}]};
+return [chart1, null, null];
+}
+</script>
+
+            </div>
+        </div>
+        
+        
+        <h3>Portfolio Returns</h3>
+        <table class="table table-condensed table-striped"><caption class="sr-only">Portfolio Statistics</caption><thead><tr><th>Portfolio</th><th class="numberCell">Expected Return</th><th class="numberCell">Standard Deviation</th><th class="numberCell">Sharpe Ratio</th></tr></thead><tbody><tr><td>Max Sharpe Ratio Portfolio</td><td class="numberCell">10.80%</td><td class="numberCell">9.92%</td><td class="numberCell">0.61</td></tr></tbody></table>
+        
+
+        <div class="alert alert-dismissible alert-info" role="alert">
+<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+<strong>Note:</strong> You can hover over any of the data points on the chart for more information.
+</div>
+
+    <div id="chartDiv2" style="min-width: 900px; min-height: 650px; max-width: 1350px; max-height: 975px;"></div>
+<script>
+function getChartData2() {
+var chart2 = { chart: { type: 'spline', inverted: true  }, title: { text: 'Efficient Frontier (Jan 1978 - May 2022)' }, tooltip: { shared: false, headerFormat: null, pointFormat: '{point.text}' }, xAxis: { title: { text: 'Expected Return' }, labels: { formatter: function() { return (100.0*this.value).toFixed(1) + '%'; } }, reversed: false, gridLineWidth: 1, endOnTick: true, min: 0.07920821771323901 }, yAxis: { title: { text: 'Standard Deviation' }, labels: { formatter: function() { return (100.0*this.value).toFixed(1) + '%'; } }, gridLineWidth: 1, startOnTick: true, endOnTick: true }, legend: { enabled: false }, plotOptions: { spline: { series: { stickyTracking: false }, marker: { radius: 2, enabled: true } }, scatter: { series: { stickyTracking: false }, marker: { radius: 3 } } }, series: [{ name: 'Frontier', data: [ {x:0.0837711568831625,y:0.11229158905370487,text:'100.00% Long Term Treasury<br\/>Expected Return: 8.38%<br\/>Standard Deviation: 11.23%<br\/>Sharpe Ratio: 0.339'},{x:0.08422346931077995,y:0.11122267031636743,text:'1.01% US Stock Market<br\/>98.99% Long Term Treasury<br\/>Expected Return: 8.42%<br\/>Standard Deviation: 11.12%<br\/>Sharpe Ratio: 0.346'},{x:0.08467595477412693,y:0.11017597763362658,text:'2.02% US Stock Market<br\/>97.98% Long Term Treasury<br\/>Expected Return: 8.47%<br\/>Standard Deviation: 11.02%<br\/>Sharpe Ratio: 0.353'},{x:0.08512861333337929,y:0.10915215040425083,text:'3.03% US Stock Market<br\/>96.97% Long Term Treasury<br\/>Expected Return: 8.51%<br\/>Standard Deviation: 10.92%<br\/>Sharpe Ratio: 0.360'},{x:0.08558144504873222,y:0.10815183800261466,text:'4.04% US Stock Market<br\/>95.96% Long Term Treasury<br\/>Expected Return: 8.56%<br\/>Standard Deviation: 10.82%<br\/>Sharpe Ratio: 0.367'},{x:0.08603444998039711,y:0.10717569884978687,text:'5.05% US Stock Market<br\/>94.95% Long Term Treasury<br\/>Expected Return: 8.60%<br\/>Standard Deviation: 10.72%<br\/>Sharpe Ratio: 0.375'},{x:0.08648762818861244,y:0.10622439936126445,text:'6.06% US Stock Market<br\/>93.94% Long Term Treasury<br\/>Expected Return: 8.65%<br\/>Standard Deviation: 10.62%<br\/>Sharpe Ratio: 0.382'},{x:0.08694097973362669,y:0.10529861276630087,text:'7.07% US Stock Market<br\/>92.93% Long Term Treasury<br\/>Expected Return: 8.69%<br\/>Standard Deviation: 10.53%<br\/>Sharpe Ratio: 0.389'},{x:0.0873945046757103,y:0.10439901779460453,text:'8.08% US Stock Market<br\/>91.92% Long Term Treasury<br\/>Expected Return: 8.74%<br\/>Standard Deviation: 10.44%<br\/>Sharpe Ratio: 0.397'},{x:0.08784820307515306,y:0.10352629722719596,text:'9.09% US Stock Market<br\/>90.91% Long Term Treasury<br\/>Expected Return: 8.78%<br\/>Standard Deviation: 10.35%<br\/>Sharpe Ratio: 0.404'},{x:0.08830207499226295,y:0.10268113630942188,text:'10.10% US Stock Market<br\/>89.90% Long Term Treasury<br\/>Expected Return: 8.83%<br\/>Standard Deviation: 10.27%<br\/>Sharpe Ratio: 0.412'},{x:0.08875612048736703,y:0.10186422102553588,text:'11.11% US Stock Market<br\/>88.89% Long Term Treasury<br\/>Expected Return: 8.88%<br\/>Standard Deviation: 10.19%<br\/>Sharpe Ratio: 0.419'},{x:0.0892103396208086,y:0.10107623623586885,text:'12.12% US Stock Market<br\/>87.88% Long Term Treasury<br\/>Expected Return: 8.92%<br\/>Standard Deviation: 10.11%<br\/>Sharpe Ratio: 0.426'},{x:0.08966473245295781,y:0.10031786367942601,text:'13.13% US Stock Market<br\/>86.87% Long Term Treasury<br\/>Expected Return: 8.97%<br\/>Standard Deviation: 10.03%<br\/>Sharpe Ratio: 0.434'},{x:0.09011929904419591,y:0.09958977984674645,text:'14.14% US Stock Market<br\/>85.86% Long Term Treasury<br\/>Expected Return: 9.01%<br\/>Standard Deviation: 9.96%<br\/>Sharpe Ratio: 0.441'},{x:0.09057403945492548,y:0.09889265373003064,text:'15.15% US Stock Market<br\/>84.85% Long Term Treasury<br\/>Expected Return: 9.06%<br\/>Standard Deviation: 9.89%<br\/>Sharpe Ratio: 0.449'},{x:0.09102895374556774,y:0.09822714445985312,text:'16.16% US Stock Market<br\/>83.84% Long Term Treasury<br\/>Expected Return: 9.10%<br\/>Standard Deviation: 9.82%<br\/>Sharpe Ratio: 0.456'},{x:0.09148404197656346,y:0.09759389884019776,text:'17.17% US Stock Market<br\/>82.83% Long Term Treasury<br\/>Expected Return: 9.15%<br\/>Standard Deviation: 9.76%<br\/>Sharpe Ratio: 0.463'},{x:0.09193930420837182,y:0.0969935487960382,text:'18.18% US Stock Market<br\/>81.82% Long Term Treasury<br\/>Expected Return: 9.19%<br\/>Standard Deviation: 9.70%<br\/>Sharpe Ratio: 0.470'},{x:0.09239474050146845,y:0.0964267087501846,text:'19.19% US Stock Market<br\/>80.81% Long Term Treasury<br\/>Expected Return: 9.24%<br\/>Standard Deviation: 9.64%<br\/>Sharpe Ratio: 0.477'},{x:0.09285035091635563,y:0.09589397294857066,text:'20.20% US Stock Market<br\/>79.80% Long Term Treasury<br\/>Expected Return: 9.29%<br\/>Standard Deviation: 9.59%<br\/>Sharpe Ratio: 0.484'},{x:0.09330613551354738,y:0.09539591275549633,text:'21.21% US Stock Market<br\/>78.79% Long Term Treasury<br\/>Expected Return: 9.33%<br\/>Standard Deviation: 9.54%<br\/>Sharpe Ratio: 0.491'},{x:0.09376209435357796,y:0.09493307394249977,text:'22.22% US Stock Market<br\/>77.78% Long Term Treasury<br\/>Expected Return: 9.38%<br\/>Standard Deviation: 9.49%<br\/>Sharpe Ratio: 0.498'},{x:0.09421822749700182,y:0.09450597399643462,text:'23.23% US Stock Market<br\/>76.77% Long Term Treasury<br\/>Expected Return: 9.42%<br\/>Standard Deviation: 9.45%<br\/>Sharpe Ratio: 0.505'},{x:0.0946745350043916,y:0.09411509947390068,text:'24.24% US Stock Market<br\/>75.76% Long Term Treasury<br\/>Expected Return: 9.47%<br\/>Standard Deviation: 9.41%<br\/>Sharpe Ratio: 0.512'},{x:0.0951310169363393,y:0.09376090343034486,text:'25.25% US Stock Market<br\/>74.75% Long Term Treasury<br\/>Expected Return: 9.51%<br\/>Standard Deviation: 9.38%<br\/>Sharpe Ratio: 0.518'},{x:0.09558767335345264,y:0.09344380295285225,text:'26.26% US Stock Market<br\/>73.74% Long Term Treasury<br\/>Expected Return: 9.56%<br\/>Standard Deviation: 9.34%<br\/>Sharpe Ratio: 0.524'},{x:0.09604450431636735,y:0.09316417682582344,text:'27.27% US Stock Market<br\/>72.73% Long Term Treasury<br\/>Expected Return: 9.60%<br\/>Standard Deviation: 9.32%<br\/>Sharpe Ratio: 0.530'},{x:0.09650150988572914,y:0.09292236335834289,text:'28.28% US Stock Market<br\/>71.72% Long Term Treasury<br\/>Expected Return: 9.65%<br\/>Standard Deviation: 9.29%<br\/>Sharpe Ratio: 0.536'},{x:0.09695869012220548,y:0.09271865840105382,text:'29.29% US Stock Market<br\/>70.71% Long Term Treasury<br\/>Expected Return: 9.70%<br\/>Standard Deviation: 9.27%<br\/>Sharpe Ratio: 0.542'},{x:0.09741604508648316,y:0.09255331357875579,text:'30.30% US Stock Market<br\/>69.70% Long Term Treasury<br\/>Expected Return: 9.74%<br\/>Standard Deviation: 9.26%<br\/>Sharpe Ratio: 0.547'},{x:0.09787357483926784,y:0.09242653476274271,text:'31.31% US Stock Market<br\/>68.69% Long Term Treasury<br\/>Expected Return: 9.79%<br\/>Standard Deviation: 9.24%<br\/>Sharpe Ratio: 0.553'},{x:0.09833127944128406,y:0.0923384808041277,text:'32.32% US Stock Market<br\/>67.68% Long Term Treasury<br\/>Expected Return: 9.83%<br\/>Standard Deviation: 9.23%<br\/>Sharpe Ratio: 0.558'},{x:0.09878915895327234,y:0.09228926254611003,text:'33.33% US Stock Market<br\/>66.67% Long Term Treasury<br\/>Expected Return: 9.88%<br\/>Standard Deviation: 9.23%<br\/>Sharpe Ratio: 0.563'},{x:0.0992472134360014,y:0.09227894212939478,text:'34.34% US Stock Market<br\/>65.66% Long Term Treasury<br\/>Expected Return: 9.92%<br\/>Standard Deviation: 9.23%<br\/>Sharpe Ratio: 0.567'},{x:0.09970544295024952,y:0.09230753260086817,text:'35.35% US Stock Market<br\/>64.65% Long Term Treasury<br\/>Expected Return: 9.97%<br\/>Standard Deviation: 9.23%<br\/>Sharpe Ratio: 0.572'},{x:0.1001638475568174,y:0.09237499783125996,text:'36.36% US Stock Market<br\/>63.64% Long Term Treasury<br\/>Expected Return: 10.02%<br\/>Standard Deviation: 9.24%<br\/>Sharpe Ratio: 0.576'},{x:0.10062242731652482,y:0.09248125274300202,text:'37.37% US Stock Market<br\/>62.63% Long Term Treasury<br\/>Expected Return: 10.06%<br\/>Standard Deviation: 9.25%<br\/>Sharpe Ratio: 0.580'},{x:0.10108118229021001,y:0.09262616384493932,text:'38.38% US Stock Market<br\/>61.62% Long Term Treasury<br\/>Expected Return: 10.11%<br\/>Standard Deviation: 9.26%<br\/>Sharpe Ratio: 0.583'},{x:0.10154011253873096,y:0.09280955006608352,text:'39.39% US Stock Market<br\/>60.61% Long Term Treasury<br\/>Expected Return: 10.15%<br\/>Standard Deviation: 9.28%<br\/>Sharpe Ratio: 0.587'},{x:0.1019992181229612,y:0.0930311838763378,text:'40.40% US Stock Market<br\/>59.60% Long Term Treasury<br\/>Expected Return: 10.20%<br\/>Standard Deviation: 9.30%<br\/>Sharpe Ratio: 0.590'},{x:0.102458499103802,y:0.0932907926781731,text:'41.41% US Stock Market<br\/>58.59% Long Term Treasury<br\/>Expected Return: 10.25%<br\/>Standard Deviation: 9.33%<br\/>Sharpe Ratio: 0.593'},{x:0.10291795554216532,y:0.09358806044969395,text:'42.42% US Stock Market<br\/>57.58% Long Term Treasury<br\/>Expected Return: 10.29%<br\/>Standard Deviation: 9.36%<br\/>Sharpe Ratio: 0.595'},{x:0.10337758749898507,y:0.09392262961647771,text:'43.43% US Stock Market<br\/>56.57% Long Term Treasury<br\/>Expected Return: 10.34%<br\/>Standard Deviation: 9.39%<br\/>Sharpe Ratio: 0.598'},{x:0.10383739503521383,y:0.09429410312706374,text:'44.44% US Stock Market<br\/>55.56% Long Term Treasury<br\/>Expected Return: 10.38%<br\/>Standard Deviation: 9.43%<br\/>Sharpe Ratio: 0.600'},{x:0.10429737821182328,y:0.09470204670504963,text:'45.45% US Stock Market<br\/>54.55% Long Term Treasury<br\/>Expected Return: 10.43%<br\/>Standard Deviation: 9.47%<br\/>Sharpe Ratio: 0.601'},{x:0.10475753708980462,y:0.09514599124943866,text:'46.46% US Stock Market<br\/>53.54% Long Term Treasury<br\/>Expected Return: 10.48%<br\/>Standard Deviation: 9.51%<br\/>Sharpe Ratio: 0.603'},{x:0.10521787173016461,y:0.09562543535417714,text:'47.47% US Stock Market<br\/>52.53% Long Term Treasury<br\/>Expected Return: 10.52%<br\/>Standard Deviation: 9.56%<br\/>Sharpe Ratio: 0.604'},{x:0.10567838219393844,y:0.09613984791769935,text:'48.48% US Stock Market<br\/>51.52% Long Term Treasury<br\/>Expected Return: 10.57%<br\/>Standard Deviation: 9.61%<br\/>Sharpe Ratio: 0.606'},{x:0.10613906854217081,y:0.0966886708137287,text:'49.49% US Stock Market<br\/>50.51% Long Term Treasury<br\/>Expected Return: 10.61%<br\/>Standard Deviation: 9.67%<br\/>Sharpe Ratio: 0.607'},{x:0.10659993083592911,y:0.09727132159551254,text:'50.51% US Stock Market<br\/>49.49% Long Term Treasury<br\/>Expected Return: 10.66%<br\/>Standard Deviation: 9.73%<br\/>Sharpe Ratio: 0.607'},{x:0.10706096913629959,y:0.09788719620703434,text:'51.52% US Stock Market<br\/>48.48% Long Term Treasury<br\/>Expected Return: 10.71%<br\/>Standard Deviation: 9.79%<br\/>Sharpe Ratio: 0.608'},{x:0.10752218350438758,y:0.09853567167648501,text:'52.53% US Stock Market<br\/>47.47% Long Term Treasury<br\/>Expected Return: 10.75%<br\/>Standard Deviation: 9.85%<br\/>Sharpe Ratio: 0.608'},{x:0.1079835740013173,y:0.09921610876930449,text:'53.54% US Stock Market<br\/>46.46% Long Term Treasury<br\/>Expected Return: 10.80%<br\/>Standard Deviation: 9.92%<br\/>Sharpe Ratio: 0.608'},{x:0.10844514068822964,y:0.09992785458036037,text:'54.55% US Stock Market<br\/>45.45% Long Term Treasury<br\/>Expected Return: 10.84%<br\/>Standard Deviation: 9.99%<br\/>Sharpe Ratio: 0.608'},{x:0.10890688362629275,y:0.10067024504723149,text:'55.56% US Stock Market<br\/>44.44% Long Term Treasury<br\/>Expected Return: 10.89%<br\/>Standard Deviation: 10.07%<br\/>Sharpe Ratio: 0.608'},{x:0.10936880287668549,y:0.10144260736904592,text:'56.57% US Stock Market<br\/>43.43% Long Term Treasury<br\/>Expected Return: 10.94%<br\/>Standard Deviation: 10.14%<br\/>Sharpe Ratio: 0.607'},{x:0.10983089850060912,y:0.1022442623178239,text:'57.58% US Stock Market<br\/>42.42% Long Term Treasury<br\/>Expected Return: 10.98%<br\/>Standard Deviation: 10.22%<br\/>Sharpe Ratio: 0.606'},{x:0.11029317055928312,y:0.10307452643173456,text:'58.59% US Stock Market<br\/>41.41% Long Term Treasury<br\/>Expected Return: 11.03%<br\/>Standard Deviation: 10.31%<br\/>Sharpe Ratio: 0.606'},{x:0.11075561911394649,y:0.10393271408205164,text:'59.60% US Stock Market<br\/>40.40% Long Term Treasury<br\/>Expected Return: 11.08%<br\/>Standard Deviation: 10.39%<br\/>Sharpe Ratio: 0.605'},{x:0.1112182442258578,y:0.10481813940784031,text:'60.61% US Stock Market<br\/>39.39% Long Term Treasury<br\/>Expected Return: 11.12%<br\/>Standard Deviation: 10.48%<br\/>Sharpe Ratio: 0.604'},{x:0.11168104595629136,y:0.10573011811450027,text:'61.62% US Stock Market<br\/>38.38% Long Term Treasury<br\/>Expected Return: 11.17%<br\/>Standard Deviation: 10.57%<br\/>Sharpe Ratio: 0.602'},{x:0.11214402436654947,y:0.10666796913420498,text:'62.63% US Stock Market<br\/>37.37% Long Term Treasury<br\/>Expected Return: 11.21%<br\/>Standard Deviation: 10.67%<br\/>Sharpe Ratio: 0.601'},{x:0.11260717951794486,y:0.10763101614799535,text:'63.64% US Stock Market<br\/>36.36% Long Term Treasury<br\/>Expected Return: 11.26%<br\/>Standard Deviation: 10.76%<br\/>Sharpe Ratio: 0.599'},{x:0.11307051147181224,y:0.10861858897080709,text:'64.65% US Stock Market<br\/>35.35% Long Term Treasury<br\/>Expected Return: 11.31%<br\/>Standard Deviation: 10.86%<br\/>Sharpe Ratio: 0.598'},{x:0.11353402028950543,y:0.10963002480202697,text:'65.66% US Stock Market<br\/>34.34% Long Term Treasury<br\/>Expected Return: 11.35%<br\/>Standard Deviation: 10.96%<br\/>Sharpe Ratio: 0.596'},{x:0.11399770603239778,y:0.11066466934528715,text:'66.67% US Stock Market<br\/>33.33% Long Term Treasury<br\/>Expected Return: 11.40%<br\/>Standard Deviation: 11.07%<br\/>Sharpe Ratio: 0.594'},{x:0.11446156876188152,y:0.11172187780213517,text:'67.68% US Stock Market<br\/>32.32% Long Term Treasury<br\/>Expected Return: 11.45%<br\/>Standard Deviation: 11.17%<br\/>Sharpe Ratio: 0.593'},{x:0.11492560853936484,y:0.1128010157449547,text:'68.69% US Stock Market<br\/>31.31% Long Term Treasury<br\/>Expected Return: 11.49%<br\/>Standard Deviation: 11.28%<br\/>Sharpe Ratio: 0.591'},{x:0.11538982542628462,y:0.1139014598750893,text:'69.70% US Stock Market<br\/>30.30% Long Term Treasury<br\/>Expected Return: 11.54%<br\/>Standard Deviation: 11.39%<br\/>Sharpe Ratio: 0.589'},{x:0.1158542194840877,y:0.11502259867254103,text:'70.71% US Stock Market<br\/>29.29% Long Term Treasury<br\/>Expected Return: 11.59%<br\/>Standard Deviation: 11.50%<br\/>Sharpe Ratio: 0.587'},{x:0.11631879077424268,y:0.11616383294389475,text:'71.72% US Stock Market<br\/>28.28% Long Term Treasury<br\/>Expected Return: 11.63%<br\/>Standard Deviation: 11.62%<br\/>Sharpe Ratio: 0.584'},{x:0.11678353935823793,y:0.11732457627528234,text:'72.73% US Stock Market<br\/>27.27% Long Term Treasury<br\/>Expected Return: 11.68%<br\/>Standard Deviation: 11.73%<br\/>Sharpe Ratio: 0.582'},{x:0.11724846529758093,y:0.11850425539725054,text:'73.74% US Stock Market<br\/>26.26% Long Term Treasury<br\/>Expected Return: 11.72%<br\/>Standard Deviation: 11.85%<br\/>Sharpe Ratio: 0.580'},{x:0.11771356865379823,y:0.11970231046836065,text:'74.75% US Stock Market<br\/>25.25% Long Term Treasury<br\/>Expected Return: 11.77%<br\/>Standard Deviation: 11.97%<br\/>Sharpe Ratio: 0.578'},{x:0.1181788494884326,y:0.12091819528423184,text:'75.76% US Stock Market<br\/>24.24% Long Term Treasury<br\/>Expected Return: 11.82%<br\/>Standard Deviation: 12.09%<br\/>Sharpe Ratio: 0.575'},{x:0.1186443078630548,y:0.12215137741856306,text:'76.77% US Stock Market<br\/>23.23% Long Term Treasury<br\/>Expected Return: 11.86%<br\/>Standard Deviation: 12.22%<br\/>Sharpe Ratio: 0.573'},{x:0.11910994383924645,y:0.12340133830244163,text:'77.78% US Stock Market<br\/>22.22% Long Term Treasury<br\/>Expected Return: 11.91%<br\/>Standard Deviation: 12.34%<br\/>Sharpe Ratio: 0.571'},{x:0.11957575747861071,y:0.12466757324797755,text:'78.79% US Stock Market<br\/>21.21% Long Term Treasury<br\/>Expected Return: 11.96%<br\/>Standard Deviation: 12.47%<br\/>Sharpe Ratio: 0.568'},{x:0.12004174884277052,y:0.12594959142200832,text:'79.80% US Stock Market<br\/>20.20% Long Term Treasury<br\/>Expected Return: 12.00%<br\/>Standard Deviation: 12.59%<br\/>Sharpe Ratio: 0.566'},{x:0.12050791799336746,y:0.12724691577530126,text:'80.81% US Stock Market<br\/>19.19% Long Term Treasury<br\/>Expected Return: 12.05%<br\/>Standard Deviation: 12.72%<br\/>Sharpe Ratio: 0.563'},{x:0.12097426499206265,y:0.1285590829323513,text:'81.82% US Stock Market<br\/>18.18% Long Term Treasury<br\/>Expected Return: 12.10%<br\/>Standard Deviation: 12.86%<br\/>Sharpe Ratio: 0.561'},{x:0.12144078990053409,y:0.1298856430465375,text:'82.83% US Stock Market<br\/>17.17% Long Term Treasury<br\/>Expected Return: 12.14%<br\/>Standard Deviation: 12.99%<br\/>Sharpe Ratio: 0.558'},{x:0.12190749278048663,y:0.13122615962506376,text:'83.84% US Stock Market<br\/>16.16% Long Term Treasury<br\/>Expected Return: 12.19%<br\/>Standard Deviation: 13.12%<br\/>Sharpe Ratio: 0.556'},{x:0.1223743736936369,y:0.1325802093277788,text:'84.85% US Stock Market<br\/>15.15% Long Term Treasury<br\/>Expected Return: 12.24%<br\/>Standard Deviation: 13.26%<br\/>Sharpe Ratio: 0.553'},{x:0.12284143270172243,y:0.13394738174364362,text:'85.86% US Stock Market<br\/>14.14% Long Term Treasury<br\/>Expected Return: 12.28%<br\/>Standard Deviation: 13.39%<br\/>Sharpe Ratio: 0.551'},{x:0.12330866986650113,y:0.1353272791483,text:'86.87% US Stock Market<br\/>13.13% Long Term Treasury<br\/>Expected Return: 12.33%<br\/>Standard Deviation: 13.53%<br\/>Sharpe Ratio: 0.548'},{x:0.12377608524974959,y:0.1367195162458939,text:'87.88% US Stock Market<br\/>12.12% Long Term Treasury<br\/>Expected Return: 12.38%<br\/>Standard Deviation: 13.67%<br\/>Sharpe Ratio: 0.546'},{x:0.12424367891326371,y:0.1381237198980152,text:'88.89% US Stock Market<br\/>11.11% Long Term Treasury<br\/>Expected Return: 12.42%<br\/>Standard Deviation: 13.81%<br\/>Sharpe Ratio: 0.543'},{x:0.12471145091885583,y:0.13953952884234724,text:'89.90% US Stock Market<br\/>10.10% Long Term Treasury<br\/>Expected Return: 12.47%<br\/>Standard Deviation: 13.95%<br\/>Sharpe Ratio: 0.541'},{x:0.12517940132836647,y:0.14096659340335907,text:'90.91% US Stock Market<br\/>9.09% Long Term Treasury<br\/>Expected Return: 12.52%<br\/>Standard Deviation: 14.10%<br\/>Sharpe Ratio: 0.538'},{x:0.1256475302036466,y:0.1424045751971349,text:'91.92% US Stock Market<br\/>8.08% Long Term Treasury<br\/>Expected Return: 12.56%<br\/>Standard Deviation: 14.24%<br\/>Sharpe Ratio: 0.536'},{x:0.1261158376065692,y:0.14385314683221126,text:'92.93% US Stock Market<br\/>7.07% Long Term Treasury<br\/>Expected Return: 12.61%<br\/>Standard Deviation: 14.39%<br\/>Sharpe Ratio: 0.533'},{x:0.12658432359902694,y:0.14531199160808378,text:'93.94% US Stock Market<br\/>6.06% Long Term Treasury<br\/>Expected Return: 12.66%<br\/>Standard Deviation: 14.53%<br\/>Sharpe Ratio: 0.531'},{x:0.12705298824293143,y:0.1467808032128543,text:'94.95% US Stock Market<br\/>5.05% Long Term Treasury<br\/>Expected Return: 12.71%<br\/>Standard Deviation: 14.68%<br\/>Sharpe Ratio: 0.528'},{x:0.1275218316002138,y:0.14825928542131292,text:'95.96% US Stock Market<br\/>4.04% Long Term Treasury<br\/>Expected Return: 12.75%<br\/>Standard Deviation: 14.83%<br\/>Sharpe Ratio: 0.526'},{x:0.12799085373282137,y:0.14974715179458595,text:'96.97% US Stock Market<br\/>3.03% Long Term Treasury<br\/>Expected Return: 12.80%<br\/>Standard Deviation: 14.97%<br\/>Sharpe Ratio: 0.523'},{x:0.12846005470273014,y:0.15124412538233678,text:'97.98% US Stock Market<br\/>2.02% Long Term Treasury<br\/>Expected Return: 12.85%<br\/>Standard Deviation: 15.12%<br\/>Sharpe Ratio: 0.521'},{x:0.12892943457192585,y:0.15274993842836748,text:'98.99% US Stock Market<br\/>1.01% Long Term Treasury<br\/>Expected Return: 12.89%<br\/>Standard Deviation: 15.27%<br\/>Sharpe Ratio: 0.519'},{x:0.12939899340241712,y:0.15426433208035117,text:'100.00% US Stock Market<br\/>Expected Return: 12.94%<br\/>Standard Deviation: 15.43%<br\/>Sharpe Ratio: 0.516'}]}, { name: 'Points', color: 'black', type: 'scatter', data: [ {x:0.12939912756293137,y:0.1542647658863953,text:'US Stock Market<br\/>Expected Return: 12.94%<br\/>Standard Deviation: 15.43%<br\/>Sharpe Ratio: 0.516'},{x:0.08377102769957467,y:0.11229189751809514,text:'Long Term Treasury<br\/>Expected Return: 8.38%<br\/>Standard Deviation: 11.23%<br\/>Sharpe Ratio: 0.339'}]}], annotations: [{labelOptions: { backgroundColor: 'rgba(255,255,255,0.5)', verticalAlign: 'top', y: 15 }, labels: [{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.12939912756293137, y: 0.1542647658863953 }, text: 'US Stock Market', style: {color: '#3366CC' } },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.08377102769957467, y: 0.11229189751809514 }, text: 'Long Term Treasury', style: {color: '#DC3912' } },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.1079835740013173, y: 0.09921610876930449 }, text: 'Tangency Portfolio' }], shapes: [{ point: { xAxis: 0, yAxis: 0, x: 0.12939912756293137, y: 0.1542647658863953 }, type: 'circle', r: 4, fill: '#3366CC', stroke: '#3366CC' },{ point: { xAxis: 0, yAxis: 0, x: 0.08377102769957467, y: 0.11229189751809514 }, type: 'circle', r: 4, fill: '#DC3912', stroke: '#DC3912' }]}] };
+return [chart2, null, null];
+}
+</script>
+<div id="chartDiv3" style="min-width: 900px; min-height: 650px; max-width: 1350px; max-height: 975px;"></div>
+<script>
+function getChartData3() {
+var chart3 = { chart: { type: 'area', }, title: { text: 'Efficient Frontier Transition Map (Jan 1978 - May 2022)' }, plotOptions: { area: { stacking: 'normal', marker: { radius: 2 } } },xAxis: { title: { text: 'Standard Deviation'} , labels: { formatter: function() { return (100.0*this.value).toFixed(1) + '%'; }}, bogus: true},yAxis: { title: {text: 'Allocation'} , min: 0, max: 1 , labels: { formatter: function() { return (100.0*this.value).toFixed(1) + '%'; } }},tooltip: { formatter: function () { var s = '<b>' + (100.0*this.x).toFixed(2) + '%' + '</b>'; $.each(this.points, function () { s += '<br/><span style="color:'+ this.series.color+ '">\u25CF </span>' + this.series.name + ': ' + (100.0*this.y).toFixed(2) + '%'; }); return s; } }, series: [{ name: 'US Stock Market', data: [[0.09227894212939478,0.34343524696045147],[0.09230753260086817,0.35353619876945475],[0.09237499783125996,0.36363715057845747],[0.09248125274300202,0.37373810238746075],[0.09262616384493932,0.3838390541964639],[0.09280955006608352,0.39394000600546675],[0.0930311838763378,0.40404095781447],[0.0932907926781731,0.41414190962347275],[0.09358806044969395,0.4242428614324759],[0.09392262961647771,0.4343438132414792],[0.09429410312706374,0.444444765050482],[0.09470204670504963,0.4545457168594852],[0.09514599124943866,0.4646466686684879],[0.09562543535417714,0.4747476204774912],[0.09613984791769935,0.4848485722864945],[0.0966886708137287,0.4949495240954972],[0.09727132159551254,0.5050504759045005],[0.09788719620703434,0.5151514277135032],[0.09853567167648501,0.5252523795225065],[0.09921610876930449,0.5353533313315098],[0.09992785458036037,0.5454542831405125],[0.10067024504723149,0.5555552349495156],[0.10144260736904592,0.5656561867585185],[0.1022442623178239,0.5757571385675218],[0.10307452643173456,0.5858580903765249],[0.10393271408205164,0.5959590421855276],[0.10481813940784031,0.6060599939945309],[0.10573011811450027,0.6161609458035338],[0.10666796913420498,0.6262618976125369],[0.10763101614799535,0.6363628494215402],[0.10861858897080709,0.6464638012305429],[0.10963002480202697,0.6565647530395462],[0.11066466934528715,0.6666657048485489],[0.11172187780213517,0.6767666566575522],[0.1128010157449547,0.6868676084665555],[0.1139014598750893,0.6969685602755582],[0.11502259867254103,0.7070695120845614],[0.11616383294389475,0.7171704638935641],[0.11732457627528234,0.7272714157025675],[0.11850425539725054,0.7373723675115706],[0.11970231046836065,0.7474733193205734],[0.12091819528423184,0.7575742711295766],[0.12215137741856306,0.7676752229385795],[0.12340133830244163,0.7777761747475826],[0.12466757324797755,0.7878771265565859],[0.12594959142200832,0.7979780783655887],[0.12724691577530126,0.8080790301745919],[0.1285590829323513,0.8181799819835947],[0.1298856430465375,0.8282809337925979],[0.13122615962506376,0.8383818856016012],[0.1325802093277788,0.8484828374106039],[0.13394738174364362,0.8585837892196072],[0.1353272791483,0.8686847410286099],[0.1367195162458939,0.8787856928376132],[0.1381237198980152,0.8888866446466164],[0.13953952884234724,0.8989875964556192],[0.14096659340335907,0.9090885482646224],[0.1424045751971349,0.9191895000736252],[0.14385314683221126,0.9292904518826284],[0.14531199160808378,0.9393914036916317],[0.1467808032128543,0.9494923555006344],[0.14825928542131292,0.9595933073096377],[0.14974715179458595,0.9696942591186404],[0.15124412538233678,0.9797952109276437],[0.15274993842836748,0.9898961627366469],[0.15426433208035117,0.9999971145456497]]},{ name: 'Long Term Treasury', data: [[0.09227894212939478,0.656564753039549],[0.09230753260086817,0.6464638012305457],[0.09237499783125996,0.636362849421543],[0.09248125274300202,0.6262618976125397],[0.09262616384493932,0.6161609458035365],[0.09280955006608352,0.6060599939945337],[0.0930311838763378,0.5959590421855304],[0.0932907926781731,0.5858580903765277],[0.09358806044969395,0.5757571385675245],[0.09392262961647771,0.5656561867585213],[0.09429410312706374,0.5555552349495184],[0.09470204670504963,0.5454542831405153],[0.09514599124943866,0.5353533313315125],[0.09562543535417714,0.5252523795225092],[0.09613984791769935,0.515151427713506],[0.0966886708137287,0.5050504759045032],[0.09727132159551254,0.4949495240955],[0.09788719620703434,0.48484857228649725],[0.09853567167648501,0.47474762047749397],[0.09921610876930449,0.46464666866849075],[0.09992785458036037,0.454545716859488],[0.10067024504723149,0.44444476505048475],[0.10144260736904592,0.43434381324148197],[0.1022442623178239,0.42424286143247875],[0.10307452643173456,0.41414190962347547],[0.10393271408205164,0.40404095781447275],[0.10481813940784031,0.3939400060054695],[0.10573011811450027,0.38383905419646674],[0.10666796913420498,0.37373810238746347],[0.10763101614799535,0.36363715057846024],[0.10861858897080709,0.3535361987694575],[0.10963002480202697,0.3434352469604543],[0.11066466934528715,0.3333342951514515],[0.11172187780213517,0.32323334334244824],[0.1128010157449547,0.313132391533445],[0.1139014598750893,0.3030314397244423],[0.11502259867254103,0.292930487915439],[0.11616383294389475,0.2828295361064363],[0.11732457627528234,0.272728584297433],[0.11850425539725054,0.26262763248842974],[0.11970231046836065,0.252526680679427],[0.12091819528423184,0.24242572887042377],[0.12215137741856306,0.23232477706142102],[0.12340133830244163,0.22222382525241777],[0.12466757324797755,0.21212287344341452],[0.12594959142200832,0.20202192163441177],[0.12724691577530126,0.19192096982540852],[0.1285590829323513,0.18182001801640577],[0.1298856430465375,0.17171906620740252],[0.13122615962506376,0.16161811439839927],[0.1325802093277788,0.15151716258939651],[0.13394738174364362,0.14141621078039326],[0.1353272791483,0.13131525897139054],[0.1367195162458939,0.12121430716238729],[0.1381237198980152,0.11111335535338404],[0.13953952884234724,0.10101240354438128],[0.14096659340335907,0.09091145173537804],[0.1424045751971349,0.08081049992637528],[0.14385314683221126,0.07070954811737204],[0.14531199160808378,0.06060859630836878],[0.1467808032128543,0.05050764449936603],[0.14825928542131292,0.04040669269036279],[0.14974715179458595,0.03030574088136004],[0.15124412538233678,0.020204789072356788],[0.15274993842836748,0.010103837263353541],[0.15426433208035117,2.885454350792397E-6]]}]};
+return [chart3, null, null];
+}
+</script>
+
+        </div>
+        <div role="tabpanel" class="tab-pane" id="correlations">
+            
+            <h3>Efficient Frontier Assets</h3>
+            <table class="table table-condensed table-striped stickyHeaders"><caption class="sr-only">Efficient Frontier Assets</caption><thead><tr><th class="numberCell">#</th><th>Asset</th><th class="numberCell">Expected Return</th><th class="numberCell">Standard Deviation</th><th class="numberCell">Sharpe Ratio</th><th class="numberCell">Min. Weight</th><th class="numberCell">Max. Weight</th></tr></thead><tbody><tr><td class="numberCell">1</td><td>US Stock Market</td><td class="numberCell">12.94%</td><td class="numberCell">15.43%</td><td class="numberCell">0.516</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr><tr><td class="numberCell">2</td><td>Long Term Treasury</td><td class="numberCell">8.38%</td><td class="numberCell">11.23%</td><td class="numberCell">0.339</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr></tbody><tfoot><tr><td colspan="7" class="text-muted">Results based on historical returns. Expected return is the annualized monthly arithmetic mean return. Ex-ante Sharpe Ratio calculated using 3-month treasury bill returns as the risk-free rate.</td></tr></tfoot></table>
+            <h3>Asset Correlations</h3>
+            <table class="table table-condensed table-striped"><caption class="sr-only">Asset Correlations</caption><thead><tr><th>Asset</th><th class="numberCell">US Stock Market</th><th class="numberCell">Long Term Treasury</th></tr></thead><tbody><tr><td>US Stock Market</td><td class="numberCell">1.00</td><td class="numberCell">0.03</td></tr><tr><td>Long Term Treasury</td><td class="numberCell">0.03</td><td class="numberCell">1.00</td></tr></tbody><tfoot><tr><td colspan="3" class="text-muted">Based on monthly returns from Jan 1978 to May 2022</td></tr></tfoot></table>
+            
+        </div>
+
+        
+        <div role="tabpanel" class="tab-pane" id="tableTab">
+            <table class="table table-condensed table-striped stickyHeaders"><caption class="sr-only">Efficient Frontier Points</caption><thead><tr><th class="numberCell">#</th><th class="numberCell">US Stock Market</th><th class="numberCell">Long Term Treasury</th><th class="numberCell">Expected Return<sup>*</sup></th><th class="numberCell">Standard Deviation<sup>*</sup></th><th class="numberCell">Sharpe Ratio<sup>*</sup></th></tr></thead><tbody><tr><td class="numberCell">1</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td><td class="numberCell">8.38%</td><td class="numberCell">11.23%</td><td class="numberCell">0.339</td></tr><tr><td class="numberCell">2</td><td class="numberCell">1.01%</td><td class="numberCell">98.99%</td><td class="numberCell">8.42%</td><td class="numberCell">11.12%</td><td class="numberCell">0.346</td></tr><tr><td class="numberCell">3</td><td class="numberCell">2.02%</td><td class="numberCell">97.98%</td><td class="numberCell">8.47%</td><td class="numberCell">11.02%</td><td class="numberCell">0.353</td></tr><tr><td class="numberCell">4</td><td class="numberCell">3.03%</td><td class="numberCell">96.97%</td><td class="numberCell">8.51%</td><td class="numberCell">10.92%</td><td class="numberCell">0.360</td></tr><tr><td class="numberCell">5</td><td class="numberCell">4.04%</td><td class="numberCell">95.96%</td><td class="numberCell">8.56%</td><td class="numberCell">10.82%</td><td class="numberCell">0.367</td></tr><tr><td class="numberCell">6</td><td class="numberCell">5.05%</td><td class="numberCell">94.95%</td><td class="numberCell">8.60%</td><td class="numberCell">10.72%</td><td class="numberCell">0.375</td></tr><tr><td class="numberCell">7</td><td class="numberCell">6.06%</td><td class="numberCell">93.94%</td><td class="numberCell">8.65%</td><td class="numberCell">10.62%</td><td class="numberCell">0.382</td></tr><tr><td class="numberCell">8</td><td class="numberCell">7.07%</td><td class="numberCell">92.93%</td><td class="numberCell">8.69%</td><td class="numberCell">10.53%</td><td class="numberCell">0.389</td></tr><tr><td class="numberCell">9</td><td class="numberCell">8.08%</td><td class="numberCell">91.92%</td><td class="numberCell">8.74%</td><td class="numberCell">10.44%</td><td class="numberCell">0.397</td></tr><tr><td class="numberCell">10</td><td class="numberCell">9.09%</td><td class="numberCell">90.91%</td><td class="numberCell">8.78%</td><td class="numberCell">10.35%</td><td class="numberCell">0.404</td></tr><tr><td class="numberCell">11</td><td class="numberCell">10.10%</td><td class="numberCell">89.90%</td><td class="numberCell">8.83%</td><td class="numberCell">10.27%</td><td class="numberCell">0.412</td></tr><tr><td class="numberCell">12</td><td class="numberCell">11.11%</td><td class="numberCell">88.89%</td><td class="numberCell">8.88%</td><td class="numberCell">10.19%</td><td class="numberCell">0.419</td></tr><tr><td class="numberCell">13</td><td class="numberCell">12.12%</td><td class="numberCell">87.88%</td><td class="numberCell">8.92%</td><td class="numberCell">10.11%</td><td class="numberCell">0.426</td></tr><tr><td class="numberCell">14</td><td class="numberCell">13.13%</td><td class="numberCell">86.87%</td><td class="numberCell">8.97%</td><td class="numberCell">10.03%</td><td class="numberCell">0.434</td></tr><tr><td class="numberCell">15</td><td class="numberCell">14.14%</td><td class="numberCell">85.86%</td><td class="numberCell">9.01%</td><td class="numberCell">9.96%</td><td class="numberCell">0.441</td></tr><tr><td class="numberCell">16</td><td class="numberCell">15.15%</td><td class="numberCell">84.85%</td><td class="numberCell">9.06%</td><td class="numberCell">9.89%</td><td class="numberCell">0.449</td></tr><tr><td class="numberCell">17</td><td class="numberCell">16.16%</td><td class="numberCell">83.84%</td><td class="numberCell">9.10%</td><td class="numberCell">9.82%</td><td class="numberCell">0.456</td></tr><tr><td class="numberCell">18</td><td class="numberCell">17.17%</td><td class="numberCell">82.83%</td><td class="numberCell">9.15%</td><td class="numberCell">9.76%</td><td class="numberCell">0.463</td></tr><tr><td class="numberCell">19</td><td class="numberCell">18.18%</td><td class="numberCell">81.82%</td><td class="numberCell">9.19%</td><td class="numberCell">9.70%</td><td class="numberCell">0.470</td></tr><tr><td class="numberCell">20</td><td class="numberCell">19.19%</td><td class="numberCell">80.81%</td><td class="numberCell">9.24%</td><td class="numberCell">9.64%</td><td class="numberCell">0.477</td></tr><tr><td class="numberCell">21</td><td class="numberCell">20.20%</td><td class="numberCell">79.80%</td><td class="numberCell">9.29%</td><td class="numberCell">9.59%</td><td class="numberCell">0.484</td></tr><tr><td class="numberCell">22</td><td class="numberCell">21.21%</td><td class="numberCell">78.79%</td><td class="numberCell">9.33%</td><td class="numberCell">9.54%</td><td class="numberCell">0.491</td></tr><tr><td class="numberCell">23</td><td class="numberCell">22.22%</td><td class="numberCell">77.78%</td><td class="numberCell">9.38%</td><td class="numberCell">9.49%</td><td class="numberCell">0.498</td></tr><tr><td class="numberCell">24</td><td class="numberCell">23.23%</td><td class="numberCell">76.77%</td><td class="numberCell">9.42%</td><td class="numberCell">9.45%</td><td class="numberCell">0.505</td></tr><tr><td class="numberCell">25</td><td class="numberCell">24.24%</td><td class="numberCell">75.76%</td><td class="numberCell">9.47%</td><td class="numberCell">9.41%</td><td class="numberCell">0.512</td></tr><tr><td class="numberCell">26</td><td class="numberCell">25.25%</td><td class="numberCell">74.75%</td><td class="numberCell">9.51%</td><td class="numberCell">9.38%</td><td class="numberCell">0.518</td></tr><tr><td class="numberCell">27</td><td class="numberCell">26.26%</td><td class="numberCell">73.74%</td><td class="numberCell">9.56%</td><td class="numberCell">9.34%</td><td class="numberCell">0.524</td></tr><tr><td class="numberCell">28</td><td class="numberCell">27.27%</td><td class="numberCell">72.73%</td><td class="numberCell">9.60%</td><td class="numberCell">9.32%</td><td class="numberCell">0.530</td></tr><tr><td class="numberCell">29</td><td class="numberCell">28.28%</td><td class="numberCell">71.72%</td><td class="numberCell">9.65%</td><td class="numberCell">9.29%</td><td class="numberCell">0.536</td></tr><tr><td class="numberCell">30</td><td class="numberCell">29.29%</td><td class="numberCell">70.71%</td><td class="numberCell">9.70%</td><td class="numberCell">9.27%</td><td class="numberCell">0.542</td></tr><tr><td class="numberCell">31</td><td class="numberCell">30.30%</td><td class="numberCell">69.70%</td><td class="numberCell">9.74%</td><td class="numberCell">9.26%</td><td class="numberCell">0.547</td></tr><tr><td class="numberCell">32</td><td class="numberCell">31.31%</td><td class="numberCell">68.69%</td><td class="numberCell">9.79%</td><td class="numberCell">9.24%</td><td class="numberCell">0.553</td></tr><tr><td class="numberCell">33</td><td class="numberCell">32.32%</td><td class="numberCell">67.68%</td><td class="numberCell">9.83%</td><td class="numberCell">9.23%</td><td class="numberCell">0.558</td></tr><tr><td class="numberCell">34</td><td class="numberCell">33.33%</td><td class="numberCell">66.67%</td><td class="numberCell">9.88%</td><td class="numberCell">9.23%</td><td class="numberCell">0.563</td></tr><tr><td class="numberCell">35</td><td class="numberCell">34.34%</td><td class="numberCell">65.66%</td><td class="numberCell">9.92%</td><td class="numberCell">9.23%</td><td class="numberCell">0.567</td></tr><tr><td class="numberCell">36</td><td class="numberCell">35.35%</td><td class="numberCell">64.65%</td><td class="numberCell">9.97%</td><td class="numberCell">9.23%</td><td class="numberCell">0.572</td></tr><tr><td class="numberCell">37</td><td class="numberCell">36.36%</td><td class="numberCell">63.64%</td><td class="numberCell">10.02%</td><td class="numberCell">9.24%</td><td class="numberCell">0.576</td></tr><tr><td class="numberCell">38</td><td class="numberCell">37.37%</td><td class="numberCell">62.63%</td><td class="numberCell">10.06%</td><td class="numberCell">9.25%</td><td class="numberCell">0.580</td></tr><tr><td class="numberCell">39</td><td class="numberCell">38.38%</td><td class="numberCell">61.62%</td><td class="numberCell">10.11%</td><td class="numberCell">9.26%</td><td class="numberCell">0.583</td></tr><tr><td class="numberCell">40</td><td class="numberCell">39.39%</td><td class="numberCell">60.61%</td><td class="numberCell">10.15%</td><td class="numberCell">9.28%</td><td class="numberCell">0.587</td></tr><tr><td class="numberCell">41</td><td class="numberCell">40.40%</td><td class="numberCell">59.60%</td><td class="numberCell">10.20%</td><td class="numberCell">9.30%</td><td class="numberCell">0.590</td></tr><tr><td class="numberCell">42</td><td class="numberCell">41.41%</td><td class="numberCell">58.59%</td><td class="numberCell">10.25%</td><td class="numberCell">9.33%</td><td class="numberCell">0.593</td></tr><tr><td class="numberCell">43</td><td class="numberCell">42.42%</td><td class="numberCell">57.58%</td><td class="numberCell">10.29%</td><td class="numberCell">9.36%</td><td class="numberCell">0.595</td></tr><tr><td class="numberCell">44</td><td class="numberCell">43.43%</td><td class="numberCell">56.57%</td><td class="numberCell">10.34%</td><td class="numberCell">9.39%</td><td class="numberCell">0.598</td></tr><tr><td class="numberCell">45</td><td class="numberCell">44.44%</td><td class="numberCell">55.56%</td><td class="numberCell">10.38%</td><td class="numberCell">9.43%</td><td class="numberCell">0.600</td></tr><tr><td class="numberCell">46</td><td class="numberCell">45.45%</td><td class="numberCell">54.55%</td><td class="numberCell">10.43%</td><td class="numberCell">9.47%</td><td class="numberCell">0.601</td></tr><tr><td class="numberCell">47</td><td class="numberCell">46.46%</td><td class="numberCell">53.54%</td><td class="numberCell">10.48%</td><td class="numberCell">9.51%</td><td class="numberCell">0.603</td></tr><tr><td class="numberCell">48</td><td class="numberCell">47.47%</td><td class="numberCell">52.53%</td><td class="numberCell">10.52%</td><td class="numberCell">9.56%</td><td class="numberCell">0.604</td></tr><tr><td class="numberCell">49</td><td class="numberCell">48.48%</td><td class="numberCell">51.52%</td><td class="numberCell">10.57%</td><td class="numberCell">9.61%</td><td class="numberCell">0.606</td></tr><tr><td class="numberCell">50</td><td class="numberCell">49.49%</td><td class="numberCell">50.51%</td><td class="numberCell">10.61%</td><td class="numberCell">9.67%</td><td class="numberCell">0.607</td></tr><tr><td class="numberCell">51</td><td class="numberCell">50.51%</td><td class="numberCell">49.49%</td><td class="numberCell">10.66%</td><td class="numberCell">9.73%</td><td class="numberCell">0.607</td></tr><tr><td class="numberCell">52</td><td class="numberCell">51.52%</td><td class="numberCell">48.48%</td><td class="numberCell">10.71%</td><td class="numberCell">9.79%</td><td class="numberCell">0.608</td></tr><tr><td class="numberCell">53</td><td class="numberCell">52.53%</td><td class="numberCell">47.47%</td><td class="numberCell">10.75%</td><td class="numberCell">9.85%</td><td class="numberCell">0.608</td></tr><tr><td class="numberCell">54</td><td class="numberCell">53.54%</td><td class="numberCell">46.46%</td><td class="numberCell">10.80%</td><td class="numberCell">9.92%</td><td class="numberCell">0.608</td></tr><tr><td class="numberCell">55</td><td class="numberCell">54.55%</td><td class="numberCell">45.45%</td><td class="numberCell">10.84%</td><td class="numberCell">9.99%</td><td class="numberCell">0.608</td></tr><tr><td class="numberCell">56</td><td class="numberCell">55.56%</td><td class="numberCell">44.44%</td><td class="numberCell">10.89%</td><td class="numberCell">10.07%</td><td class="numberCell">0.608</td></tr><tr><td class="numberCell">57</td><td class="numberCell">56.57%</td><td class="numberCell">43.43%</td><td class="numberCell">10.94%</td><td class="numberCell">10.14%</td><td class="numberCell">0.607</td></tr><tr><td class="numberCell">58</td><td class="numberCell">57.58%</td><td class="numberCell">42.42%</td><td class="numberCell">10.98%</td><td class="numberCell">10.22%</td><td class="numberCell">0.606</td></tr><tr><td class="numberCell">59</td><td class="numberCell">58.59%</td><td class="numberCell">41.41%</td><td class="numberCell">11.03%</td><td class="numberCell">10.31%</td><td class="numberCell">0.606</td></tr><tr><td class="numberCell">60</td><td class="numberCell">59.60%</td><td class="numberCell">40.40%</td><td class="numberCell">11.08%</td><td class="numberCell">10.39%</td><td class="numberCell">0.605</td></tr><tr><td class="numberCell">61</td><td class="numberCell">60.61%</td><td class="numberCell">39.39%</td><td class="numberCell">11.12%</td><td class="numberCell">10.48%</td><td class="numberCell">0.604</td></tr><tr><td class="numberCell">62</td><td class="numberCell">61.62%</td><td class="numberCell">38.38%</td><td class="numberCell">11.17%</td><td class="numberCell">10.57%</td><td class="numberCell">0.602</td></tr><tr><td class="numberCell">63</td><td class="numberCell">62.63%</td><td class="numberCell">37.37%</td><td class="numberCell">11.21%</td><td class="numberCell">10.67%</td><td class="numberCell">0.601</td></tr><tr><td class="numberCell">64</td><td class="numberCell">63.64%</td><td class="numberCell">36.36%</td><td class="numberCell">11.26%</td><td class="numberCell">10.76%</td><td class="numberCell">0.599</td></tr><tr><td class="numberCell">65</td><td class="numberCell">64.65%</td><td class="numberCell">35.35%</td><td class="numberCell">11.31%</td><td class="numberCell">10.86%</td><td class="numberCell">0.598</td></tr><tr><td class="numberCell">66</td><td class="numberCell">65.66%</td><td class="numberCell">34.34%</td><td class="numberCell">11.35%</td><td class="numberCell">10.96%</td><td class="numberCell">0.596</td></tr><tr><td class="numberCell">67</td><td class="numberCell">66.67%</td><td class="numberCell">33.33%</td><td class="numberCell">11.40%</td><td class="numberCell">11.07%</td><td class="numberCell">0.594</td></tr><tr><td class="numberCell">68</td><td class="numberCell">67.68%</td><td class="numberCell">32.32%</td><td class="numberCell">11.45%</td><td class="numberCell">11.17%</td><td class="numberCell">0.593</td></tr><tr><td class="numberCell">69</td><td class="numberCell">68.69%</td><td class="numberCell">31.31%</td><td class="numberCell">11.49%</td><td class="numberCell">11.28%</td><td class="numberCell">0.591</td></tr><tr><td class="numberCell">70</td><td class="numberCell">69.70%</td><td class="numberCell">30.30%</td><td class="numberCell">11.54%</td><td class="numberCell">11.39%</td><td class="numberCell">0.589</td></tr><tr><td class="numberCell">71</td><td class="numberCell">70.71%</td><td class="numberCell">29.29%</td><td class="numberCell">11.59%</td><td class="numberCell">11.50%</td><td class="numberCell">0.587</td></tr><tr><td class="numberCell">72</td><td class="numberCell">71.72%</td><td class="numberCell">28.28%</td><td class="numberCell">11.63%</td><td class="numberCell">11.62%</td><td class="numberCell">0.584</td></tr><tr><td class="numberCell">73</td><td class="numberCell">72.73%</td><td class="numberCell">27.27%</td><td class="numberCell">11.68%</td><td class="numberCell">11.73%</td><td class="numberCell">0.582</td></tr><tr><td class="numberCell">74</td><td class="numberCell">73.74%</td><td class="numberCell">26.26%</td><td class="numberCell">11.72%</td><td class="numberCell">11.85%</td><td class="numberCell">0.580</td></tr><tr><td class="numberCell">75</td><td class="numberCell">74.75%</td><td class="numberCell">25.25%</td><td class="numberCell">11.77%</td><td class="numberCell">11.97%</td><td class="numberCell">0.578</td></tr><tr><td class="numberCell">76</td><td class="numberCell">75.76%</td><td class="numberCell">24.24%</td><td class="numberCell">11.82%</td><td class="numberCell">12.09%</td><td class="numberCell">0.575</td></tr><tr><td class="numberCell">77</td><td class="numberCell">76.77%</td><td class="numberCell">23.23%</td><td class="numberCell">11.86%</td><td class="numberCell">12.22%</td><td class="numberCell">0.573</td></tr><tr><td class="numberCell">78</td><td class="numberCell">77.78%</td><td class="numberCell">22.22%</td><td class="numberCell">11.91%</td><td class="numberCell">12.34%</td><td class="numberCell">0.571</td></tr><tr><td class="numberCell">79</td><td class="numberCell">78.79%</td><td class="numberCell">21.21%</td><td class="numberCell">11.96%</td><td class="numberCell">12.47%</td><td class="numberCell">0.568</td></tr><tr><td class="numberCell">80</td><td class="numberCell">79.80%</td><td class="numberCell">20.20%</td><td class="numberCell">12.00%</td><td class="numberCell">12.59%</td><td class="numberCell">0.566</td></tr><tr><td class="numberCell">81</td><td class="numberCell">80.81%</td><td class="numberCell">19.19%</td><td class="numberCell">12.05%</td><td class="numberCell">12.72%</td><td class="numberCell">0.563</td></tr><tr><td class="numberCell">82</td><td class="numberCell">81.82%</td><td class="numberCell">18.18%</td><td class="numberCell">12.10%</td><td class="numberCell">12.86%</td><td class="numberCell">0.561</td></tr><tr><td class="numberCell">83</td><td class="numberCell">82.83%</td><td class="numberCell">17.17%</td><td class="numberCell">12.14%</td><td class="numberCell">12.99%</td><td class="numberCell">0.558</td></tr><tr><td class="numberCell">84</td><td class="numberCell">83.84%</td><td class="numberCell">16.16%</td><td class="numberCell">12.19%</td><td class="numberCell">13.12%</td><td class="numberCell">0.556</td></tr><tr><td class="numberCell">85</td><td class="numberCell">84.85%</td><td class="numberCell">15.15%</td><td class="numberCell">12.24%</td><td class="numberCell">13.26%</td><td class="numberCell">0.553</td></tr><tr><td class="numberCell">86</td><td class="numberCell">85.86%</td><td class="numberCell">14.14%</td><td class="numberCell">12.28%</td><td class="numberCell">13.39%</td><td class="numberCell">0.551</td></tr><tr><td class="numberCell">87</td><td class="numberCell">86.87%</td><td class="numberCell">13.13%</td><td class="numberCell">12.33%</td><td class="numberCell">13.53%</td><td class="numberCell">0.548</td></tr><tr><td class="numberCell">88</td><td class="numberCell">87.88%</td><td class="numberCell">12.12%</td><td class="numberCell">12.38%</td><td class="numberCell">13.67%</td><td class="numberCell">0.546</td></tr><tr><td class="numberCell">89</td><td class="numberCell">88.89%</td><td class="numberCell">11.11%</td><td class="numberCell">12.42%</td><td class="numberCell">13.81%</td><td class="numberCell">0.543</td></tr><tr><td class="numberCell">90</td><td class="numberCell">89.90%</td><td class="numberCell">10.10%</td><td class="numberCell">12.47%</td><td class="numberCell">13.95%</td><td class="numberCell">0.541</td></tr><tr><td class="numberCell">91</td><td class="numberCell">90.91%</td><td class="numberCell">9.09%</td><td class="numberCell">12.52%</td><td class="numberCell">14.10%</td><td class="numberCell">0.538</td></tr><tr><td class="numberCell">92</td><td class="numberCell">91.92%</td><td class="numberCell">8.08%</td><td class="numberCell">12.56%</td><td class="numberCell">14.24%</td><td class="numberCell">0.536</td></tr><tr><td class="numberCell">93</td><td class="numberCell">92.93%</td><td class="numberCell">7.07%</td><td class="numberCell">12.61%</td><td class="numberCell">14.39%</td><td class="numberCell">0.533</td></tr><tr><td class="numberCell">94</td><td class="numberCell">93.94%</td><td class="numberCell">6.06%</td><td class="numberCell">12.66%</td><td class="numberCell">14.53%</td><td class="numberCell">0.531</td></tr><tr><td class="numberCell">95</td><td class="numberCell">94.95%</td><td class="numberCell">5.05%</td><td class="numberCell">12.71%</td><td class="numberCell">14.68%</td><td class="numberCell">0.528</td></tr><tr><td class="numberCell">96</td><td class="numberCell">95.96%</td><td class="numberCell">4.04%</td><td class="numberCell">12.75%</td><td class="numberCell">14.83%</td><td class="numberCell">0.526</td></tr><tr><td class="numberCell">97</td><td class="numberCell">96.97%</td><td class="numberCell">3.03%</td><td class="numberCell">12.80%</td><td class="numberCell">14.97%</td><td class="numberCell">0.523</td></tr><tr><td class="numberCell">98</td><td class="numberCell">97.98%</td><td class="numberCell">2.02%</td><td class="numberCell">12.85%</td><td class="numberCell">15.12%</td><td class="numberCell">0.521</td></tr><tr><td class="numberCell">99</td><td class="numberCell">98.99%</td><td class="numberCell">1.01%</td><td class="numberCell">12.89%</td><td class="numberCell">15.27%</td><td class="numberCell">0.519</td></tr><tr><td class="numberCell">100</td><td class="numberCell">100.00%</td><td class="numberCell">0.00%</td><td class="numberCell">12.94%</td><td class="numberCell">15.43%</td><td class="numberCell">0.516</td></tr></tbody><tfoot><tr><td colspan="6" class="text-muted"><sup>*</sup>Annualized ex-ante values shown for portfolio return and volatility. Ex-ante Sharpe Ratio calculated using historical 3-month treasury bill returns as the risk-free rate.</td></tr></tfoot></table>
+        </div>
+        
+
+        
+
+        <div id="resultNotes" class="well well-small">
+Notes on results:
+<ul>
+<li>IMPORTANT: The projections or other information generated by Portfolio Visualizer regarding the likelihood of various investment outcomes are hypothetical in nature, do not reflect actual investment results and are not guarantees of future results. Results may vary with each use and over time.</li>
+<li>The results do not constitute investment advice or recommendation, are provided solely for informational purposes, and are not an offer to buy or sell any securities. All use is subject to <a href="terms-of-service.html">terms of service</a>.</li>
+<li>Investing involves risk, including possible loss of principal. Past performance is not a guarantee of future results.</li>
+<li>Asset allocation and diversification strategies do not guarantee a profit or protect against a loss.</li>
+<li>Hypothetical returns do not reflect trading costs, transaction fees, commissions, or actual taxes due on investment returns.</li>
+<li>The results are based on information from a variety of sources we consider reliable, but we do not represent that the information is accurate or complete.</li>
+<li>Refer to the related documentation sections for more details on <a href="faq.html#definitions">terms and definitions</a>, <a href="faq.html#methodology">methodology</a>, and <a href="faq.html#marketData">data sources</a>.</li>
+<li>Portfolio optimization is a process of choosing the proportions of various assets to be held in a portfolio in such a way as to make the portfolio better than any other combination according to the selected objective function such as maximizing risk-adjusted return. Portfolio optimization determines target weights for portfolio assets based on mathematical models that can use either historical or forecasted data as inputs. Optimization results are not guarantees of future performance.</li>
+<li>The results are based on the total return of assets and assume that all received dividends and distributions are reinvested.</li>
+<li>Historical asset statistics are based on monthly returns from Jan 1978 to May 2022</li>
+<li>The efficient frontier is based on the monthly returns, volatilities, and correlations of the specified assets</li>
+<li>The displayed standard deviation and expected return in the efficient frontier are annualized from the monthly returns</li>
+<li>Ex-ante Sharpe Ratio for the efficient frontier data points is calculated using historical 3-month treasury bill returns as the risk free rate</li>
+</ul>
+</div>
+
+    </div>
+    
+</div>
+
+
+
+<div id="symbolPicker" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="symbolPickerTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2 class="modal-title" id="symbolPickerTitle">Find ETF, Mutual Fund or Stock Symbol</h2>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="assetType" class="control-label col-sm-2">Type</label>
+                        <div class="col-sm-4">
+                            <select name="assetType" id="assetType" class="form-control">
+                                <option value="2">ETF</option>
+                                <option value="5">Mutual Fund</option>
+                                <option value="4">Closed-End Fund</option>
+                                <option value="1">Stock</option>
+                                <option value="10">Asset Class</option>
+                                
+                                
+                                <option value="6">Cash</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="assetSearch" class="control-label col-sm-2">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="assetSearch" name="assetSearch" class="form-control typeahead" placeholder="Enter partial name (3 or more characters)" autofocus>
+                            <p class="help-block">Example: &quot;vanguard bond&quot;</p>
+                        </div>
+                    </div>
+                    <div class="form-group norender">
+                        <label for="cashAsset" class="control-label col-sm-2">Cash Asset</label>
+                        <div class="col-sm-10">
+                            <select name="cashAsset" id="cashAsset" class="form-control">
+                                <option value="CASHX">Money Market</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group norender" >
+                        <label for="assetClassAsset" class="control-label col-sm-2">Asset Class</label>
+                        <div class="col-sm-10">
+                            <select name="assetClassAsset" id="assetClassAsset" class="form-control">
+                                <optgroup label="US Equity">
+
+                                <option value="VTSMX">US Stock Market (VTSMX)</option>
+                                
+                                <option value="VFINX">US Large Cap (VFINX)</option>
+                                
+                                <option value="VIVAX">US Large Cap Value (VIVAX)</option>
+                                
+                                <option value="VIGRX">US Large Cap Growth (VIGRX)</option>
+                                
+                                <option value="VIMSX">US Mid Cap (VIMSX)</option>
+                                
+                                <option value="VMVIX">US Mid Cap Value (VMVIX)</option>
+                                
+                                <option value="VMGIX">US Mid Cap Growth (VMGIX)</option>
+                                
+                                <option value="NAESX">US Small Cap (NAESX)</option>
+                                
+                                <option value="VISVX">US Small Cap Value (VISVX)</option>
+                                
+                                <option value="VISGX">US Small Cap Growth (VISGX)</option>
+                                
+                                <option value="BRSIX">US Micro Cap (BRSIX)</option>
+                                </optgroup>
+<optgroup label="International Equity">
+
+                                <option value="VGTSX">Global ex-US Stock Market (VGTSX)</option>
+                                
+                                <option value="VTMGX">Intl Developed ex-US Market (VTMGX)</option>
+                                
+                                <option value="VSS">International ex-US Small Cap (VSS)</option>
+                                
+                                <option value="EFV">International ex-US Value (EFV)</option>
+                                
+                                <option value="VEURX">European Stocks (VEURX)</option>
+                                
+                                <option value="VPACX">Pacific Stocks (VPACX)</option>
+                                
+                                <option value="VEIEX">Emerging Markets (VEIEX)</option>
+                                </optgroup>
+<optgroup label="Fixed Income">
+
+                                <option value="CASHX">Cash (CASHX)</option>
+                                
+                                <option value="VFISX">Short Term Treasury (VFISX)</option>
+                                
+                                <option value="VFITX">Intermediate Term Treasury (VFITX)</option>
+                                
+                                <option value="IEF">10-year Treasury (IEF)</option>
+                                
+                                <option value="VUSTX">Long Term Treasury (VUSTX)</option>
+                                
+                                <option value="VBMFX">Total US Bond Market (VBMFX)</option>
+                                
+                                <option value="VIPSX">TIPS (VIPSX)</option>
+                                
+                                <option value="PIGLX">Global Bonds (Unhedged) (PIGLX)</option>
+                                
+                                <option value="PGBIX">Global Bonds (USD Hedged) (PGBIX)</option>
+                                
+                                <option value="VFSTX">Short-Term Investment Grade (VFSTX)</option>
+                                
+                                <option value="LQD">Corporate Bonds (LQD)</option>
+                                
+                                <option value="VWESX">Long-Term Corporate Bonds (VWESX)</option>
+                                
+                                <option value="VWEHX">High Yield Corporate Bonds (VWEHX)</option>
+                                
+                                <option value="VWSTX">Short-Term Tax-Exempt (VWSTX)</option>
+                                
+                                <option value="VWITX">Intermediate-Term Tax-Exempt (VWITX)</option>
+                                
+                                <option value="VWLTX">Long-Term Tax-Exempt (VWLTX)</option>
+                                </optgroup>
+<optgroup label="Alternatives">
+
+                                <option value="VGSIX">REIT (VGSIX)</option>
+                                
+                                <option value="GLD">Gold (GLD)</option>
+                                
+                                <option value="GDX">Precious Metals (GDX)</option>
+                                
+                                <option value="GSG">Commodities (GSG)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="form-buttons modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectTicker">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="importDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="importDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="importConfigForm" action="https://www.portfoliovisualizer.com/import" method="POST" data-messages="#importMessages" enctype="multipart/form-data">
+        <input type="hidden" id="importType" name="importType" value="portfolio">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="importDialogTitle">Import Portfolio</h2>
+                </div>
+                <div class="modal-body">
+                    <p id="importPortfolioInfo">
+                        You can upload a portfolio asset allocation by selecting a file below.
+                        The import uses a standard Excel or CSV file format with a ticker symbol followed by asset balance or weight on each row,
+                        and you can <a href="faq.html#portfolios">download sample files</a> for the supported data formats from the related documentation section.
+                    </p>
+                    <p id="importListInfo" class="norender">
+                        You can upload a list of tickers by selecting either a text file of an Excel file below.
+                        The tickers in the file can be listed either on separate lines or on the same line.
+                    </p>
+                    <div id="importMessages"></div>
+
+                    <div class="form-group">
+                        <label for="portfolio" class="control-label col-sm-2">File</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="hidden_jaws"><label for="portfolio_info">File</label></span>
+                                <input class="form-control" type="text" name="portfolio_info" id="portfolio_info" readonly>
+                                <span class="input-group-btn">
+                                    <span class="btn btn-default btn-file">
+                                    Browse...
+                                    <input type="file" id="portfolio" name="portfolio" accept=".csv,.xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,text/plain">
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="importConfigButton">Upload</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div id="confirmDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="confirmActionForm">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="confirmDialogTitle">Confirm Action</h2>
+                </div>
+                <div class="modal-body">
+                    <span id="confirmText"></span>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelConfirmButton">Cancel</button>
+                    <button type="button" class="btn" data-dismiss="modal" id="confirmButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+
+<div id="footer" class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-5">
+                <span class="text-muted">&copy; 2022 Silicon Cloud Technologies LLC</span>
+            </div>
+            <div class="col-sm-1">
+                <a href="about.html">About</a>
+            </div>
+            <div class="col-sm-1">
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="col-sm-1">
+                <a href="pricing.html">Pricing</a>
+            </div>
+            
+            <div class="col-sm-2">
+                <a href="terms-of-service.html">Terms of Service</a>
+            </div>
+            <div class="col-sm-2">
+                <a href="privacy-policy.html">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="../cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="jquery/jquery-3.4.1.min.js">\x3C/script>')</script>           
+<script src="../cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script>jQuery.fn.modal || document.write('<script src="bootstrap/js/bootstrap.min6bf2.js?v=341">\x3C/script>')</script>    
+
+
+<script src="javascript/merged-cd97b9efd972c726e07a723ff74b40a0.min.js"></script>
+
+<script src="../code.highcharts.com/highcharts.html"></script>
+<script>(typeof Highcharts !== 'undefined') || document.write('<script src="highcharts/highcharts465b.js?v=820">\x3C/script>')</script>
+<script src="../code.highcharts.com/modules/annotations.html"></script>
+<script src="../code.highcharts.com/modules/histogram-bellcurve.html"></script>
+
+
+<script>
+$(function() {
+    $.each(q, function(index, f) {
+        f.call(document);
+    });
+    postPageInit();
+});
+</script>
+
+
+</body>
+
+
+</html>

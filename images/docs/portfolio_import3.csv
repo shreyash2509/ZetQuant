@@ -1,0 +1,8 @@
+"Portfolio example with asset weights, capital market expectations, and allocation constraints."
+
+Symbol,Weight,Mean,Volatility,MinWeight,MaxWeight,Group
+VTI,40%,6%,16%,15%,80%,A
+EFA,20%,5%,18%,5%,80%,B
+VNQ,10%,5%,20%,5%,80%,D
+BND,20%,3%,5%,20%,80%,C
+GLD,10%,3%,15%,5%,20%,D

@@ -1,0 +1,1704 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <title>Efficient Frontier</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta name="description" content="Calculate and plot efficient frontier for the given asset classes, mutual funds, ETFs or stocks">
+    <meta name="keywords" content="efficient frontier,portfolio efficient frontier,modern portfolio theory,efficient frontier chart,Markowitz">
+    <link rel="canonical" href="efficient-frontier.html">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="css/merged-4b5ddc42c451e5d0b325c5d10e865f35.min.css">
+
+
+
+<script>
+var autoCompleteTickers=true;
+var showFullName=false;
+var enableExport=false;
+var expiredAccount=false;
+var enablePDF=false;
+var bookmarkURL="efficient-frontieree0e.html?s=y&amp;type=1&amp;mode=2&amp;robustOptimization=true&amp;groupConstraints=false&amp;minimumVarianceFrontier=false&amp;symbol1=SPY&amp;allocation1_1=12.50&amp;symbol2=SLY&amp;allocation2_1=12.50&amp;symbol3=EFA&amp;allocation3_1=12.50&amp;symbol4=EEM&amp;allocation4_1=12.50&amp;symbol5=VNQ&amp;allocation5_1=12.50&amp;symbol6=TLT&amp;allocation6_1=12.50&amp;symbol7=LQD&amp;allocation7_1=12.50&amp;symbol8=GLD&amp;allocation8_1=12.50";
+var showBookmarkLink=true;
+var showExportLinks=true;
+window.q=[];window.$=function(f){q.push(f)}
+</script>
+
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-43200681-1', 'portfoliovisualizer.com');
+    ga('send', 'pageview');
+</script>
+
+
+
+
+    <script>
+        var addRowsLinkText="More";
+        $(function() {
+            toggleForm();
+            $("#toggleEF1").on('click', function (e) {
+                var checked=$('#toggleEF1').is(':checked');
+                $("input[id^='ff']").prop('checked', checked);
+            });
+            $("#toggleEF2").on('click', function (e) {
+                var checked=$('#toggleEF2').is(':checked');
+                $("input[id^='sf']").prop('checked', checked);
+            });
+            $("#robustOptimization").on('change', function (e) {
+                toggleForm();
+            });
+            $("#excessReturns").on('change', function (e) {
+                toggleForm();
+            });
+            $("#benchmark").on('change', function (e) {
+                toggleForm();
+            });
+            $("#geometric").on('change', function (e) {
+                toggleForm();
+            });
+        });
+        function toggleForm() {
+            var dualFrontier=$("#type").val()==2;
+            var groupConstraints=$("#groupConstraints").val()=='true';
+            var resampling=$("#robustOptimization").val()=='true';
+            var geometric=$("#geometric").val()=='true';
+            var showExcessReturnOption=!(dualFrontier || geometric);
+            var excessReturns=$("#excessReturns").val()=='true' && showExcessReturnOption;
+
+            $("#excessReturns").closest('.form-group').toggle(showExcessReturnOption);
+            if(!showExcessReturnOption) {
+                $("#excessReturns").val('false').trigger("chosen:updated");
+            }
+            $("#benchmark").closest('.form-group').toggle(excessReturns);
+            $("#benchmarkSymbol").closest('.form-group').toggle(excessReturns && $('#benchmark').val()==-1);
+            if(resampling || excessReturns) {
+                $("#geometric").val('false').trigger("chosen:updated");
+            }
+            $("#geometric").closest('.form-group').toggle(!(resampling || excessReturns));
+            $("#minimumVarianceFrontier").closest('.form-group').toggle(!excessReturns);
+
+            if(dualFrontier && groupConstraints) {
+                $(".weight-column").hide();
+                $(".totals-row").hide();
+                $(".frontier").toggle(dualFrontier);
+                clearAllocations(1);
+            }
+            else {
+                $(".frontier").toggle(dualFrontier);
+                $(".weight-column").show();
+                $(".totals-row").show();
+            }
+            $(".groupConstraint").toggle(groupConstraints);
+        }
+        function switchType() {
+            var field=$('#submitType');
+            if(field.val()!='Refresh') {
+                clearPortfolios();
+                field.val('Refresh');
+                field.prop('form').submit();
+            }
+        }
+    </script>
+</head>
+<body>
+
+
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html"> PORTFOLIO <span class="pv-brand">VISUALIZER</span></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html" class="navbar-optional">Contact</a></li>
+                
+                <li><a href="pricing.html" class="navbar-optional">Pricing</a></li>
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Portfolio Analysis</li>
+                        <li><a href="backtest-asset-class-allocation.html">Backtest Asset Class Allocation</a></li>
+                        <li><a href="backtest-portfolio.html">Backtest Portfolio</a></li>
+                        <li><a href="monte-carlo-simulation.html">Monte Carlo Simulation</a></li>
+                        <li><a href="financial-goals.html">Financial Goals</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Optimization</li>
+                        <li><a href="efficient-frontier.html">Historical Efficient Frontier</a></li>
+                        <li><a href="efficient-frontier-forecast.html">Forecasted Efficient Frontier</a></li>
+                        <li><a href="optimize-portfolio.html">Portfolio Optimization</a></li>
+                        <li><a href="black-litterman-model.html">Black-Litterman Model</a></li>
+                        <li><a href="rolling-optimization.html">Rolling Optimization</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Asset Analytics</li>
+                        <li><a href="fund-screener.html">Fund Screener</a></li>
+                        <li><a href="fund-performance.html">Fund Performance</a></li>
+                        <li><a href="asset-correlations.html">Asset Correlations</a></li>
+                        <li><a href="asset-class-correlations.html">Asset Class Correlations</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Factor Analysis</li>
+                        <li><a href="factor-analysis.html">Factor Regression</a></li>
+                        <li><a href="risk-factor-allocation.html">Risk Factor Allocation</a></li>
+                        <li><a href="etf-and-mutual-fund-factor-regressions.html">Fund and ETF Factor Regressions</a></li>
+                        <li><a href="factor-performance-attribution.html">Factor Performance Attribution</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Market Timing</li>
+                        <li><a href="test-market-timing-model.html">Market Timing Models</a></li>
+                        <li><a href="test-market-timing-model5fea.html?timingModel=4&amp;coreSatellite=true">Core-Satellite</a></li>
+                    </ul>
+                </li>
+                
+                <li><div><a href="sign-up.html" class="btn btn-success navbar-btn">Sign Up</a></div></li>
+                <li><div><a href="login.html" class="btn btn-primary navbar-btn">Log In</a></div></li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="container-fluid">
+<h1>Efficient Frontier</h1>
+<p>
+    This tool uses mean-variance optimization to calculate and plot the efficient frontier for the specified asset classes, mutual funds, ETFs or stocks for the specified time period. The efficient frontier shows the set of optimal portfolios that provide the best possible expected return for the level of risk in the portfolio. Monte Carlo method can be used for more robust optimization that resamples the optimization inputs in order to mitigate the impact of input estimation errors and improve diversification. You can also use the <a href="efficient-frontier-forecast.html">efficient frontier forecast</a> tool to specify expected future returns for the assets. The required inputs for the efficient frontier include the portfolio assets. You can optionally specify the asset allocation and allocation constraints for the portfolio assets. If an asset allocation is specified, the provided portfolio will be rendered on the efficient frontier chart.
+</p>
+
+
+
+<form action="https://www.portfoliovisualizer.com/efficient-frontier#analysisResults" method="post" class="form-horizontal"  novalidate>
+
+    <input type="hidden" id="submitType" name="submitType" value="">
+    <div class="form-group">
+<label for="type" class="control-label col-sm-2">Chart <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Optionally render two efficient frontiers based on different assets in the same chart"></span>
+</label>
+<div class="col-sm-4">
+<select id="type" name="type" class="form-control" onchange="toggleForm()" >
+<option value="1" selected>Single Efficient Frontier</option>
+<option value="2">Dual Efficient Frontier</option>
+</select>
+</div>
+</div>
+
+    
+    <div class="form-group">
+<label for="mode" class="control-label col-sm-2">Portfolio Type <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Use asset class level or security level portfolios"></span>
+</label>
+<div class="col-sm-4">
+<select id="mode" name="mode" class="form-control" onchange="switchType()" >
+<option value="1">Asset Classes</option>
+<option value="2" selected>Tickers</option>
+</select>
+</div>
+</div>
+
+    
+    <div class="form-group">
+<label for="startYear" class="control-label col-sm-2">Start Year <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Start year for historical asset data"></span>
+</label>
+<div class="col-sm-2">
+<select id="startYear" name="startYear" class="form-control" >
+<option value="1972" selected>1972</option>
+<option value="1973">1973</option>
+<option value="1974">1974</option>
+<option value="1975">1975</option>
+<option value="1976">1976</option>
+<option value="1977">1977</option>
+<option value="1978">1978</option>
+<option value="1979">1979</option>
+<option value="1980">1980</option>
+<option value="1981">1981</option>
+<option value="1982">1982</option>
+<option value="1983">1983</option>
+<option value="1984">1984</option>
+<option value="1985">1985</option>
+<option value="1986">1986</option>
+<option value="1987">1987</option>
+<option value="1988">1988</option>
+<option value="1989">1989</option>
+<option value="1990">1990</option>
+<option value="1991">1991</option>
+<option value="1992">1992</option>
+<option value="1993">1993</option>
+<option value="1994">1994</option>
+<option value="1995">1995</option>
+<option value="1996">1996</option>
+<option value="1997">1997</option>
+<option value="1998">1998</option>
+<option value="1999">1999</option>
+<option value="2000">2000</option>
+<option value="2001">2001</option>
+<option value="2002">2002</option>
+<option value="2003">2003</option>
+<option value="2004">2004</option>
+<option value="2005">2005</option>
+<option value="2006">2006</option>
+<option value="2007">2007</option>
+<option value="2008">2008</option>
+<option value="2009">2009</option>
+<option value="2010">2010</option>
+<option value="2011">2011</option>
+<option value="2012">2012</option>
+<option value="2013">2013</option>
+<option value="2014">2014</option>
+<option value="2015">2015</option>
+<option value="2016">2016</option>
+<option value="2017">2017</option>
+<option value="2018">2018</option>
+<option value="2019">2019</option>
+<option value="2020">2020</option>
+<option value="2021">2021</option>
+<option value="2022">2022</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="endYear" class="control-label col-sm-2">End Year <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="End year for historical asset data"></span>
+</label>
+<div class="col-sm-2">
+<select id="endYear" name="endYear" class="form-control" >
+<option value="1972">1972</option>
+<option value="1973">1973</option>
+<option value="1974">1974</option>
+<option value="1975">1975</option>
+<option value="1976">1976</option>
+<option value="1977">1977</option>
+<option value="1978">1978</option>
+<option value="1979">1979</option>
+<option value="1980">1980</option>
+<option value="1981">1981</option>
+<option value="1982">1982</option>
+<option value="1983">1983</option>
+<option value="1984">1984</option>
+<option value="1985">1985</option>
+<option value="1986">1986</option>
+<option value="1987">1987</option>
+<option value="1988">1988</option>
+<option value="1989">1989</option>
+<option value="1990">1990</option>
+<option value="1991">1991</option>
+<option value="1992">1992</option>
+<option value="1993">1993</option>
+<option value="1994">1994</option>
+<option value="1995">1995</option>
+<option value="1996">1996</option>
+<option value="1997">1997</option>
+<option value="1998">1998</option>
+<option value="1999">1999</option>
+<option value="2000">2000</option>
+<option value="2001">2001</option>
+<option value="2002">2002</option>
+<option value="2003">2003</option>
+<option value="2004">2004</option>
+<option value="2005">2005</option>
+<option value="2006">2006</option>
+<option value="2007">2007</option>
+<option value="2008">2008</option>
+<option value="2009">2009</option>
+<option value="2010">2010</option>
+<option value="2011">2011</option>
+<option value="2012">2012</option>
+<option value="2013">2013</option>
+<option value="2014">2014</option>
+<option value="2015">2015</option>
+<option value="2016">2016</option>
+<option value="2017">2017</option>
+<option value="2018">2018</option>
+<option value="2019">2019</option>
+<option value="2020">2020</option>
+<option value="2021">2021</option>
+<option value="2022" selected>2022</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="robustOptimization" class="control-label col-sm-2">Robust Optimization <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Use Monte Carlo method to resample the efficient frontier inputs"></span>
+</label>
+<div class="col-sm-2">
+<select id="robustOptimization" name="robustOptimization" class="form-control" >
+<option value="false">No</option>
+<option value="true" selected>Yes</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="groupConstraints" class="control-label col-sm-2">Group Constraints <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify asset group level allocation constraints"></span>
+</label>
+<div class="col-sm-2">
+<select id="groupConstraints" name="groupConstraints" class="form-control" onchange="toggleForm()" >
+<option value="false" selected>No</option>
+<option value="true">Yes</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="excessReturns" class="control-label col-sm-2">Excess Return Frontier <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Show efficient frontier of active return and tracking error against the selected benchmark"></span>
+</label>
+<div class="col-sm-2">
+<select id="excessReturns" name="excessReturns" class="form-control" >
+<option value="false" selected>No</option>
+<option value="true">Yes</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="benchmark" class="control-label col-sm-2">Benchmark <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Select benchmark index or an imported benchmark series"></span>
+</label>
+<div class="col-sm-4">
+<select id="benchmark" name="benchmark" class="form-control" >
+<option value="">None</option>
+<option value="-1" selected>Specify Ticker...</option>
+<option value="-2">Import Benchmark...</option>
+<optgroup label="Benchmark Portfolio">
+<option value="VFINX">Vanguard 500 Index Investor</option>
+<option value="VBINX">Vanguard Balanced Index Inv</option>
+</optgroup>
+</select>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="benchmarkSymbol" class="control-label col-sm-2">Benchmark Ticker <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Ticker symbol for the benchmark asset"></span>
+</label>
+<div class="col-sm-4">
+<div class="input-group">
+<input type="text" id="benchmarkSymbol" name="benchmarkSymbol" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="geometric" class="control-label col-sm-2">Geometric Mean <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Show efficient frontier based on geometric returns"></span>
+</label>
+<div class="col-sm-2">
+<select id="geometric" name="geometric" class="form-control" >
+<option value="false" selected>No</option>
+<option value="true">Yes</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="minimumVarianceFrontier" class="control-label col-sm-2">Min Variance Frontier <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Render full minimum variance frontier rather than efficient frontier"></span>
+</label>
+<div class="col-sm-2">
+<select id="minimumVarianceFrontier" name="minimumVarianceFrontier" class="form-control" >
+<option value="false" selected>No</option>
+<option value="true">Yes</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="fromOrigin" class="control-label col-sm-2">Chart from Origin <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Render efficient frontier chart from origin"></span>
+</label>
+<div class="col-sm-2">
+<select id="fromOrigin" name="fromOrigin" class="form-control" >
+<option value="false" selected>No</option>
+<option value="true">Yes</option>
+</select>
+</div>
+</div>
+
+
+    <div id="pfSection" class="portfolio-section pv-allow-expansion" data-count="1" data-maxrows="150" data-advanced="false" >
+<div class="row bottomBorder">
+<div class="col-sm-4 separateTop asset-header text-nowrap"><b>Efficient Frontier Assets</b><div class="btn-group btn-group-sm left-margin hidden-print" role="group" aria-label="Portfolio allocation options"><button type="button" class="btn btn-default clearAllocation" title="Clear assets and allocations"><i class="glyphicon glyphicon-trash"></i></button><div id="allocation-menu-1" class="btn-group btn-group-sm allocation-menu hidden-print" role="group"><button id="allocationOptionsButton1" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-cog"></i> <span class="caret"></span></button><ul class="dropdown-menu scrollable-menu"><li class="dropdown-header">Allocation Weights</li><li><a href="#" onclick="equalWeightAllocations(1,'');return false;">Equal Weight</a></li><li><a href="#" onclick="normalizeAllocations(1,'');return false;">Normalize</a></li><li><a href="#" onclick="clearAllocations(1,'');return false;">Clear</a></li><li class="divider"></li><li class="dropdown-header">Import Portfolio</li><li><a href="#" onclick="importPortfolio(1,'');return false;">Upload Portfolio</a></li><li class="divider"></li><li class="dropdown-header">Lazy Portfolios</li><li><a href="#" onclick="populatePortfolio('Growth Portfolio',1,false,true,true,null,'');return false;">Growth Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Moderate Portfolio',1,false,true,true,null,'');return false;">Moderate Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Conservative Portfolio',1,false,true,true,null,'');return false;">Conservative Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Income Portfolio',1,false,true,true,null,'');return false;">Income Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Bill Bernstein No Brainer',1,false,true,true,null,'');return false;">Bill Bernstein No Brainer</a></li><li><a href="#" onclick="populatePortfolio('Bill Schultheis Coffee House',1,false,true,true,null,'');return false;">Bill Schultheis Coffee House</a></li><li><a href="#" onclick="populatePortfolio('Bogleheads Three Funds',1,false,true,true,null,'');return false;">Bogleheads Three Funds</a></li><li><a href="#" onclick="populatePortfolio('Bogleheads Four Funds',1,false,true,true,null,'');return false;">Bogleheads Four Funds</a></li><li><a href="#" onclick="populatePortfolio('David Swensen Lazy Portfolio',1,false,true,true,null,'');return false;">David Swensen Lazy Portfolio</a></li><li><a href="#" onclick="populatePortfolio('David Swensen Yale Endowment',1,false,true,true,null,'');return false;">David Swensen Yale Endowment</a></li><li><a href="#" onclick="populatePortfolio('FundAdvice Ultimate Buy & Hold Portfolio',1,false,true,true,null,'');return false;">FundAdvice Ultimate Buy &amp; Hold Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Harry Browne Permanent Portfolio',1,false,true,true,null,'');return false;">Harry Browne Permanent Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Larry Swedroe Simple Portfolio',1,false,true,true,null,'');return false;">Larry Swedroe Simple Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Larry Swedroe Minimize FatTails Portfolio',1,false,true,true,null,'');return false;">Larry Swedroe Minimize FatTails Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Mebane Faber Ivy Portfolio',1,false,true,true,null,'');return false;">Mebane Faber Ivy Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Ray Dalio All Seasons',1,false,true,true,null,'');return false;">Ray Dalio All Seasons</a></li><li><a href="#" onclick="populatePortfolio('Rick Ferri Core Four',1,false,true,true,null,'');return false;">Rick Ferri Core Four</a></li><li><a href="#" onclick="populatePortfolio('Scott Burns Couch Portfolio',1,false,true,true,null,'');return false;">Scott Burns Couch Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Stocks\/Bonds (60\/40)',1,false,true,true,null,'');return false;">Stocks/Bonds (60/40)</a></li><li><a href="#" onclick="populatePortfolio('Stocks\/Bonds (40\/60)',1,false,true,true,null,'');return false;">Stocks/Bonds (40/60)</a></li></ul></div>
+</div></div>
+<div class="col-sm-2 separateTop weight-column"><b>Allocation</b></div><div class="col-sm-2 separateTop text-nowrap constraint"><b>Min. Weight</b></div><div class="col-sm-2 separateTop text-nowrap constraint"><b>Max. Weight</b></div><div class="col-sm-2 separateTop text-nowrap groupConstraint"><b>Group</b></div><div class="col-sm-1 separateTop text-nowrap frontier"><b>EF #1</b></div><div class="col-sm-1 separateTop text-nowrap frontier"><b>EF #2</b></div></div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">1</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol1">Select asset 1</label></span>
+<input type="text" id="symbol1" name="symbol1" class="form-control fmt-ticker" value="SPY" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation1_1">Enter percentage allocation for asset 1</label></span>
+<input type="number" id="allocation1_1" name="allocation1_1" class="form-control fmt-pospct asset-weight" value="12.50" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight1">Minimum allocation for asset 1</label></span>
+<input type="number" id="minWeight1" name="minWeight1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight1">Maximum allocation for asset 1</label></span>
+<input type="number" id="maxWeight1" name="maxWeight1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup1">Group assignment for asset 1</label></span>
+<select id="assetGroup1" name="assetGroup1" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff1">Add asset 1 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff1" value="true" id="ff1"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf1">Add asset 1 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf1" value="true" id="sf1"></div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">2</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol2">Select asset 2</label></span>
+<input type="text" id="symbol2" name="symbol2" class="form-control fmt-ticker" value="SLY" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation2_1">Enter percentage allocation for asset 2</label></span>
+<input type="number" id="allocation2_1" name="allocation2_1" class="form-control fmt-pospct asset-weight" value="12.50" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight2">Minimum allocation for asset 2</label></span>
+<input type="number" id="minWeight2" name="minWeight2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight2">Maximum allocation for asset 2</label></span>
+<input type="number" id="maxWeight2" name="maxWeight2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup2">Group assignment for asset 2</label></span>
+<select id="assetGroup2" name="assetGroup2" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff2">Add asset 2 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff2" value="true" id="ff2"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf2">Add asset 2 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf2" value="true" id="sf2"></div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">3</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol3">Select asset 3</label></span>
+<input type="text" id="symbol3" name="symbol3" class="form-control fmt-ticker" value="EFA" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation3_1">Enter percentage allocation for asset 3</label></span>
+<input type="number" id="allocation3_1" name="allocation3_1" class="form-control fmt-pospct asset-weight" value="12.50" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight3">Minimum allocation for asset 3</label></span>
+<input type="number" id="minWeight3" name="minWeight3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight3">Maximum allocation for asset 3</label></span>
+<input type="number" id="maxWeight3" name="maxWeight3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup3">Group assignment for asset 3</label></span>
+<select id="assetGroup3" name="assetGroup3" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff3">Add asset 3 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff3" value="true" id="ff3"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf3">Add asset 3 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf3" value="true" id="sf3"></div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">4</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol4">Select asset 4</label></span>
+<input type="text" id="symbol4" name="symbol4" class="form-control fmt-ticker" value="EEM" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation4_1">Enter percentage allocation for asset 4</label></span>
+<input type="number" id="allocation4_1" name="allocation4_1" class="form-control fmt-pospct asset-weight" value="12.50" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight4">Minimum allocation for asset 4</label></span>
+<input type="number" id="minWeight4" name="minWeight4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight4">Maximum allocation for asset 4</label></span>
+<input type="number" id="maxWeight4" name="maxWeight4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup4">Group assignment for asset 4</label></span>
+<select id="assetGroup4" name="assetGroup4" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff4">Add asset 4 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff4" value="true" id="ff4"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf4">Add asset 4 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf4" value="true" id="sf4"></div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">5</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol5">Select asset 5</label></span>
+<input type="text" id="symbol5" name="symbol5" class="form-control fmt-ticker" value="VNQ" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation5_1">Enter percentage allocation for asset 5</label></span>
+<input type="number" id="allocation5_1" name="allocation5_1" class="form-control fmt-pospct asset-weight" value="12.50" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight5">Minimum allocation for asset 5</label></span>
+<input type="number" id="minWeight5" name="minWeight5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight5">Maximum allocation for asset 5</label></span>
+<input type="number" id="maxWeight5" name="maxWeight5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup5">Group assignment for asset 5</label></span>
+<select id="assetGroup5" name="assetGroup5" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff5">Add asset 5 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff5" value="true" id="ff5"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf5">Add asset 5 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf5" value="true" id="sf5"></div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">6</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol6">Select asset 6</label></span>
+<input type="text" id="symbol6" name="symbol6" class="form-control fmt-ticker" value="TLT" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation6_1">Enter percentage allocation for asset 6</label></span>
+<input type="number" id="allocation6_1" name="allocation6_1" class="form-control fmt-pospct asset-weight" value="12.50" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight6">Minimum allocation for asset 6</label></span>
+<input type="number" id="minWeight6" name="minWeight6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight6">Maximum allocation for asset 6</label></span>
+<input type="number" id="maxWeight6" name="maxWeight6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup6">Group assignment for asset 6</label></span>
+<select id="assetGroup6" name="assetGroup6" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff6">Add asset 6 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff6" value="true" id="ff6"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf6">Add asset 6 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf6" value="true" id="sf6"></div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">7</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol7">Select asset 7</label></span>
+<input type="text" id="symbol7" name="symbol7" class="form-control fmt-ticker" value="LQD" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation7_1">Enter percentage allocation for asset 7</label></span>
+<input type="number" id="allocation7_1" name="allocation7_1" class="form-control fmt-pospct asset-weight" value="12.50" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight7">Minimum allocation for asset 7</label></span>
+<input type="number" id="minWeight7" name="minWeight7" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight7">Maximum allocation for asset 7</label></span>
+<input type="number" id="maxWeight7" name="maxWeight7" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup7">Group assignment for asset 7</label></span>
+<select id="assetGroup7" name="assetGroup7" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff7">Add asset 7 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff7" value="true" id="ff7"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf7">Add asset 7 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf7" value="true" id="sf7"></div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">8</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol8">Select asset 8</label></span>
+<input type="text" id="symbol8" name="symbol8" class="form-control fmt-ticker" value="GLD" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation8_1">Enter percentage allocation for asset 8</label></span>
+<input type="number" id="allocation8_1" name="allocation8_1" class="form-control fmt-pospct asset-weight" value="12.50" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight8">Minimum allocation for asset 8</label></span>
+<input type="number" id="minWeight8" name="minWeight8" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight8">Maximum allocation for asset 8</label></span>
+<input type="number" id="maxWeight8" name="maxWeight8" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup8">Group assignment for asset 8</label></span>
+<select id="assetGroup8" name="assetGroup8" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff8">Add asset 8 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff8" value="true" id="ff8"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf8">Add asset 8 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf8" value="true" id="sf8"></div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">9</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol9">Select asset 9</label></span>
+<input type="text" id="symbol9" name="symbol9" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation9_1">Enter percentage allocation for asset 9</label></span>
+<input type="number" id="allocation9_1" name="allocation9_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight9">Minimum allocation for asset 9</label></span>
+<input type="number" id="minWeight9" name="minWeight9" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight9">Maximum allocation for asset 9</label></span>
+<input type="number" id="maxWeight9" name="maxWeight9" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup9">Group assignment for asset 9</label></span>
+<select id="assetGroup9" name="assetGroup9" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff9">Add asset 9 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff9" value="true" id="ff9"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf9">Add asset 9 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf9" value="true" id="sf9"></div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">10</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol10">Select asset 10</label></span>
+<input type="text" id="symbol10" name="symbol10" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation10_1">Enter percentage allocation for asset 10</label></span>
+<input type="number" id="allocation10_1" name="allocation10_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight10">Minimum allocation for asset 10</label></span>
+<input type="number" id="minWeight10" name="minWeight10" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight10">Maximum allocation for asset 10</label></span>
+<input type="number" id="maxWeight10" name="maxWeight10" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup10">Group assignment for asset 10</label></span>
+<select id="assetGroup10" name="assetGroup10" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="ff10">Add asset 10 to the first efficient frontier</label></span>
+<input type="checkbox" name="ff10" value="true" id="ff10"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="sf10">Add asset 10 to the second efficient frontier</label></span>
+<input type="checkbox" name="sf10" value="true" id="sf10"></div>
+</div>
+<div class="row topBorder totals-row">
+<div class="col-sm-1 separateTop"><b>Total</b></div>
+<div class="col-sm-2 col-sm-offset-3 totals-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="total1">Total allocation for portfolio</label></span>
+<input type="number" id="total1" name="total1" class="form-control" readonly>
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-1 col-sm-offset-5 frontier"><span class="hidden_jaws"><label for="toggleEF1">Select or unselect all assets for efficient frontier #1</label></span>
+<input type="checkbox" name="toggleEF1" value="true" id="toggleEF1" title="Select or unselect all assets for efficient frontier #1"></div>
+<div class="col-sm-1 frontier">
+<span class="hidden_jaws"><label for="toggleEF2">Select or unselect all assets for efficient frontier #2</label></span>
+<input type="checkbox" name="toggleEF2" value="true" id="toggleEF2" title="Select or unselect all assets for efficient frontier #2"></div>
+</div>
+<div id="groupConstraintsSection" class="groupConstraint">
+<hr>
+<div class="row">
+<div class="col-sm-4 separateTop text-nowrap">
+<b>Asset Groups</b>
+<button type="button" class="btn btn-default btn-sm left-margin hidden-print" id="resetGroups" title="Reset group constraints"><i class="glyphicon glyphicon-trash"></i></button>
+</div>
+<div class="col-sm-2 separateTop text-nowrap"><b>Min. Weight</b></div>
+<div class="col-sm-2 separateTop text-nowrap"><b>Max. Weight</b></div>
+</div>
+<div class="row highlightRow">
+<div class="col-sm-1 separateTop">A</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName1">Full name for group A at index 1</label></span>
+<input type="text" id="assetGroupName1" name="assetGroupName1" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight1">Minimum allocation for group A at index 1</label></span>
+<input type="number" id="minGroupWeight1" name="minGroupWeight1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight1">Maximum allocation for group A at index 1</label></span>
+<input type="number" id="maxGroupWeight1" name="maxGroupWeight1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-1 separateTop">B</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName2">Full name for group B at index 2</label></span>
+<input type="text" id="assetGroupName2" name="assetGroupName2" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight2">Minimum allocation for group B at index 2</label></span>
+<input type="number" id="minGroupWeight2" name="minGroupWeight2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight2">Maximum allocation for group B at index 2</label></span>
+<input type="number" id="maxGroupWeight2" name="maxGroupWeight2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow">
+<div class="col-sm-1 separateTop">C</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName3">Full name for group C at index 3</label></span>
+<input type="text" id="assetGroupName3" name="assetGroupName3" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight3">Minimum allocation for group C at index 3</label></span>
+<input type="number" id="minGroupWeight3" name="minGroupWeight3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight3">Maximum allocation for group C at index 3</label></span>
+<input type="number" id="maxGroupWeight3" name="maxGroupWeight3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-1 separateTop">D</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName4">Full name for group D at index 4</label></span>
+<input type="text" id="assetGroupName4" name="assetGroupName4" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight4">Minimum allocation for group D at index 4</label></span>
+<input type="number" id="minGroupWeight4" name="minGroupWeight4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight4">Maximum allocation for group D at index 4</label></span>
+<input type="number" id="maxGroupWeight4" name="maxGroupWeight4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow">
+<div class="col-sm-1 separateTop">E</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName5">Full name for group E at index 5</label></span>
+<input type="text" id="assetGroupName5" name="assetGroupName5" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight5">Minimum allocation for group E at index 5</label></span>
+<input type="number" id="minGroupWeight5" name="minGroupWeight5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight5">Maximum allocation for group E at index 5</label></span>
+<input type="number" id="maxGroupWeight5" name="maxGroupWeight5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-1 separateTop">F</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName6">Full name for group F at index 6</label></span>
+<input type="text" id="assetGroupName6" name="assetGroupName6" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight6">Minimum allocation for group F at index 6</label></span>
+<input type="number" id="minGroupWeight6" name="minGroupWeight6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight6">Maximum allocation for group F at index 6</label></span>
+<input type="number" id="maxGroupWeight6" name="maxGroupWeight6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+    <div class="form-group form-buttons">
+<div class="col-sm-offset-2 col-sm-10">
+<input type="submit" id="submitButton" value="View" class="btn btn-primary">
+<input type="button" id="cancelButton" value="Cancel" class="btn btn-default" onclick="document.location.href='index.html'">
+</div>
+</div>
+
+</form>
+
+    
+    
+    <h2 class="anchor" id="analysisResults">Efficient Frontier Results <span class="resultsRange">(Jan 2006 - May 2022)</span> <span class="directLink"></span> <span class="directPrint"></span> <span class="directExport"></span></h2>
+
+    <ul id="tabs" class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#chartTab" data-toggle="tab">Efficient Frontier</a></li>
+        <li role="presentation"><a href="#correlations" data-toggle="tab">Assets and Correlations</a></li>
+        
+        <li role="presentation"><a href="#tableTab" data-toggle="tab">Data Points</a></li>
+        
+        
+    </ul>
+
+    <div id="result-content" class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="chartTab">
+        
+        <div class="alert alert-info" role="alert">
+            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <b>Note:</b> The time period was constrained by the available data for SPDR S&amp;P 600 Small Cap ETF (SLY) [Dec 2005 - May 2022].
+        </div>
+        
+
+    
+        <h3>Portfolio Allocations</h3>
+        
+        <div class="row" style="margin: 0"> 
+            <div class="col-sm-8" style="padding-left: 0; padding-right: 15px;"> 
+                <table class="table table-striped table-condensed">
+                    <caption>Provided Portfolio</caption>
+                    <thead>
+                    <tr>
+                        
+                        <th>Ticker</th>
+                        <th>Name</th>
+                        
+                        <th class="numberCell">Allocation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    
+                    <tr>
+                        
+                        <td>SPY</td>
+                        
+                        <td>SPDR S&amp;P 500 ETF Trust</td>
+                        <td class="numberCell">12.50%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>SLY</td>
+                        
+                        <td>SPDR S&amp;P 600 Small Cap ETF</td>
+                        <td class="numberCell">12.50%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>EFA</td>
+                        
+                        <td>iShares MSCI EAFE ETF</td>
+                        <td class="numberCell">12.50%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>EEM</td>
+                        
+                        <td>iShares MSCI Emerging Markets ETF</td>
+                        <td class="numberCell">12.50%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>VNQ</td>
+                        
+                        <td>Vanguard Real Estate ETF</td>
+                        <td class="numberCell">12.50%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>TLT</td>
+                        
+                        <td>iShares 20+ Year Treasury Bond ETF</td>
+                        <td class="numberCell">12.50%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>LQD</td>
+                        
+                        <td>iShares iBoxx $ Invmt Grade Corp Bd ETF</td>
+                        <td class="numberCell">12.50%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>GLD</td>
+                        
+                        <td>SPDR Gold Shares</td>
+                        <td class="numberCell">12.50%</td>
+                    </tr>
+                    
+                    </tbody>
+                    
+                    <tfoot class="hidden-print">
+                    <tr>
+                        <td colspan="3">
+                            
+                            
+                            <span id="saveConfirmMsg1">
+                            
+                            </span>
+                            <a id="saveIcon1" href="#" onclick="showLoginPrompt(true); return false;" title="Save portfolio"><span class="fa fa-save"></span></a>
+                            <a id="saveLink1" href="#" onclick="showLoginPrompt(true); return false;">Save portfolio &raquo;</a>
+                        </td>
+                    </tr>
+                    </tfoot>
+                    
+                </table>
+            </div>
+            <div class="col-sm-4" style="padding: 0"> 
+                <div id="chartDiv1" style="min-width: 250px; min-height: 310px; max-width: 375px; max-height: 465px;"></div>
+<script>
+function getChartData1() {
+var chart1 = { chart: { type: 'pie', spacing: [0, 0, 0, 0] }, title: { text: '' }, series: [{ name: 'Allocation', data: [{name: 'SPY', y: 12.5},{name: 'SLY', y: 12.5},{name: 'EFA', y: 12.5},{name: 'EEM', y: 12.5},{name: 'VNQ', y: 12.5},{name: 'TLT', y: 12.5},{name: 'LQD', y: 12.5},{name: 'GLD', y: 12.5}]}]};
+return [chart1, null, null];
+}
+</script>
+
+            </div>
+        </div>
+        
+        <div class="row" style="margin: 0"> 
+            <div class="col-sm-8" style="padding-left: 0; padding-right: 15px;"> 
+                <table class="table table-striped table-condensed">
+                    <caption>Max Sharpe Ratio Portfolio</caption>
+                    <thead>
+                    <tr>
+                        
+                        <th>Ticker</th>
+                        <th>Name</th>
+                        
+                        <th class="numberCell">Allocation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    
+                    <tr>
+                        
+                        <td>SPY</td>
+                        
+                        <td>SPDR S&amp;P 500 ETF Trust</td>
+                        <td class="numberCell">27.02%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>SLY</td>
+                        
+                        <td>SPDR S&amp;P 600 Small Cap ETF</td>
+                        <td class="numberCell">11.37%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>EFA</td>
+                        
+                        <td>iShares MSCI EAFE ETF</td>
+                        <td class="numberCell">0.06%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>EEM</td>
+                        
+                        <td>iShares MSCI Emerging Markets ETF</td>
+                        <td class="numberCell">0.28%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>VNQ</td>
+                        
+                        <td>Vanguard Real Estate ETF</td>
+                        <td class="numberCell">2.74%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>TLT</td>
+                        
+                        <td>iShares 20+ Year Treasury Bond ETF</td>
+                        <td class="numberCell">30.55%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>LQD</td>
+                        
+                        <td>iShares iBoxx $ Invmt Grade Corp Bd ETF</td>
+                        <td class="numberCell">10.74%</td>
+                    </tr>
+                    
+                    <tr>
+                        
+                        <td>GLD</td>
+                        
+                        <td>SPDR Gold Shares</td>
+                        <td class="numberCell">17.24%</td>
+                    </tr>
+                    
+                    </tbody>
+                    
+                    <tfoot class="hidden-print">
+                    <tr>
+                        <td colspan="3">
+                            
+                            
+                            <span id="saveConfirmMsg2">
+                            
+                            </span>
+                            <a id="saveIcon2" href="#" onclick="showLoginPrompt(true); return false;" title="Save portfolio"><span class="fa fa-save"></span></a>
+                            <a id="saveLink2" href="#" onclick="showLoginPrompt(true); return false;">Save portfolio &raquo;</a>
+                        </td>
+                    </tr>
+                    </tfoot>
+                    
+                </table>
+            </div>
+            <div class="col-sm-4" style="padding: 0"> 
+                <div id="chartDiv2" style="min-width: 250px; min-height: 310px; max-width: 375px; max-height: 465px;"></div>
+<script>
+function getChartData2() {
+var chart2 = { chart: { type: 'pie', spacing: [0, 0, 0, 0] }, title: { text: '' }, series: [{ name: 'Allocation', data: [{name: 'SPY', y: 27.02},{name: 'SLY', y: 11.37},{name: 'VNQ', y: 2.74},{name: 'TLT', y: 30.55},{name: 'LQD', y: 10.74},{name: 'GLD', y: 17.24},{name: 'Other', y: 0.34}]}]};
+return [chart2, null, null];
+}
+</script>
+
+            </div>
+        </div>
+        
+        
+        <h3>Portfolio Returns</h3>
+        <table class="table table-condensed table-striped"><caption class="sr-only">Portfolio Statistics</caption><thead><tr><th>Portfolio</th><th class="numberCell">Expected Return</th><th class="numberCell">Standard Deviation</th><th class="numberCell">Sharpe Ratio</th></tr></thead><tbody><tr><td>Provided Portfolio</td><td class="numberCell">8.08%</td><td class="numberCell">11.73%</td><td class="numberCell">0.58</td></tr><tr><td>Max Sharpe Ratio Portfolio</td><td class="numberCell">8.36%</td><td class="numberCell">8.56%</td><td class="numberCell">0.82</td></tr></tbody></table>
+        
+
+        <div class="alert alert-dismissible alert-info" role="alert">
+<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+<strong>Note:</strong> You can hover over any of the data points on the chart for more information.
+</div>
+
+    <div id="chartDiv3" style="min-width: 900px; min-height: 650px; max-width: 1350px; max-height: 975px;"></div>
+<script>
+function getChartData3() {
+var chart3 = { chart: { type: 'spline', inverted: true  }, title: { text: 'Resampled Efficient Frontier (Jan 2006 - May 2022)' }, tooltip: { shared: false, headerFormat: null, pointFormat: '{point.text}' }, xAxis: { title: { text: 'Expected Return' }, labels: { formatter: function() { return (100.0*this.value).toFixed(1) + '%'; } }, reversed: false, gridLineWidth: 1, endOnTick: true, min: 0.03983651011696587 }, yAxis: { title: { text: 'Standard Deviation' }, labels: { formatter: function() { return (100.0*this.value).toFixed(1) + '%'; } }, gridLineWidth: 1, startOnTick: true, endOnTick: true }, legend: { enabled: false }, plotOptions: { spline: { series: { stickyTracking: false }, marker: { radius: 2, enabled: true } }, scatter: { series: { stickyTracking: false }, marker: { radius: 3 } } }, series: [{ name: 'Frontier', data: [ {x:0.05857599464016294,y:0.07298700040364281,text:'10.82% SPY<br\/>1.20% SLY<br\/>0.03% EFA<br\/>0.01% EEM<br\/>10.23% TLT<br\/>70.41% LQD<br\/>7.30% GLD<br\/>Expected Return: 5.86%<br\/>Standard Deviation: 7.30%<br\/>Sharpe Ratio: 0.639'},{x:0.05911333862561641,y:0.07298989058024948,text:'11.41% SPY<br\/>1.27% SLY<br\/>0.02% EFA<br\/>0.01% EEM<br\/>10.69% TLT<br\/>69.08% LQD<br\/>7.52% GLD<br\/>Expected Return: 5.91%<br\/>Standard Deviation: 7.30%<br\/>Sharpe Ratio: 0.646'},{x:0.05964170708273042,y:0.07300428482583318,text:'11.96% SPY<br\/>1.35% SLY<br\/>0.01% EFA<br\/>0.01% EEM<br\/>11.15% TLT<br\/>67.78% LQD<br\/>7.73% GLD<br\/>Expected Return: 5.96%<br\/>Standard Deviation: 7.30%<br\/>Sharpe Ratio: 0.653'},{x:0.06017055738781396,y:0.07302957539111357,text:'12.51% SPY<br\/>1.44% SLY<br\/>0.01% EFA<br\/>0.01% EEM<br\/>11.62% TLT<br\/>66.48% LQD<br\/>7.93% GLD<br\/>Expected Return: 6.02%<br\/>Standard Deviation: 7.30%<br\/>Sharpe Ratio: 0.659'},{x:0.060699521520957145,y:0.07306530977131302,text:'13.05% SPY<br\/>1.54% SLY<br\/>0.01% EEM<br\/>12.09% TLT<br\/>65.17% LQD<br\/>8.13% GLD<br\/>Expected Return: 6.07%<br\/>Standard Deviation: 7.31%<br\/>Sharpe Ratio: 0.666'},{x:0.06122569435870462,y:0.07311565563849269,text:'13.55% SPY<br\/>1.66% SLY<br\/>0.01% EEM<br\/>0.01% VNQ<br\/>12.57% TLT<br\/>63.86% LQD<br\/>8.33% GLD<br\/>Expected Return: 6.12%<br\/>Standard Deviation: 7.31%<br\/>Sharpe Ratio: 0.672'},{x:0.061749536117432946,y:0.07317853750676914,text:'14.03% SPY<br\/>1.80% SLY<br\/>0.01% EEM<br\/>0.02% VNQ<br\/>13.06% TLT<br\/>62.55% LQD<br\/>8.53% GLD<br\/>Expected Return: 6.17%<br\/>Standard Deviation: 7.32%<br\/>Sharpe Ratio: 0.678'},{x:0.06227026148355441,y:0.07325277862414,text:'14.48% SPY<br\/>1.96% SLY<br\/>0.01% EEM<br\/>0.03% VNQ<br\/>13.56% TLT<br\/>61.24% LQD<br\/>8.72% GLD<br\/>Expected Return: 6.23%<br\/>Standard Deviation: 7.33%<br\/>Sharpe Ratio: 0.684'},{x:0.06278971093381647,y:0.07333743056128171,text:'14.91% SPY<br\/>2.12% SLY<br\/>0.02% EEM<br\/>0.04% VNQ<br\/>14.05% TLT<br\/>59.94% LQD<br\/>8.91% GLD<br\/>Expected Return: 6.28%<br\/>Standard Deviation: 7.33%<br\/>Sharpe Ratio: 0.690'},{x:0.06331048809518713,y:0.07343217753849662,text:'15.34% SPY<br\/>2.30% SLY<br\/>0.02% EEM<br\/>0.05% VNQ<br\/>14.55% TLT<br\/>58.64% LQD<br\/>9.10% GLD<br\/>Expected Return: 6.33%<br\/>Standard Deviation: 7.34%<br\/>Sharpe Ratio: 0.696'},{x:0.06383495896655678,y:0.07353946135806826,text:'15.76% SPY<br\/>2.48% SLY<br\/>0.02% EEM<br\/>0.07% VNQ<br\/>15.05% TLT<br\/>57.33% LQD<br\/>9.30% GLD<br\/>Expected Return: 6.38%<br\/>Standard Deviation: 7.35%<br\/>Sharpe Ratio: 0.702'},{x:0.06435808409481059,y:0.07365707092656637,text:'16.17% SPY<br\/>2.67% SLY<br\/>0.02% EEM<br\/>0.08% VNQ<br\/>15.55% TLT<br\/>56.02% LQD<br\/>9.49% GLD<br\/>Expected Return: 6.44%<br\/>Standard Deviation: 7.37%<br\/>Sharpe Ratio: 0.708'},{x:0.06487948231242102,y:0.07378545817924678,text:'16.56% SPY<br\/>2.86% SLY<br\/>0.02% EEM<br\/>0.10% VNQ<br\/>16.05% TLT<br\/>54.71% LQD<br\/>9.69% GLD<br\/>Expected Return: 6.49%<br\/>Standard Deviation: 7.38%<br\/>Sharpe Ratio: 0.713'},{x:0.0654009956865278,y:0.07392441419214213,text:'16.95% SPY<br\/>3.06% SLY<br\/>0.02% EEM<br\/>0.12% VNQ<br\/>16.55% TLT<br\/>53.40% LQD<br\/>9.89% GLD<br\/>Expected Return: 6.54%<br\/>Standard Deviation: 7.39%<br\/>Sharpe Ratio: 0.718'},{x:0.06592427869876394,y:0.07407374298115349,text:'17.33% SPY<br\/>3.27% SLY<br\/>0.02% EEM<br\/>0.15% VNQ<br\/>17.06% TLT<br\/>52.09% LQD<br\/>10.08% GLD<br\/>Expected Return: 6.59%<br\/>Standard Deviation: 7.41%<br\/>Sharpe Ratio: 0.724'},{x:0.06644872612446573,y:0.0742332252160055,text:'17.69% SPY<br\/>3.49% SLY<br\/>0.02% EEM<br\/>0.17% VNQ<br\/>17.56% TLT<br\/>50.78% LQD<br\/>10.28% GLD<br\/>Expected Return: 6.64%<br\/>Standard Deviation: 7.42%<br\/>Sharpe Ratio: 0.729'},{x:0.06697295670576686,y:0.07440425184991575,text:'18.06% SPY<br\/>3.71% SLY<br\/>0.02% EEM<br\/>0.19% VNQ<br\/>18.07% TLT<br\/>49.47% LQD<br\/>10.48% GLD<br\/>Expected Return: 6.70%<br\/>Standard Deviation: 7.44%<br\/>Sharpe Ratio: 0.734'},{x:0.06749772616938876,y:0.07458625600668353,text:'18.42% SPY<br\/>3.92% SLY<br\/>0.02% EEM<br\/>0.22% VNQ<br\/>18.58% TLT<br\/>48.16% LQD<br\/>10.68% GLD<br\/>Expected Return: 6.75%<br\/>Standard Deviation: 7.46%<br\/>Sharpe Ratio: 0.738'},{x:0.06802371907823623,y:0.07477905564037443,text:'18.79% SPY<br\/>4.14% SLY<br\/>0.02% EEM<br\/>0.25% VNQ<br\/>19.09% TLT<br\/>46.84% LQD<br\/>10.88% GLD<br\/>Expected Return: 6.80%<br\/>Standard Deviation: 7.48%<br\/>Sharpe Ratio: 0.743'},{x:0.06855247530211983,y:0.07498312897246069,text:'19.15% SPY<br\/>4.35% SLY<br\/>0.02% EEM<br\/>0.28% VNQ<br\/>19.60% TLT<br\/>45.51% LQD<br\/>11.08% GLD<br\/>Expected Return: 6.86%<br\/>Standard Deviation: 7.50%<br\/>Sharpe Ratio: 0.748'},{x:0.06908104227967593,y:0.07519749462069636,text:'19.51% SPY<br\/>4.57% SLY<br\/>0.02% EEM<br\/>0.32% VNQ<br\/>20.12% TLT<br\/>44.19% LQD<br\/>11.28% GLD<br\/>Expected Return: 6.91%<br\/>Standard Deviation: 7.52%<br\/>Sharpe Ratio: 0.752'},{x:0.06961035318743192,y:0.07542187878029256,text:'19.87% SPY<br\/>4.79% SLY<br\/>0.02% EEM<br\/>0.35% VNQ<br\/>20.62% TLT<br\/>42.87% LQD<br\/>11.48% GLD<br\/>Expected Return: 6.96%<br\/>Standard Deviation: 7.54%<br\/>Sharpe Ratio: 0.757'},{x:0.07014130783696437,y:0.07565685198991802,text:'20.23% SPY<br\/>5.01% SLY<br\/>0.03% EEM<br\/>0.39% VNQ<br\/>21.12% TLT<br\/>41.55% LQD<br\/>11.68% GLD<br\/>Expected Return: 7.01%<br\/>Standard Deviation: 7.57%<br\/>Sharpe Ratio: 0.761'},{x:0.070674647879305,y:0.07590399159972709,text:'20.59% SPY<br\/>5.22% SLY<br\/>0.03% EEM<br\/>0.43% VNQ<br\/>21.64% TLT<br\/>40.22% LQD<br\/>11.88% GLD<br\/>Expected Return: 7.07%<br\/>Standard Deviation: 7.59%<br\/>Sharpe Ratio: 0.765'},{x:0.0712061763205818,y:0.07616252520844802,text:'20.94% SPY<br\/>5.44% SLY<br\/>0.03% EEM<br\/>0.47% VNQ<br\/>22.15% TLT<br\/>38.89% LQD<br\/>12.08% GLD<br\/>Expected Return: 7.12%<br\/>Standard Deviation: 7.62%<br\/>Sharpe Ratio: 0.769'},{x:0.07173433053304423,y:0.07643114823986857,text:'21.28% SPY<br\/>5.66% SLY<br\/>0.04% EEM<br\/>0.52% VNQ<br\/>22.65% TLT<br\/>37.57% LQD<br\/>12.28% GLD<br\/>Expected Return: 7.17%<br\/>Standard Deviation: 7.64%<br\/>Sharpe Ratio: 0.773'},{x:0.07226110329114466,y:0.07670914426004115,text:'21.62% SPY<br\/>5.88% SLY<br\/>0.05% EEM<br\/>0.56% VNQ<br\/>23.15% TLT<br\/>36.26% LQD<br\/>12.48% GLD<br\/>Expected Return: 7.23%<br\/>Standard Deviation: 7.67%<br\/>Sharpe Ratio: 0.776'},{x:0.07278942619502837,y:0.07699676537173104,text:'21.96% SPY<br\/>6.10% SLY<br\/>0.05% EEM<br\/>0.61% VNQ<br\/>23.65% TLT<br\/>34.94% LQD<br\/>12.68% GLD<br\/>Expected Return: 7.28%<br\/>Standard Deviation: 7.70%<br\/>Sharpe Ratio: 0.780'},{x:0.07331955785312916,y:0.07729627730326107,text:'22.30% SPY<br\/>6.32% SLY<br\/>0.01% EFA<br\/>0.06% EEM<br\/>0.66% VNQ<br\/>24.15% TLT<br\/>33.62% LQD<br\/>12.88% GLD<br\/>Expected Return: 7.33%<br\/>Standard Deviation: 7.73%<br\/>Sharpe Ratio: 0.783'},{x:0.07385373150301255,y:0.07760796090375217,text:'22.64% SPY<br\/>6.54% SLY<br\/>0.01% EFA<br\/>0.07% EEM<br\/>0.72% VNQ<br\/>24.64% TLT<br\/>32.30% LQD<br\/>13.08% GLD<br\/>Expected Return: 7.39%<br\/>Standard Deviation: 7.76%<br\/>Sharpe Ratio: 0.787'},{x:0.07438923163707645,y:0.07792961196581966,text:'22.98% SPY<br\/>6.76% SLY<br\/>0.01% EFA<br\/>0.07% EEM<br\/>0.77% VNQ<br\/>25.14% TLT<br\/>30.98% LQD<br\/>13.29% GLD<br\/>Expected Return: 7.44%<br\/>Standard Deviation: 7.79%<br\/>Sharpe Ratio: 0.790'},{x:0.07492319752752641,y:0.07826086787494141,text:'23.31% SPY<br\/>6.98% SLY<br\/>0.01% EFA<br\/>0.08% EEM<br\/>0.83% VNQ<br\/>25.62% TLT<br\/>29.66% LQD<br\/>13.50% GLD<br\/>Expected Return: 7.49%<br\/>Standard Deviation: 7.83%<br\/>Sharpe Ratio: 0.793'},{x:0.0754584883956031,y:0.07860340010078022,text:'23.65% SPY<br\/>7.20% SLY<br\/>0.02% EFA<br\/>0.09% EEM<br\/>0.88% VNQ<br\/>26.10% TLT<br\/>28.35% LQD<br\/>13.71% GLD<br\/>Expected Return: 7.55%<br\/>Standard Deviation: 7.86%<br\/>Sharpe Ratio: 0.796'},{x:0.07598914255371092,y:0.07895630212490799,text:'23.97% SPY<br\/>7.42% SLY<br\/>0.02% EFA<br\/>0.10% EEM<br\/>0.95% VNQ<br\/>26.55% TLT<br\/>27.06% LQD<br\/>13.92% GLD<br\/>Expected Return: 7.60%<br\/>Standard Deviation: 7.90%<br\/>Sharpe Ratio: 0.798'},{x:0.07651133207161909,y:0.07931755192678686,text:'24.26% SPY<br\/>7.64% SLY<br\/>0.02% EFA<br\/>0.11% EEM<br\/>1.03% VNQ<br\/>27.00% TLT<br\/>25.80% LQD<br\/>14.14% GLD<br\/>Expected Return: 7.65%<br\/>Standard Deviation: 7.93%<br\/>Sharpe Ratio: 0.801'},{x:0.07702682462205845,y:0.07968459232569808,text:'24.53% SPY<br\/>7.88% SLY<br\/>0.02% EFA<br\/>0.12% EEM<br\/>1.11% VNQ<br\/>27.42% TLT<br\/>24.57% LQD<br\/>14.35% GLD<br\/>Expected Return: 7.70%<br\/>Standard Deviation: 7.97%<br\/>Sharpe Ratio: 0.803'},{x:0.07753606020189507,y:0.08005677892153568,text:'24.79% SPY<br\/>8.12% SLY<br\/>0.03% EFA<br\/>0.13% EEM<br\/>1.19% VNQ<br\/>27.80% TLT<br\/>23.38% LQD<br\/>14.56% GLD<br\/>Expected Return: 7.75%<br\/>Standard Deviation: 8.01%<br\/>Sharpe Ratio: 0.806'},{x:0.07804206311409345,y:0.0804358491750497,text:'25.03% SPY<br\/>8.37% SLY<br\/>0.03% EFA<br\/>0.14% EEM<br\/>1.27% VNQ<br\/>28.17% TLT<br\/>22.22% LQD<br\/>14.78% GLD<br\/>Expected Return: 7.80%<br\/>Standard Deviation: 8.04%<br\/>Sharpe Ratio: 0.808'},{x:0.07854167353888775,y:0.08082137293182665,text:'25.28% SPY<br\/>8.61% SLY<br\/>0.03% EFA<br\/>0.15% EEM<br\/>1.35% VNQ<br\/>28.52% TLT<br\/>21.08% LQD<br\/>14.98% GLD<br\/>Expected Return: 7.85%<br\/>Standard Deviation: 8.08%<br\/>Sharpe Ratio: 0.810'},{x:0.07903607713071681,y:0.08121564109271752,text:'25.51% SPY<br\/>8.85% SLY<br\/>0.03% EFA<br\/>0.16% EEM<br\/>1.45% VNQ<br\/>28.85% TLT<br\/>19.96% LQD<br\/>15.19% GLD<br\/>Expected Return: 7.90%<br\/>Standard Deviation: 8.12%<br\/>Sharpe Ratio: 0.811'},{x:0.07952090502559628,y:0.08161686798566054,text:'25.71% SPY<br\/>9.10% SLY<br\/>0.04% EFA<br\/>0.17% EEM<br\/>1.55% VNQ<br\/>29.16% TLT<br\/>18.88% LQD<br\/>15.40% GLD<br\/>Expected Return: 7.95%<br\/>Standard Deviation: 8.16%<br\/>Sharpe Ratio: 0.813'},{x:0.07999526340130281,y:0.0820199801711471,text:'25.90% SPY<br\/>9.35% SLY<br\/>0.04% EFA<br\/>0.18% EEM<br\/>1.65% VNQ<br\/>29.43% TLT<br\/>17.84% LQD<br\/>15.61% GLD<br\/>Expected Return: 8.00%<br\/>Standard Deviation: 8.20%<br\/>Sharpe Ratio: 0.814'},{x:0.08046877054162915,y:0.08243303772964192,text:'26.06% SPY<br\/>9.61% SLY<br\/>0.04% EFA<br\/>0.20% EEM<br\/>1.76% VNQ<br\/>29.68% TLT<br\/>16.83% LQD<br\/>15.82% GLD<br\/>Expected Return: 8.05%<br\/>Standard Deviation: 8.24%<br\/>Sharpe Ratio: 0.816'},{x:0.08093812530262823,y:0.08285558480656989,text:'26.23% SPY<br\/>9.86% SLY<br\/>0.04% EFA<br\/>0.21% EEM<br\/>1.87% VNQ<br\/>29.91% TLT<br\/>15.84% LQD<br\/>16.03% GLD<br\/>Expected Return: 8.09%<br\/>Standard Deviation: 8.29%<br\/>Sharpe Ratio: 0.817'},{x:0.08139974580092724,y:0.08328511759213542,text:'26.39% SPY<br\/>10.11% SLY<br\/>0.05% EFA<br\/>0.23% EEM<br\/>2.00% VNQ<br\/>30.11% TLT<br\/>14.89% LQD<br\/>16.23% GLD<br\/>Expected Return: 8.14%<br\/>Standard Deviation: 8.33%<br\/>Sharpe Ratio: 0.818'},{x:0.08185831713663871,y:0.08372424179450373,text:'26.54% SPY<br\/>10.36% SLY<br\/>0.05% EFA<br\/>0.24% EEM<br\/>2.13% VNQ<br\/>30.26% TLT<br\/>13.98% LQD<br\/>16.44% GLD<br\/>Expected Return: 8.19%<br\/>Standard Deviation: 8.37%<br\/>Sharpe Ratio: 0.818'},{x:0.0823110748072371,y:0.08417455631978979,text:'26.67% SPY<br\/>10.62% SLY<br\/>0.05% EFA<br\/>0.25% EEM<br\/>2.27% VNQ<br\/>30.40% TLT<br\/>13.11% LQD<br\/>16.63% GLD<br\/>Expected Return: 8.23%<br\/>Standard Deviation: 8.42%<br\/>Sharpe Ratio: 0.819'},{x:0.08275716662631472,y:0.08463193277496468,text:'26.80% SPY<br\/>10.88% SLY<br\/>0.05% EFA<br\/>0.26% EEM<br\/>2.42% VNQ<br\/>30.49% TLT<br\/>12.28% LQD<br\/>16.82% GLD<br\/>Expected Return: 8.28%<br\/>Standard Deviation: 8.46%<br\/>Sharpe Ratio: 0.819'},{x:0.08320025365103012,y:0.0850980638877582,text:'26.92% SPY<br\/>11.13% SLY<br\/>0.06% EFA<br\/>0.27% EEM<br\/>2.58% VNQ<br\/>30.55% TLT<br\/>11.48% LQD<br\/>17.02% GLD<br\/>Expected Return: 8.32%<br\/>Standard Deviation: 8.51%<br\/>Sharpe Ratio: 0.820'},{x:0.0836319795556244,y:0.08557058811713325,text:'27.02% SPY<br\/>11.37% SLY<br\/>0.06% EFA<br\/>0.28% EEM<br\/>2.74% VNQ<br\/>30.55% TLT<br\/>10.74% LQD<br\/>17.24% GLD<br\/>Expected Return: 8.36%<br\/>Standard Deviation: 8.56%<br\/>Sharpe Ratio: 0.820'},{x:0.08405563293198215,y:0.08605190148763314,text:'27.10% SPY<br\/>11.62% SLY<br\/>0.06% EFA<br\/>0.30% EEM<br\/>2.90% VNQ<br\/>30.53% TLT<br\/>10.03% LQD<br\/>17.46% GLD<br\/>Expected Return: 8.41%<br\/>Standard Deviation: 8.61%<br\/>Sharpe Ratio: 0.820'},{x:0.08446854914792157,y:0.08653761445898386,text:'27.15% SPY<br\/>11.87% SLY<br\/>0.06% EFA<br\/>0.32% EEM<br\/>3.07% VNQ<br\/>30.47% TLT<br\/>9.37% LQD<br\/>17.69% GLD<br\/>Expected Return: 8.45%<br\/>Standard Deviation: 8.65%<br\/>Sharpe Ratio: 0.820'},{x:0.08487654115351462,y:0.0870337296559002,text:'27.17% SPY<br\/>12.13% SLY<br\/>0.07% EFA<br\/>0.34% EEM<br\/>3.24% VNQ<br\/>30.37% TLT<br\/>8.75% LQD<br\/>17.94% GLD<br\/>Expected Return: 8.49%<br\/>Standard Deviation: 8.70%<br\/>Sharpe Ratio: 0.819'},{x:0.08528163317145698,y:0.08753989315565823,text:'27.20% SPY<br\/>12.38% SLY<br\/>0.07% EFA<br\/>0.36% EEM<br\/>3.41% VNQ<br\/>30.22% TLT<br\/>8.17% LQD<br\/>18.19% GLD<br\/>Expected Return: 8.53%<br\/>Standard Deviation: 8.75%<br\/>Sharpe Ratio: 0.819'},{x:0.08568133029557701,y:0.08805233197250498,text:'27.25% SPY<br\/>12.61% SLY<br\/>0.07% EFA<br\/>0.38% EEM<br\/>3.59% VNQ<br\/>30.05% TLT<br\/>7.62% LQD<br\/>18.44% GLD<br\/>Expected Return: 8.57%<br\/>Standard Deviation: 8.81%<br\/>Sharpe Ratio: 0.818'},{x:0.08606717774550243,y:0.08856498616589643,text:'27.28% SPY<br\/>12.84% SLY<br\/>0.07% EFA<br\/>0.40% EEM<br\/>3.76% VNQ<br\/>29.84% TLT<br\/>7.12% LQD<br\/>18.69% GLD<br\/>Expected Return: 8.61%<br\/>Standard Deviation: 8.86%<br\/>Sharpe Ratio: 0.818'},{x:0.08644356595138802,y:0.08908297339363459,text:'27.29% SPY<br\/>13.08% SLY<br\/>0.07% EFA<br\/>0.42% EEM<br\/>3.93% VNQ<br\/>29.60% TLT<br\/>6.66% LQD<br\/>18.94% GLD<br\/>Expected Return: 8.64%<br\/>Standard Deviation: 8.91%<br\/>Sharpe Ratio: 0.817'},{x:0.08681714941714147,y:0.08961042000640351,text:'27.30% SPY<br\/>13.32% SLY<br\/>0.08% EFA<br\/>0.44% EEM<br\/>4.10% VNQ<br\/>29.33% TLT<br\/>6.23% LQD<br\/>19.19% GLD<br\/>Expected Return: 8.68%<br\/>Standard Deviation: 8.96%<br\/>Sharpe Ratio: 0.816'},{x:0.0871880867031396,y:0.0901443815089769,text:'27.31% SPY<br\/>13.55% SLY<br\/>0.07% EFA<br\/>0.46% EEM<br\/>4.27% VNQ<br\/>29.04% TLT<br\/>5.83% LQD<br\/>19.45% GLD<br\/>Expected Return: 8.72%<br\/>Standard Deviation: 9.01%<br\/>Sharpe Ratio: 0.815'},{x:0.08755461759051686,y:0.09068890594336469,text:'27.30% SPY<br\/>13.79% SLY<br\/>0.07% EFA<br\/>0.49% EEM<br\/>4.45% VNQ<br\/>28.73% TLT<br\/>5.45% LQD<br\/>19.72% GLD<br\/>Expected Return: 8.76%<br\/>Standard Deviation: 9.07%<br\/>Sharpe Ratio: 0.814'},{x:0.08791378551898288,y:0.09123755222376384,text:'27.29% SPY<br\/>14.02% SLY<br\/>0.06% EFA<br\/>0.51% EEM<br\/>4.63% VNQ<br\/>28.40% TLT<br\/>5.10% LQD<br\/>19.99% GLD<br\/>Expected Return: 8.79%<br\/>Standard Deviation: 9.12%<br\/>Sharpe Ratio: 0.813'},{x:0.08826823847722842,y:0.09179599405871625,text:'27.28% SPY<br\/>14.24% SLY<br\/>0.06% EFA<br\/>0.53% EEM<br\/>4.81% VNQ<br\/>28.04% TLT<br\/>4.78% LQD<br\/>20.26% GLD<br\/>Expected Return: 8.83%<br\/>Standard Deviation: 9.18%<br\/>Sharpe Ratio: 0.811'},{x:0.08862569068155257,y:0.09237045028504977,text:'27.29% SPY<br\/>14.45% SLY<br\/>0.06% EFA<br\/>0.55% EEM<br\/>4.99% VNQ<br\/>27.66% TLT<br\/>4.48% LQD<br\/>20.53% GLD<br\/>Expected Return: 8.86%<br\/>Standard Deviation: 9.24%<br\/>Sharpe Ratio: 0.810'},{x:0.08898157281986374,y:0.09295570393285152,text:'27.31% SPY<br\/>14.65% SLY<br\/>0.05% EFA<br\/>0.57% EEM<br\/>5.17% VNQ<br\/>27.26% TLT<br\/>4.19% LQD<br\/>20.80% GLD<br\/>Expected Return: 8.90%<br\/>Standard Deviation: 9.30%<br\/>Sharpe Ratio: 0.808'},{x:0.08933393062395978,y:0.09355030186935352,text:'27.32% SPY<br\/>14.86% SLY<br\/>0.05% EFA<br\/>0.59% EEM<br\/>5.35% VNQ<br\/>26.85% TLT<br\/>3.91% LQD<br\/>21.07% GLD<br\/>Expected Return: 8.93%<br\/>Standard Deviation: 9.36%<br\/>Sharpe Ratio: 0.807'},{x:0.08968078368723198,y:0.09415483570556535,text:'27.32% SPY<br\/>15.06% SLY<br\/>0.05% EFA<br\/>0.61% EEM<br\/>5.54% VNQ<br\/>26.43% TLT<br\/>3.65% LQD<br\/>21.35% GLD<br\/>Expected Return: 8.97%<br\/>Standard Deviation: 9.42%<br\/>Sharpe Ratio: 0.805'},{x:0.0900223203310111,y:0.09477831631626411,text:'27.27% SPY<br\/>15.29% SLY<br\/>0.04% EFA<br\/>0.64% EEM<br\/>5.74% VNQ<br\/>26.00% TLT<br\/>3.41% LQD<br\/>21.62% GLD<br\/>Expected Return: 9.00%<br\/>Standard Deviation: 9.48%<br\/>Sharpe Ratio: 0.803'},{x:0.09036454880756262,y:0.0954264827287287,text:'27.18% SPY<br\/>15.55% SLY<br\/>0.04% EFA<br\/>0.67% EEM<br\/>5.94% VNQ<br\/>25.56% TLT<br\/>3.17% LQD<br\/>21.89% GLD<br\/>Expected Return: 9.04%<br\/>Standard Deviation: 9.54%<br\/>Sharpe Ratio: 0.801'},{x:0.09070260712950184,y:0.09609138894997477,text:'27.10% SPY<br\/>15.80% SLY<br\/>0.03% EFA<br\/>0.70% EEM<br\/>6.16% VNQ<br\/>25.12% TLT<br\/>2.95% LQD<br\/>22.15% GLD<br\/>Expected Return: 9.07%<br\/>Standard Deviation: 9.61%<br\/>Sharpe Ratio: 0.798'},{x:0.09103571828507673,y:0.09677673887157073,text:'26.99% SPY<br\/>16.05% SLY<br\/>0.03% EFA<br\/>0.74% EEM<br\/>6.39% VNQ<br\/>24.67% TLT<br\/>2.74% LQD<br\/>22.39% GLD<br\/>Expected Return: 9.10%<br\/>Standard Deviation: 9.68%<br\/>Sharpe Ratio: 0.796'},{x:0.09136464613979633,y:0.09747743691626116,text:'26.89% SPY<br\/>16.29% SLY<br\/>0.03% EFA<br\/>0.78% EEM<br\/>6.64% VNQ<br\/>24.20% TLT<br\/>2.55% LQD<br\/>22.62% GLD<br\/>Expected Return: 9.14%<br\/>Standard Deviation: 9.75%<br\/>Sharpe Ratio: 0.793'},{x:0.09169428639398891,y:0.0981998812826613,text:'26.79% SPY<br\/>16.53% SLY<br\/>0.02% EFA<br\/>0.82% EEM<br\/>6.89% VNQ<br\/>23.71% TLT<br\/>2.38% LQD<br\/>22.86% GLD<br\/>Expected Return: 9.17%<br\/>Standard Deviation: 9.82%<br\/>Sharpe Ratio: 0.791'},{x:0.09201868866172114,y:0.09894284322435398,text:'26.66% SPY<br\/>16.78% SLY<br\/>0.02% EFA<br\/>0.86% EEM<br\/>7.16% VNQ<br\/>23.21% TLT<br\/>2.22% LQD<br\/>23.09% GLD<br\/>Expected Return: 9.20%<br\/>Standard Deviation: 9.89%<br\/>Sharpe Ratio: 0.788'},{x:0.09234611105343138,y:0.09972037577226149,text:'26.49% SPY<br\/>17.03% SLY<br\/>0.01% EFA<br\/>0.90% EEM<br\/>7.46% VNQ<br\/>22.70% TLT<br\/>2.07% LQD<br\/>23.34% GLD<br\/>Expected Return: 9.23%<br\/>Standard Deviation: 9.97%<br\/>Sharpe Ratio: 0.785'},{x:0.09265320152489842,y:0.10050981739182217,text:'26.29% SPY<br\/>17.27% SLY<br\/>0.01% EFA<br\/>0.95% EEM<br\/>7.77% VNQ<br\/>22.18% TLT<br\/>1.94% LQD<br\/>23.59% GLD<br\/>Expected Return: 9.27%<br\/>Standard Deviation: 10.05%<br\/>Sharpe Ratio: 0.781'},{x:0.09295417046648624,y:0.10131396515165855,text:'26.08% SPY<br\/>17.52% SLY<br\/>0.01% EFA<br\/>1.03% EEM<br\/>8.08% VNQ<br\/>21.66% TLT<br\/>1.81% LQD<br\/>23.82% GLD<br\/>Expected Return: 9.30%<br\/>Standard Deviation: 10.13%<br\/>Sharpe Ratio: 0.778'},{x:0.0932446088376393,y:0.10212205193357152,text:'25.86% SPY<br\/>17.76% SLY<br\/>1.11% EEM<br\/>8.39% VNQ<br\/>21.14% TLT<br\/>1.70% LQD<br\/>24.04% GLD<br\/>Expected Return: 9.32%<br\/>Standard Deviation: 10.21%<br\/>Sharpe Ratio: 0.774'},{x:0.09353119210904803,y:0.10293928049127922,text:'25.63% SPY<br\/>18.01% SLY<br\/>1.20% EEM<br\/>8.70% VNQ<br\/>20.63% TLT<br\/>1.58% LQD<br\/>24.26% GLD<br\/>Expected Return: 9.35%<br\/>Standard Deviation: 10.29%<br\/>Sharpe Ratio: 0.771'},{x:0.09380496754982226,y:0.10375352189340993,text:'25.35% SPY<br\/>18.30% SLY<br\/>1.28% EEM<br\/>9.01% VNQ<br\/>20.15% TLT<br\/>1.47% LQD<br\/>24.45% GLD<br\/>Expected Return: 9.38%<br\/>Standard Deviation: 10.38%<br\/>Sharpe Ratio: 0.767'},{x:0.09405764941621064,y:0.1045506012864004,text:'25.01% SPY<br\/>18.61% SLY<br\/>1.37% EEM<br\/>9.31% VNQ<br\/>19.68% TLT<br\/>1.39% LQD<br\/>24.64% GLD<br\/>Expected Return: 9.41%<br\/>Standard Deviation: 10.46%<br\/>Sharpe Ratio: 0.763'},{x:0.09430380174317454,y:0.10535541277932607,text:'24.65% SPY<br\/>18.93% SLY<br\/>1.46% EEM<br\/>9.63% VNQ<br\/>19.22% TLT<br\/>1.31% LQD<br\/>24.79% GLD<br\/>Expected Return: 9.43%<br\/>Standard Deviation: 10.54%<br\/>Sharpe Ratio: 0.760'},{x:0.09455105796940422,y:0.10617718973659779,text:'24.33% SPY<br\/>19.26% SLY<br\/>1.55% EEM<br\/>9.95% VNQ<br\/>18.78% TLT<br\/>1.23% LQD<br\/>24.90% GLD<br\/>Expected Return: 9.46%<br\/>Standard Deviation: 10.62%<br\/>Sharpe Ratio: 0.756'},{x:0.0947905710832897,y:0.10701086070592158,text:'24.00% SPY<br\/>19.57% SLY<br\/>1.65% EEM<br\/>10.29% VNQ<br\/>18.34% TLT<br\/>1.16% LQD<br\/>24.98% GLD<br\/>Expected Return: 9.48%<br\/>Standard Deviation: 10.70%<br\/>Sharpe Ratio: 0.752'},{x:0.09500672968724033,y:0.10784836448832735,text:'23.54% SPY<br\/>19.95% SLY<br\/>1.77% EEM<br\/>10.63% VNQ<br\/>17.94% TLT<br\/>1.09% LQD<br\/>25.07% GLD<br\/>Expected Return: 9.50%<br\/>Standard Deviation: 10.78%<br\/>Sharpe Ratio: 0.748'},{x:0.09520973318339654,y:0.1086857702158473,text:'22.96% SPY<br\/>20.40% SLY<br\/>1.90% EEM<br\/>10.98% VNQ<br\/>17.56% TLT<br\/>1.03% LQD<br\/>25.16% GLD<br\/>Expected Return: 9.52%<br\/>Standard Deviation: 10.87%<br\/>Sharpe Ratio: 0.744'},{x:0.09539635308683825,y:0.10951748573960322,text:'22.37% SPY<br\/>20.83% SLY<br\/>2.02% EEM<br\/>11.36% VNQ<br\/>17.21% TLT<br\/>0.97% LQD<br\/>25.23% GLD<br\/>Expected Return: 9.54%<br\/>Standard Deviation: 10.95%<br\/>Sharpe Ratio: 0.740'},{x:0.09558487326199927,y:0.11037155886966345,text:'21.78% SPY<br\/>21.27% SLY<br\/>2.14% EEM<br\/>11.75% VNQ<br\/>16.86% TLT<br\/>0.92% LQD<br\/>25.28% GLD<br\/>Expected Return: 9.56%<br\/>Standard Deviation: 11.04%<br\/>Sharpe Ratio: 0.736'},{x:0.09577107596058565,y:0.11123751494183491,text:'21.10% SPY<br\/>21.76% SLY<br\/>2.26% EEM<br\/>12.15% VNQ<br\/>16.51% TLT<br\/>0.87% LQD<br\/>25.34% GLD<br\/>Expected Return: 9.58%<br\/>Standard Deviation: 11.12%<br\/>Sharpe Ratio: 0.732'},{x:0.09595117983596091,y:0.11211563914654894,text:'20.34% SPY<br\/>22.30% SLY<br\/>2.38% EEM<br\/>12.57% VNQ<br\/>16.19% TLT<br\/>0.82% LQD<br\/>25.41% GLD<br\/>Expected Return: 9.60%<br\/>Standard Deviation: 11.21%<br\/>Sharpe Ratio: 0.727'},{x:0.0961341004785472,y:0.11304519831832724,text:'19.49% SPY<br\/>22.93% SLY<br\/>2.51% EEM<br\/>12.98% VNQ<br\/>15.86% TLT<br\/>0.77% LQD<br\/>25.46% GLD<br\/>Expected Return: 9.61%<br\/>Standard Deviation: 11.30%<br\/>Sharpe Ratio: 0.723'},{x:0.09632751688277597,y:0.1140001283412424,text:'18.60% SPY<br\/>23.59% SLY<br\/>2.64% EEM<br\/>13.38% VNQ<br\/>15.51% TLT<br\/>0.72% LQD<br\/>25.54% GLD<br\/>Expected Return: 9.63%<br\/>Standard Deviation: 11.40%<br\/>Sharpe Ratio: 0.718'},{x:0.09654882970036072,y:0.115056282927365,text:'17.73% SPY<br\/>24.26% SLY<br\/>2.78% EEM<br\/>13.82% VNQ<br\/>15.12% TLT<br\/>0.67% LQD<br\/>25.61% GLD<br\/>Expected Return: 9.65%<br\/>Standard Deviation: 11.51%<br\/>Sharpe Ratio: 0.714'},{x:0.09676219125828434,y:0.11616110718080866,text:'16.82% SPY<br\/>24.94% SLY<br\/>2.92% EEM<br\/>14.33% VNQ<br\/>14.75% TLT<br\/>0.63% LQD<br\/>25.61% GLD<br\/>Expected Return: 9.68%<br\/>Standard Deviation: 11.62%<br\/>Sharpe Ratio: 0.708'},{x:0.09697281254970824,y:0.11726840926044249,text:'15.98% SPY<br\/>25.58% SLY<br\/>3.03% EEM<br\/>14.88% VNQ<br\/>14.41% TLT<br\/>0.59% LQD<br\/>25.53% GLD<br\/>Expected Return: 9.70%<br\/>Standard Deviation: 11.73%<br\/>Sharpe Ratio: 0.703'},{x:0.09716661514328861,y:0.11847716664635675,text:'15.04% SPY<br\/>26.23% SLY<br\/>3.21% EEM<br\/>15.46% VNQ<br\/>14.02% TLT<br\/>0.56% LQD<br\/>25.48% GLD<br\/>Expected Return: 9.72%<br\/>Standard Deviation: 11.85%<br\/>Sharpe Ratio: 0.698'},{x:0.09729096774321921,y:0.11970647485517999,text:'13.90% SPY<br\/>26.89% SLY<br\/>3.51% EEM<br\/>16.04% VNQ<br\/>13.64% TLT<br\/>0.54% LQD<br\/>25.48% GLD<br\/>Expected Return: 9.73%<br\/>Standard Deviation: 11.97%<br\/>Sharpe Ratio: 0.692'},{x:0.09740281906004666,y:0.12100551825749493,text:'12.56% SPY<br\/>27.72% SLY<br\/>3.82% EEM<br\/>16.66% VNQ<br\/>13.33% TLT<br\/>0.52% LQD<br\/>25.38% GLD<br\/>Expected Return: 9.74%<br\/>Standard Deviation: 12.10%<br\/>Sharpe Ratio: 0.685'},{x:0.09744686238499245,y:0.12240120643464444,text:'11.05% SPY<br\/>28.54% SLY<br\/>4.21% EEM<br\/>17.43% VNQ<br\/>13.11% TLT<br\/>0.52% LQD<br\/>25.16% GLD<br\/>Expected Return: 9.74%<br\/>Standard Deviation: 12.24%<br\/>Sharpe Ratio: 0.678'},{x:0.09740642266149835,y:0.12360340907502425,text:'9.61% SPY<br\/>29.23% SLY<br\/>4.61% EEM<br\/>18.18% VNQ<br\/>13.04% TLT<br\/>0.51% LQD<br\/>24.83% GLD<br\/>Expected Return: 9.74%<br\/>Standard Deviation: 12.36%<br\/>Sharpe Ratio: 0.671'},{x:0.09730727210647938,y:0.12520339312261874,text:'8.00% SPY<br\/>30.50% SLY<br\/>5.50% EEM<br\/>18.50% VNQ<br\/>13.00% TLT<br\/>0.50% LQD<br\/>24.00% GLD<br\/>Expected Return: 9.73%<br\/>Standard Deviation: 12.52%<br\/>Sharpe Ratio: 0.661'}]}, { name: 'Points', color: 'black', type: 'scatter', data: [ {x:0.08077843803493412,y:0.11733971669411841,text:'Provided Portfolio<br\/>Expected Return: 8.08%<br\/>Standard Deviation: 11.73%<br\/>Sharpe Ratio: 0.575'},{x:0.10925271993563501,y:0.14998036724115654,text:'SPY<br\/>Expected Return: 10.93%<br\/>Standard Deviation: 15.00%<br\/>Sharpe Ratio: 0.625'},{x:0.05479039120937235,y:0.17285526397762738,text:'EFA<br\/>Expected Return: 5.48%<br\/>Standard Deviation: 17.29%<br\/>Sharpe Ratio: 0.249'},{x:0.05531518846229733,y:0.13536846815423378,text:'TLT<br\/>Expected Return: 5.53%<br\/>Standard Deviation: 13.54%<br\/>Sharpe Ratio: 0.322'},{x:0.04706909254346803,y:0.07565505728568636,text:'LQD<br\/>Expected Return: 4.71%<br\/>Standard Deviation: 7.57%<br\/>Sharpe Ratio: 0.471'},{x:0.09184218301681812,y:0.17358330783692325,text:'GLD<br\/>Expected Return: 9.18%<br\/>Standard Deviation: 17.36%<br\/>Sharpe Ratio: 0.448'}]}], annotations: [{labelOptions: { backgroundColor: 'rgba(255,255,255,0.5)', verticalAlign: 'top', y: 15 }, labels: [{ point: { xAxis: 0, yAxis: 0, x: 0.08077843803493412, y: 0.11733971669411841 }, text: 'Provided Portfolio' },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.10925271993563501, y: 0.14998036724115654 }, text: 'SPY', style: {color: '#3366CC' } },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.05479039120937235, y: 0.17285526397762738 }, text: 'EFA', style: {color: '#FF9900' } },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.05531518846229733, y: 0.13536846815423378 }, text: 'TLT', style: {color: '#0099C6' } },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.04706909254346803, y: 0.07565505728568636 }, text: 'LQD', style: {color: '#DD4477' } },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.09184218301681812, y: 0.17358330783692325 }, text: 'GLD', style: {color: '#66AA00' } },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.0836319795556244, y: 0.08557058811713325 }, text: 'Tangency Portfolio' }], shapes: [{ point: { xAxis: 0, yAxis: 0, x: 0.10925271993563501, y: 0.14998036724115654 }, type: 'circle', r: 4, fill: '#3366CC', stroke: '#3366CC' },{ point: { xAxis: 0, yAxis: 0, x: 0.05479039120937235, y: 0.17285526397762738 }, type: 'circle', r: 4, fill: '#FF9900', stroke: '#FF9900' },{ point: { xAxis: 0, yAxis: 0, x: 0.05531518846229733, y: 0.13536846815423378 }, type: 'circle', r: 4, fill: '#0099C6', stroke: '#0099C6' },{ point: { xAxis: 0, yAxis: 0, x: 0.04706909254346803, y: 0.07565505728568636 }, type: 'circle', r: 4, fill: '#DD4477', stroke: '#DD4477' },{ point: { xAxis: 0, yAxis: 0, x: 0.09184218301681812, y: 0.17358330783692325 }, type: 'circle', r: 4, fill: '#66AA00', stroke: '#66AA00' }]}] };
+return [chart3, null, null];
+}
+</script>
+<div id="chartDiv4" style="min-width: 900px; min-height: 650px; max-width: 1350px; max-height: 975px;"></div>
+<script>
+function getChartData4() {
+var chart4 = { chart: { type: 'area', }, title: { text: 'Efficient Frontier Transition Map (Jan 2006 - May 2022)' }, plotOptions: { area: { stacking: 'normal', marker: { radius: 2 } } },xAxis: { title: { text: 'Standard Deviation'} , labels: { formatter: function() { return (100.0*this.value).toFixed(1) + '%'; }}, bogus: true},yAxis: { title: {text: 'Allocation'} , min: 0, max: 1 , labels: { formatter: function() { return (100.0*this.value).toFixed(1) + '%'; } }},tooltip: { formatter: function () { var s = '<b>' + (100.0*this.x).toFixed(2) + '%' + '</b>'; $.each(this.points, function () { s += '<br/><span style="color:'+ this.series.color+ '">\u25CF </span>' + this.series.name + ': ' + (100.0*this.y).toFixed(2) + '%'; }); return s; } }, series: [{ name: 'SPY', data: [[0.07298700040364281,0.10821237971241704],[0.07298989058024948,0.11408452283214641],[0.07300428482583318,0.11959720844173459],[0.07302957539111357,0.12508358131944058],[0.07306530977131302,0.13051709820015261],[0.07311565563849269,0.13551189967224447],[0.07317853750676914,0.1402513403486911],[0.07325277862414,0.1447624203448336],[0.07333743056128171,0.1491303068815306],[0.07343217753849662,0.153448924100956],[0.07353946135806826,0.15762094163466892],[0.07365707092656637,0.1616637708422113],[0.07378545817924678,0.16563146806780446],[0.07392441419214213,0.1694918459636866],[0.07407374298115349,0.1732511915006949],[0.0742332252160055,0.17694891395528037],[0.07440425184991575,0.180587634825894],[0.07458625600668353,0.18423428877123857],[0.07477905564037443,0.1878584001926071],[0.07498312897246069,0.19151983107379322],[0.07519749462069636,0.19513911843119683],[0.07542187878029256,0.1987019304706141],[0.07565685198991802,0.2022605909529699],[0.07590399159972709,0.20586633146570102],[0.07616252520844802,0.2093975137107248],[0.07643114823986857,0.2128323716970642],[0.07670914426004115,0.21621891250621805],[0.07699676537173104,0.21962202134848252],[0.07729627730326107,0.22298708263869255],[0.07760796090375217,0.22642107371093287],[0.07792961196581966,0.22981106069295454],[0.07826086787494141,0.233135024084383],[0.07860340010078022,0.23647078573143887],[0.07895630212490799,0.23967643311165593],[0.07931755192678686,0.24259451855971606],[0.07968459232569808,0.2453232869604425],[0.08005677892153568,0.24786082071906493],[0.0804358491750497,0.25033056496648065],[0.08082137293182665,0.25277034490510353],[0.08121564109271752,0.25505034807873317],[0.08161686798566054,0.2570721627469748],[0.0820199801711471,0.25896165413981914],[0.08243303772964192,0.2606357000212899],[0.08285558480656989,0.2623129775483983],[0.08328511759213542,0.26393139499247326],[0.08372424179450373,0.26538824566613983],[0.08417455631978979,0.26673844525136453],[0.08463193277496468,0.26795777668992266],[0.0850980638877582,0.2691693349416355],[0.08557058811713325,0.2701785024272102],[0.08605190148763314,0.2709925116476957],[0.08653761445898386,0.27146906199262044],[0.0870337296559002,0.27167384918020726],[0.08753989315565823,0.2720313757891375],[0.08805233197250498,0.27249901864673787],[0.08856498616589643,0.27281849757629595],[0.08908297339363459,0.27293855958798857],[0.08961042000640351,0.27302963252158036],[0.0901443815089769,0.2730756332607772],[0.09068890594336469,0.27297857807794723],[0.09123755222376384,0.27287610823208186],[0.09179599405871625,0.2728204370410538],[0.09237045028504977,0.2729472696552183],[0.09295570393285152,0.2731236610828404],[0.09355030186935352,0.27319466566327333],[0.09415483570556535,0.2731608483535966],[0.09477831631626411,0.272660876337275],[0.0954264827287287,0.27184880060050626],[0.09609138894997477,0.27095437361943886],[0.09677673887157073,0.269944368099315],[0.09747743691626116,0.26893945330207486],[0.0981998812826613,0.2679343959486753],[0.09894284322435398,0.2665734659300994],[0.09972037577226149,0.2649161975009722],[0.10050981739182217,0.26287525593202743],[0.10131396515165855,0.26077746459927886],[0.10212205193357152,0.25861026388580727],[0.10293928049127922,0.25627938574195536],[0.10375352189340993,0.25345546016073],[0.1045506012864004,0.25006717425060443],[0.10535541277932607,0.2465457374728249],[0.10617718973659779,0.24326238747579204],[0.10701086070592158,0.23995618666319438],[0.10784836448832735,0.23537201268496577],[0.1086857702158473,0.22963567926853226],[0.10951748573960322,0.22371171612897378],[0.11037155886966345,0.21775657210743046],[0.11123751494183491,0.2109970379993013],[0.11211563914654894,0.2033643737333101],[0.11304519831832724,0.194858743018391],[0.1140001283412424,0.1860362814493636],[0.115056282927365,0.17731217944847483],[0.11616110718080866,0.16824578271656418],[0.11726840926044249,0.15982488738359935],[0.11847716664635675,0.15038870640752713],[0.11970647485517999,0.13899209091349385],[0.12100551825749493,0.1256047235765286],[0.12240120643464444,0.11045794486068675]]},{ name: 'SLY', data: [[0.07298700040364281,0.012046049483085184],[0.07298989058024948,0.012662552061660805],[0.07300428482583318,0.013537020422694654],[0.07302957539111357,0.014447939212989275],[0.07306530977131302,0.015405463175870977],[0.07311565563849269,0.016631129706704315],[0.07317853750676914,0.018034198463410138],[0.07325277862414,0.019586925171093797],[0.07333743056128171,0.021245840348341632],[0.07343217753849662,0.022961033091755963],[0.07353946135806826,0.024794549962251958],[0.07365707092656637,0.0267085733867596],[0.07378545817924678,0.02864103668333944],[0.07392441419214213,0.030642368923847762],[0.07407374298115349,0.03273656372801428],[0.0742332252160055,0.03488582425178663],[0.07440425184991575,0.03705255697249209],[0.07458625600668353,0.039202278260886944],[0.07477905564037443,0.041364379574306616],[0.07498312897246069,0.043504118047004436],[0.07519749462069636,0.045660645702253845],[0.07542187878029256,0.047869163275575784],[0.07565685198991802,0.05008270842382828],[0.07590399159972709,0.05224318194988628],[0.07616252520844802,0.054409414117904745],[0.07643114823986857,0.056596311060552545],[0.07670914426004115,0.0588031929595975],[0.07699676537173104,0.06100499838030277],[0.07729627730326107,0.06321897315109679],[0.07760796090375217,0.06538552223257185],[0.07792961196581966,0.06759314277043674],[0.07826086787494141,0.06981147774505847],[0.07860340010078022,0.07199783022532998],[0.07895630212490799,0.07418158564221666],[0.07931755192678686,0.07643883032464473],[0.07968459232569808,0.07877754300834537],[0.08005677892153568,0.08121717043733825],[0.0804358491750497,0.0836776524104579],[0.08082137293182665,0.0860962779481624],[0.08121564109271752,0.08852267193637955],[0.08161686798566054,0.09098633495675129],[0.0820199801711471,0.09346691364202041],[0.08243303772964192,0.09608321567678069],[0.08285558480656989,0.09860895232286632],[0.08328511759213542,0.1010718740965288],[0.08372424179450373,0.10363055754936],[0.08417455631978979,0.10616655490298633],[0.08463193277496468,0.10875870570102268],[0.0850980638877582,0.11126511557361654],[0.08557058811713325,0.11371600715518802],[0.08605190148763314,0.11617846179334387],[0.08653761445898386,0.11869906799795653],[0.0870337296559002,0.12133079145721284],[0.08753989315565823,0.12377984737336445],[0.08805233197250498,0.1261202389627158],[0.08856498616589643,0.12842512275103743],[0.08908297339363459,0.13080824613287753],[0.08961042000640351,0.1331817458738046],[0.0901443815089769,0.13554858873047285],[0.09068890594336469,0.13789474199946125],[0.09123755222376384,0.14017982693255301],[0.09179599405871625,0.1424097755554067],[0.09237045028504977,0.1444815890573327],[0.09295570393285152,0.14650984033206793],[0.09355030186935352,0.14857260707720157],[0.09415483570556535,0.15060356525573734],[0.09477831631626411,0.15291458409193243],[0.0954264827287287,0.1554570817764219],[0.09609138894997477,0.15795237409684781],[0.09677673887157073,0.1604518913409738],[0.09747743691626116,0.16289796424596664],[0.0981998812826613,0.16527852093023737],[0.09894284322435398,0.16777998586798398],[0.09972037577226149,0.17029368678135418],[0.10050981739182217,0.17272099011948938],[0.10131396515165855,0.17518872186647666],[0.10212205193357152,0.1775799189040359],[0.10293928049127922,0.1800931020583477],[0.10375352189340993,0.18299244596598743],[0.1045506012864004,0.18608373668512965],[0.10535541277932607,0.18933028115799908],[0.10617718973659779,0.19256735535875746],[0.10701086070592158,0.1957206063311689],[0.10784836448832735,0.19951502661204476],[0.1086857702158473,0.204006954783128],[0.10951748573960322,0.20834245447407324],[0.11037155886966345,0.21272899711807394],[0.11123751494183491,0.2176292153528582],[0.11211563914654894,0.22304345828986194],[0.11304519831832724,0.22926800273783848],[0.1140001283412424,0.23591081341778658],[0.115056282927365,0.24264417066824107],[0.11616110718080866,0.2494320344586791],[0.11726840926044249,0.2558494147500368],[0.11847716664635675,0.26234496941551116],[0.11970647485517999,0.2688641269880925],[0.12100551825749493,0.2771875622668993],[0.12240120643464444,0.28538983269999324]]},{ name: 'EFA', data: [[0.07298700040364281,2.537794783814537E-4],[0.07298989058024948,1.765283550379074E-4],[0.07300428482583318,9.927723169431551E-5],[0.07302957539111357,5.2689679721311974E-5],[0.07306530977131302,8.398783785592255E-6],[0.07311565563849269,8.77658830361683E-17],[0.07317853750676914,9.229177568626047E-17],[0.07325277862414,8.838206440210566E-17],[0.07333743056128171,6.825648205392037E-17],[0.07343217753849662,6.060997933711746E-17],[0.07353946135806826,6.009812515568711E-17],[0.07365707092656637,4.8016301458793993E-17],[0.07378545817924678,3.4706267920544394E-17],[0.07392441419214213,3.494861363690852E-17],[0.07407374298115349,3.437411200199148E-17],[0.0742332252160055,3.559483767853441E-17],[0.07440425184991575,3.611785749196115E-17],[0.07458625600668353,3.4566695337027026E-17],[0.07477905564037443,3.5538931336547503E-17],[0.07498312897246069,3.4629716201148935E-17],[0.07519749462069636,3.861185200548002E-17],[0.07542187878029256,3.783952443123181E-17],[0.07565685198991802,3.773628239876866E-17],[0.07590399159972709,3.589986981249901E-17],[0.07616252520844802,3.8115352251266914E-17],[0.07643114823986857,3.736097564250508E-17],[0.07670914426004115,2.13835891713843E-5],[0.07699676537173104,4.583528398269789E-5],[0.07729627730326107,7.028697879404336E-5],[0.07760796090375217,9.473867360539195E-5],[0.07792961196581966,1.1919036841674121E-4],[0.07826086787494141,1.4364206322804477E-4],[0.07860340010078022,1.6809375803939015E-4],[0.07895630212490799,1.9254545285071886E-4],[0.07931755192678686,2.169971476620457E-4],[0.07968459232569808,2.4144884247340363E-4],[0.08005677892153568,2.659005372847305E-4],[0.0804358491750497,2.9035223209608385E-4],[0.08082137293182665,3.148039269074134E-4],[0.08121564109271752,3.3925562171875894E-4],[0.08161686798566054,3.6370731653007944E-4],[0.0820199801711471,3.8815901134142683E-4],[0.08243303772964192,4.126107061527372E-4],[0.08285558480656989,4.3706240096408425E-4],[0.08328511759213542,4.6151409577543186E-4],[0.08372424179450373,4.8596579058678125E-4],[0.08417455631978979,5.10417485398077E-4],[0.08463193277496468,5.348691802094231E-4],[0.0850980638877582,5.593208750207616E-4],[0.08557058811713325,5.837725698320866E-4],[0.08605190148763314,6.082242646434331E-4],[0.08653761445898386,6.30716645109735E-4],[0.0870337296559002,6.523453197253324E-4],[0.08753989315565823,6.739739943409283E-4],[0.08805233197250498,6.956026689565295E-4],[0.08856498616589643,7.172313435721163E-4],[0.08908297339363459,7.388600181877335E-4],[0.08961042000640351,7.604886928033554E-4],[0.0901443815089769,7.239624517922053E-4],[0.09068890594336469,6.849921650567562E-4],[0.09123755222376384,6.460218783213709E-4],[0.09179599405871625,6.070515915859627E-4],[0.09237045028504977,5.680813048505736E-4],[0.09295570393285152,5.291110181151621E-4],[0.09355030186935352,4.901407313797543E-4],[0.09415483570556535,4.511704446443204E-4],[0.09477831631626411,4.122001579088826E-4],[0.0954264827287287,3.7322987117347335E-4],[0.09609138894997477,3.3425958443804706E-4],[0.09677673887157073,2.9528929770266516E-4],[0.09747743691626116,2.563190109672464E-4],[0.0981998812826613,2.1734872423185533E-4],[0.09894284322435398,1.783784374964133E-4],[0.09972037577226149,1.3940815076098352E-4],[0.10050981739182217,1.0043786402556579E-4],[0.10131396515165855,6.146757729017061E-5],[0.10212205193357152,2.249729055477458E-5],[0.10293928049127922,5.497825919582021E-17],[0.10375352189340993,5.742244762600722E-17],[0.1045506012864004,5.575003339051832E-17],[0.10535541277932607,5.538831292405748E-17],[0.10617718973659779,5.777665575855685E-17],[0.10701086070592158,5.676978760858257E-17],[0.10784836448832735,5.524548134113669E-17],[0.1086857702158473,5.40752275763783E-17],[0.10951748573960322,5.385777599629376E-17],[0.11037155886966345,5.288534007067823E-17],[0.11123751494183491,5.496505854794813E-17],[0.11211563914654894,5.2611045721532086E-17],[0.11304519831832724,5.164945425181957E-17],[0.1140001283412424,5.337070318963423E-17],[0.115056282927365,4.758842436957486E-17],[0.11616110718080866,4.477513281427122E-17],[0.11726840926044249,4.5230956985843336E-17],[0.11847716664635675,4.427652718490699E-17],[0.11970647485517999,4.2845124116678873E-17],[0.12100551825749493,4.5907663028499143E-17],[0.12240120643464444,4.19676519110955E-17]]},{ name: 'EEM', data: [[0.07298700040364281,1.1700670630183658E-4],[0.07298989058024948,1.2000175893475332E-4],[0.07300428482583318,1.2268234021967347E-4],[0.07302957539111357,1.2798754954885147E-4],[0.07306530977131302,1.3284769813441704E-4],[0.07311565563849269,1.377078467199839E-4],[0.07317853750676914,1.425679953055496E-4],[0.07325277862414,1.4742814389111548E-4],[0.07333743056128171,1.522882924766832E-4],[0.07343217753849662,1.5714844106225022E-4],[0.07353946135806826,1.620085896478158E-4],[0.07365707092656637,1.6686873823338035E-4],[0.07378545817924678,1.7172888681894622E-4],[0.07392441419214213,1.7658903540451398E-4],[0.07407374298115349,1.8144918399007928E-4],[0.0742332252160055,1.863093325756438E-4],[0.07440425184991575,1.9116948116120855E-4],[0.07458625600668353,1.960296297467769E-4],[0.07477905564037443,2.0088977833234307E-4],[0.07498312897246069,2.1295146739463476E-4],[0.07519749462069636,2.277863535239995E-4],[0.07542187878029256,2.426212396533645E-4],[0.07565685198991802,2.574561257827325E-4],[0.07590399159972709,2.813927263632796E-4],[0.07616252520844802,3.2522559828987213E-4],[0.07643114823986857,3.86607239078203E-4],[0.07670914426004115,4.5674927792753255E-4],[0.07699676537173104,5.268913167768368E-4],[0.07729627730326107,5.970333556261546E-4],[0.07760796090375217,6.67354100632381E-4],[0.07792961196581966,7.40084102726485E-4],[0.07826086787494141,8.413933381208422E-4],[0.07860340010078022,9.427025735152132E-4],[0.07895630212490799,0.0010440118089095616],[0.07931755192678686,0.0011453210443039166],[0.07968459232569808,0.0012400867555977296],[0.08005677892153568,0.001327423412960627],[0.0804358491750497,0.0014150829958436155],[0.08082137293182665,0.0015052808144548166],[0.08121564109271752,0.001595478633066007],[0.08161686798566054,0.0017082892781267584],[0.0820199801711471,0.001844535608337152],[0.08243303772964192,0.001980781938547594],[0.08285558480656989,0.0021170282687580245],[0.08328511759213542,0.0022528489894053554],[0.08372424179450373,0.002360920389554783],[0.08417455631978979,0.0024740795815716772],[0.08463193277496468,0.0025872387735885556],[0.0850980638877582,0.0026997439392053013],[0.08557058811713325,0.0028276627776235587],[0.08605190148763314,0.003018939243273392],[0.08653761445898386,0.003206691314569418],[0.0870337296559002,0.0033944433858654303],[0.08753989315565823,0.003584743455043453],[0.08805233197250498,0.0037855369768955405],[0.08856498616589643,0.003999308525685495],[0.08908297339363459,0.004220214664330268],[0.08961042000640351,0.004434464363804732],[0.0901443815089769,0.004645395441071486],[0.09068890594336469,0.0048563265183382805],[0.09123755222376384,0.005067257595605044],[0.09179599405871625,0.005278188672871821],[0.09237045028504977,0.005489119750138598],[0.09295570393285152,0.005695906841141362],[0.09355030186935352,0.005902480419765328],[0.09415483570556535,0.006110605014339985],[0.09477831631626411,0.006381098555363268],[0.0954264827287287,0.006685526169544235],[0.09609138894997477,0.007025255015157278],[0.09677673887157073,0.0074087403069304425],[0.09747743691626116,0.007792225598703567],[0.0981998812826613,0.008179173214144134],[0.09894284322435398,0.008566860267654144],[0.09972037577226149,0.008954547321164175],[0.10050981739182217,0.009549983445520728],[0.10131396515165855,0.010278444700143106],[0.10212205193357152,0.011104230229588787],[0.10293928049127922,0.01195179938833326],[0.10375352189340993,0.01279936854707744],[0.1045506012864004,0.013679701107991727],[0.10535541277932607,0.01460065367113091],[0.10617718973659779,0.015516316710813088],[0.10701086070592158,0.01650581581026283],[0.10784836448832735,0.01773268042378645],[0.1086857702158473,0.018959545037310066],[0.10951748573960322,0.020186409650833636],[0.11037155886966345,0.02144577295757088],[0.11123751494183491,0.022588499299720594],[0.11211563914654894,0.02375609976983566],[0.11304519831832724,0.025099064527400836],[0.1140001283412424,0.0264423048850439],[0.115056282927365,0.027796974113346556],[0.11616110718080866,0.029161238686556797],[0.11726840926044249,0.030298470382890356],[0.11847716664635675,0.03214281430693408],[0.11970647485517999,0.03513237841156352],[0.12100551825749493,0.03823867507772001],[0.12240120643464444,0.042136880812661585]]},{ name: 'VNQ', data: [[0.07298700040364281,7.132942571783845E-18],[0.07298989058024948,6.7258340558563884E-18],[0.07300428482583318,6.223042142179726E-18],[0.07302957539111357,6.345791630221179E-18],[0.07306530977131302,2.010238891164143E-6],[0.07311565563849269,5.897744679933515E-5],[0.07317853750676914,1.5238416196568328E-4],[0.07325277862414,2.697632280354728E-4],[0.07333743056128171,3.941093074655324E-4],[0.07343217753849662,5.184553868955914E-4],[0.07353946135806826,6.751651134101025E-4],[0.07365707092656637,8.412027907050952E-4],[0.07378545817924678,0.0010366954329187681],[0.07392441419214213,0.0012458408451366996],[0.07407374298115349,0.0014542209770046302],[0.0742332252160055,0.0016642099304003668],[0.07440425184991575,0.0019158339252379239],[0.07458625600668353,0.0021995905289922606],[0.07477905564037443,0.002504269151898822],[0.07498312897246069,0.002826225566876491],[0.07519749462069636,0.0031651996397875177],[0.07542187878029256,0.0035066909795739734],[0.07565685198991802,0.0038643476007970503],[0.07590399159972709,0.004261591121705217],[0.07616252520844802,0.004698412269536532],[0.07643114823986857,0.0051664056953317815],[0.07670914426004115,0.005631012161438366],[0.07699676537173104,0.006098497074452397],[0.07729627730326107,0.00660873790433241],[0.07760796090375217,0.007152607641056026],[0.07792961196581966,0.007701273117946009],[0.07826086787494141,0.008253023613101564],[0.07860340010078022,0.008844878799934244],[0.07895630212490799,0.009520154674895418],[0.07931755192678686,0.010278752729975922],[0.07968459232569808,0.01106426074868155],[0.08005677892153568,0.011854699895846832],[0.0804358491750497,0.01266096372120044],[0.08082137293182665,0.013530024300788994],[0.08121564109271752,0.014478796414677947],[0.08161686798566054,0.015501786750591714],[0.0820199801711471,0.01651937985358145],[0.08243303772964192,0.017569274735012592],[0.08285558480656989,0.018726132542610994],[0.08328511759213542,0.019972427385655557],[0.08372424179450373,0.02129684047228579],[0.08417455631978979,0.022748412657146805],[0.08463193277496468,0.02424579443184601],[0.0850980638877582,0.02578375268576218],[0.08557058811713325,0.027386660444127957],[0.08605190148763314,0.02901778131410892],[0.08653761445898386,0.03069130871069783],[0.0870337296559002,0.032402502306847596],[0.08753989315565823,0.03413074658387821],[0.08805233197250498,0.03585550589434825],[0.08856498616589643,0.03758026520481838],[0.08908297339363459,0.03929664816939743],[0.08961042000640351,0.04100392844025211],[0.0901443815089769,0.042730208307416875],[0.09068890594336469,0.04450629157295764],[0.09123755222376384,0.04628237483849846],[0.09179599405871625,0.04805846430768645],[0.09237045028504977,0.049861633316748206],[0.09295570393285152,0.05167053394841957],[0.09355030186935352,0.05350588522818031],[0.09415483570556535,0.055389315391524585],[0.09477831631626411,0.057352338415618105],[0.0954264827287287,0.05940818809438904],[0.09609138894997477,0.061592146795516806],[0.09677673887157073,0.0639306774295285],[0.09747743691626116,0.06636384437593222],[0.0981998812826613,0.06889126011635607],[0.09894284322435398,0.07163328351679082],[0.09972037577226149,0.07462685627720778],[0.10050981739182217,0.07772836938617997],[0.10131396515165855,0.08079445307132216],[0.10212205193357152,0.08388057360892942],[0.10293928049127922,0.08696245983618617],[0.10375352189340993,0.09005573208455904],[0.1045506012864004,0.09312364778991361],[0.10535541277932607,0.0962610710121459],[0.10617718973659779,0.09952159187781151],[0.10701086070592158,0.10289784399326359],[0.10784836448832735,0.10631319565668047],[0.1086857702158473,0.10983159516115551],[0.10951748573960322,0.11362337784186145],[0.11037155886966345,0.11747618397239765],[0.11123751494183491,0.12153090543016826],[0.11211563914654894,0.1256713278467415],[0.11304519831832724,0.12983868959249203],[0.1140001283412424,0.13383668974591925],[0.115056282927365,0.138239502185498],[0.11616110718080866,0.14334102477273103],[0.11726840926044249,0.1488077475797742],[0.11847716664635675,0.15459741061862006],[0.11970647485517999,0.16039797642631382],[0.12100551825749493,0.1665869303797323],[0.12240120643464444,0.1742503549647328]]},{ name: 'TLT', data: [[0.07298700040364281,0.1022867309357841],[0.07298989058024948,0.1069464751078091],[0.07300428482583318,0.11154538565223934],[0.07302957539111357,0.11618711150567482],[0.07306530977131302,0.12089794060916342],[0.07311565563849269,0.12573081040823436],[0.07317853750676914,0.13064153046038512],[0.07325277862414,0.13560732280488785],[0.07333743056128171,0.1405423970958691],[0.07343217753849662,0.14550662470973014],[0.07353946135806826,0.150502065028876],[0.07365707092656637,0.15550015960757516],[0.07378545817924678,0.16051082040447148],[0.07392441419214213,0.1655458035329987],[0.07407374298115349,0.17059173512737807],[0.0742332252160055,0.17564242035765712],[0.07440425184991575,0.18069215962619925],[0.07458625600668353,0.18578023268384286],[0.07477905564037443,0.1908946349334036],[0.07498312897246069,0.196025429006362],[0.07519749462069636,0.20115748153485719],[0.07542187878029256,0.20617951682526617],[0.07565685198991802,0.21124736864281207],[0.07590399159972709,0.21637635967333677],[0.07616252520844802,0.2214681909123916],[0.07643114823986857,0.22651553027256838],[0.07670914426004115,0.23151662758866312],[0.07699676537173104,0.23653292060898573],[0.07729627730326107,0.2415067523365662],[0.07760796090375217,0.24644200700644273],[0.07792961196581966,0.25136964467788725],[0.07826086787494141,0.256232324985297],[0.07860340010078022,0.2609661147774002],[0.07895630212490799,0.2655298947409402],[0.07931755192678686,0.26996393799385776],[0.07968459232569808,0.27419520949514903],[0.08005677892153568,0.2780340076996448],[0.0804358491750497,0.2816699677825015],[0.08082137293182665,0.28521622429607685],[0.08121564109271752,0.28851726329299343],[0.08161686798566054,0.2915719576387539],[0.0820199801711471,0.29430593964469226],[0.08243303772964192,0.2967941159203301],[0.08285558480656989,0.2991062284344955],[0.08328511759213542,0.30105211089512907],[0.08372424179450373,0.3026471852226808],[0.08417455631978979,0.3039507614377304],[0.08463193277496468,0.3048982918506424],[0.0850980638877582,0.3054712147469718],[0.08557058811713325,0.3054935218897498],[0.08605190148763314,0.30527354527015094],[0.08653761445898386,0.30468933181491453],[0.0870337296559002,0.30372470979424404],[0.08753989315565823,0.3022474710145787],[0.08805233197250498,0.30049014654063494],[0.08856498616589643,0.2984386002078327],[0.08908297339363459,0.2960490335444072],[0.08961042000640351,0.29334322814642344],[0.0901443815089769,0.29044580223507177],[0.09068890594336469,0.28733172673287094],[0.09123755222376384,0.2840455842630168],[0.09179599405871625,0.28042752064822923],[0.09237045028504977,0.2765830332589071],[0.09295570393285152,0.2725739086600222],[0.09355030186935352,0.2685055067087636],[0.09415483570556535,0.2642662805830587],[0.09477831631626411,0.2599872829684383],[0.0954264827287287,0.25561468850957275],[0.09609138894997477,0.2511907807786],[0.09677673887157073,0.2466751861515637],[0.09747743691626116,0.241984025590152],[0.0981998812826613,0.2370743578433234],[0.09894284322435398,0.23213911730762815],[0.09972037577226149,0.22699322592491036],[0.10050981739182217,0.22178373896891324],[0.10131396515165855,0.21655734601403562],[0.10212205193357152,0.21141263827761037],[0.10293928049127922,0.20631425502763917],[0.10375352189340993,0.2014638873979136],[0.1045506012864004,0.19675989880080993],[0.10535541277932607,0.1922365046694043],[0.10617718973659779,0.1878198059333324],[0.10701086070592158,0.18343658951557612],[0.10784836448832735,0.1793831246640355],[0.1086857702158473,0.17564637452837745],[0.10951748573960322,0.17214613716629512],[0.11037155886966345,0.16856925802805808],[0.11123751494183491,0.16514170254126792],[0.11211563914654894,0.16185992605687727],[0.11304519831832724,0.1585825281526265],[0.1140001283412424,0.15512954234779452],[0.115056282927365,0.15116163743136754],[0.11616110718080866,0.14748322150230253],[0.11726840926044249,0.14405281519814378],[0.11847716664635675,0.14017555692846023],[0.11970647485517999,0.13639298798163613],[0.12100551825749493,0.13334869062308355],[0.12240120643464444,0.13105538065944727]]},{ name: 'LQD', data: [[0.07298700040364281,0.7040570732096825],[0.07298989058024948,0.6908129987992068],[0.07300428482583318,0.6778441501003312],[0.07302957539111357,0.6648201582499206],[0.07306530977131302,0.6517495391412276],[0.07311565563849269,0.638626402472698],[0.07317853750676914,0.6255094135189245],[0.07325277862414,0.6124320336355902],[0.07333743056128171,0.5994244860911747],[0.07343217753849662,0.5863835887192314],[0.07353946135806826,0.573263136134039],[0.07365707092656637,0.5601775607269869],[0.07378545817924678,0.5471159297294226],[0.07392441419214213,0.534041177174954],[0.07407374298115349,0.520940092566951],[0.0742332252160055,0.5078242904914481],[0.07440425184991575,0.4947182361618481],[0.07458625600668353,0.4815753968379635],[0.07477905564037443,0.4683933418736038],[0.07498312897246069,0.4551428391090936],[0.07519749462069636,0.441897844447893],[0.07542187878029256,0.42874131616232874],[0.07565685198991802,0.415521820090929],[0.07590399159972709,0.4021962169351831],[0.07616252520844802,0.38892123341474544],[0.07643114823986857,0.37573735956970716],[0.07670914426004115,0.3625975175212946],[0.07699676537173104,0.3494175460620017],[0.07729627730326107,0.33624103645775494],[0.07760796090375217,0.3230176879063426],[0.07792961196581966,0.3097842262282534],[0.07826086787494141,0.2966097352651172],[0.07860340010078022,0.28351172263064495],[0.07895630212490799,0.27063102041268033],[0.07931755192678686,0.25800547264452417],[0.07968459232569808,0.24568594295052515],[0.08005677892153568,0.23382237217170151],[0.0804358491750497,0.22219093202233045],[0.08082137293182665,0.21075739445764338],[0.08121564109271752,0.19960793620731845],[0.08161686798566054,0.1888066575610491],[0.0820199801711471,0.17844804643392273],[0.08243303772964192,0.16832006485480405],[0.08285558480656989,0.1584060311674468],[0.08328511759213542,0.1489283550398074],[0.08372424179450373,0.13983847470893357],[0.08417455631978979,0.13109404017713655],[0.08463193277496468,0.12278583944839973],[0.0850980638877582,0.11480891915735829],[0.08557058811713325,0.10743252796798729],[0.08605190148763314,0.100340388876287],[0.08653761445898386,0.09370581260676185],[0.0870337296559002,0.0874660202382799],[0.08753989315565823,0.08166177490397379],[0.08805233197250498,0.07617732999017977],[0.08856498616589643,0.07115560749537023],[0.08908297339363459,0.06658477041667824],[0.08961042000640351,0.06231990912840879],[0.0901443815089769,0.05830525432470754],[0.09068890594336469,0.05451451657584148],[0.09123755222376384,0.050989514918197636],[0.09179599405871625,0.04782516916561987],[0.09237045028504977,0.04476304422056766],[0.09295570393285152,0.041868111327129184],[0.09355030186935352,0.03908872820099666],[0.09415483570556535,0.0365242274681927],[0.09477831631626411,0.03408814256869537],[0.0954264827287287,0.03174056176360843],[0.09609138894997477,0.02948280682416986],[0.09677673887157073,0.027384996691113408],[0.09747743691626116,0.025518116460913075],[0.0981998812826613,0.023798536166408313],[0.09894284322435398,0.022208893324375714],[0.09972037577226149,0.020686298022877164],[0.10050981739182217,0.019380429241826976],[0.10131396515165855,0.01814505212571256],[0.10212205193357152,0.01695561076551663],[0.10293928049127922,0.01579868705156743],[0.10375352189340993,0.01474996718643198],[0.1045506012864004,0.013921396733970694],[0.10535541277932607,0.013128028562121467],[0.10617718973659779,0.012344086814984006],[0.10701086070592158,0.011634279566412761],[0.10784836448832735,0.01094734360521579],[0.1086857702158473,0.010297794625574388],[0.10951748573960322,0.009720819046120259],[0.11037155886966345,0.009181989560524252],[0.11123751494183491,0.008690628909643443],[0.11211563914654894,0.00819926825876217],[0.11304519831832724,0.007707907607880932],[0.1140001283412424,0.0072165469570000095],[0.115056282927365,0.006725186306119016],[0.11616110718080866,0.006250974789248628],[0.11726840926044249,0.005877052734272799],[0.11847716664635675,0.005594512204972681],[0.11970647485517999,0.00540123048342997],[0.12100551825749493,0.0052403704905039025],[0.12240120643464444,0.005158825033973767]]},{ name: 'GLD', data: [[0.07298700040364281,0.07302698047434762],[0.07298989058024948,0.07519692108520452],[0.07300428482583318,0.07725427581108633],[0.07302957539111357,0.07928053248270447],[0.07306530977131302,0.08128670215277463],[0.07311565563849269,0.08330307244659943],[0.07317853750676914,0.0852685650513178],[0.07325277862414,0.08719410667166766],[0.07333743056128171,0.08911057198314153],[0.07343217753849662,0.09102422555036857],[0.07353946135806826,0.09298213353710605],[0.07365707092656637,0.09494186390752843],[0.07378545817924678,0.09689232079522443],[0.07392441419214213,0.09885637452397177],[0.07407374298115349,0.10084474691596725],[0.0742332252160055,0.10284803168085206],[0.07440425184991575,0.10484240900716728],[0.07458625600668353,0.10681218328732889],[0.07477905564037443,0.10878408449584807],[0.07498312897246069,0.11076860572947597],[0.07519749462069636,0.11275192389048778],[0.07542187878029256,0.1147587610469879],[0.07565685198991802,0.11676570816288095],[0.07590399159972709,0.1187749261278243],[0.07616252520844802,0.12078000997640699],[0.07643114823986857,0.12276541446569797],[0.07670914426004115,0.12475460439568957],[0.07699676537173104,0.12675128992501558],[0.07729627730326107,0.1287700971771374],[0.07760796090375217,0.13081900872841606],[0.07792961196581966,0.13288137804137892],[0.07826086787494141,0.1349733789056939],[0.07860340010078022,0.1370978715036973],[0.07895630212490799,0.13922435415585135],[0.07931755192678686,0.14135616955531563],[0.07968459232569808,0.14347222123878534],[0.08005677892153568,0.14561760512615834],[0.0804358491750497,0.14776448386908944],[0.08082137293182665,0.1498096493508628],[0.08121564109271752,0.15188824981511284],[0.08161686798566054,0.1539891037512227],[0.0820199801711471,0.15606537166628545],[0.08243303772964192,0.15820423614708268],[0.08285558480656989,0.16028558731446005],[0.08328511759213542,0.1623294745052257],[0.08372424179450373,0.16435181020045866],[0.08417455631978979,0.1663172885066658],[0.08463193277496468,0.16823148392436849],[0.0850980638877582,0.17024259808042988],[0.08557058811713325,0.1723813447682813],[0.08605190148763314,0.1745701475904969],[0.08653761445898386,0.17690800891736985],[0.0870337296559002,0.17935533831761752],[0.08753989315565823,0.18189006688568302],[0.08805233197250498,0.18437662031953153],[0.08856498616589643,0.186865366895388],[0.08908297339363459,0.1893636674661333],[0.08961042000640351,0.19192660283292298],[0.0901443815089769,0.19452515524869016],[0.09068890594336469,0.19723282635752667],[0.09123755222376384,0.1999133113417259],[0.09179599405871625,0.2025733930175462],[0.09237045028504977,0.2053062294362368],[0.09295570393285152,0.20802892679026438],[0.09355030186935352,0.21073998597043983],[0.09415483570556535,0.2134939874889059],[0.09477831631626411,0.21620347690476865],[0.0954264827287287,0.21887192321478427],[0.09609138894997477,0.22146800328583152],[0.09677673887157073,0.22390885068287256],[0.09747743691626116,0.22624805141529025],[0.0981998812826613,0.22862640705662368],[0.09894284322435398,0.2309200153479717],[0.09972037577226149,0.23338978002075333],[0.10050981739182217,0.23586079504201682],[0.10131396515165855,0.23819705004574077],[0.10212205193357152,0.24043426703795687],[0.10293928049127922,0.24260031089597103],[0.10375352189340993,0.24448313865730073],[0.1045506012864004,0.24636444463157997],[0.10535541277932607,0.2478977234543734],[0.10617718973659779,0.24896845582850954],[0.10701086070592158,0.24984867812012154],[0.10784836448832735,0.25073661635327155],[0.1086857702158473,0.2516220565959223],[0.10951748573960322,0.2522690856918423],[0.11037155886966345,0.2528412262559448],[0.11123751494183491,0.2534220104670403],[0.11211563914654894,0.2541055460446115],[0.11304519831832724,0.25464506436337037],[0.1140001283412424,0.2554278211970922],[0.115056282927365,0.256120349846953],[0.11616110718080866,0.25608572307391797],[0.11726840926044249,0.25528961197128264],[0.11847716664635675,0.25475603011797465],[0.11970647485517999,0.2548192087954704],[0.12100551825749493,0.25379304758553256],[0.12240120643464444,0.2515507809685048]]}]};
+return [chart4, null, null];
+}
+</script>
+
+        </div>
+        <div role="tabpanel" class="tab-pane" id="correlations">
+            
+            <h3>Efficient Frontier Assets</h3>
+            <table class="table table-condensed table-striped stickyHeaders"><caption class="sr-only">Efficient Frontier Assets</caption><thead><tr><th class="numberCell">#</th><th>Asset</th><th class="numberCell">Expected Return</th><th class="numberCell">Standard Deviation</th><th class="numberCell">Sharpe Ratio</th><th class="numberCell">Min. Weight</th><th class="numberCell">Max. Weight</th></tr></thead><tbody><tr><td class="numberCell">1</td><td>SPDR S&amp;P 500 ETF Trust (SPY)</td><td class="numberCell">10.93%</td><td class="numberCell">15.00%</td><td class="numberCell">0.625</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr><tr><td class="numberCell">2</td><td>SPDR S&amp;P 600 Small Cap ETF (SLY)</td><td class="numberCell">11.94%</td><td class="numberCell">19.88%</td><td class="numberCell">0.518</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr><tr><td class="numberCell">3</td><td>iShares MSCI EAFE ETF (EFA)</td><td class="numberCell">5.48%</td><td class="numberCell">17.29%</td><td class="numberCell">0.249</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr><tr><td class="numberCell">4</td><td>iShares MSCI Emerging Markets ETF (EEM)</td><td class="numberCell">6.72%</td><td class="numberCell">21.64%</td><td class="numberCell">0.253</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr><tr><td class="numberCell">5</td><td>Vanguard Real Estate ETF (VNQ)</td><td class="numberCell">10.37%</td><td class="numberCell">22.53%</td><td class="numberCell">0.394</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr><tr><td class="numberCell">6</td><td>iShares 20+ Year Treasury Bond ETF (TLT)</td><td class="numberCell">5.53%</td><td class="numberCell">13.54%</td><td class="numberCell">0.322</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr><tr><td class="numberCell">7</td><td>iShares iBoxx $ Invmt Grade Corp Bd ETF (LQD)</td><td class="numberCell">4.71%</td><td class="numberCell">7.57%</td><td class="numberCell">0.471</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr><tr><td class="numberCell">8</td><td>SPDR Gold Shares (GLD)</td><td class="numberCell">9.18%</td><td class="numberCell">17.36%</td><td class="numberCell">0.448</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr></tbody><tfoot><tr><td colspan="7" class="text-muted">Results based on historical returns. Expected return is the annualized monthly arithmetic mean return. Ex-ante Sharpe Ratio calculated using 3-month treasury bill returns as the risk-free rate.</td></tr></tfoot></table>
+            <h3>Asset Correlations</h3>
+            <table class="table table-condensed table-striped"><caption class="sr-only">Asset Correlations</caption><thead><tr><th>Name</th><th>Ticker</th><th class="numberCell">SPY</th><th class="numberCell">SLY</th><th class="numberCell">EFA</th><th class="numberCell">EEM</th><th class="numberCell">VNQ</th><th class="numberCell">TLT</th><th class="numberCell">LQD</th><th class="numberCell">GLD</th></tr></thead><tbody><tr><td>SPDR S&amp;P 500 ETF Trust</td><td>SPY</td><td class="numberCell">1.00</td><td class="numberCell">0.90</td><td class="numberCell">0.89</td><td class="numberCell">0.76</td><td class="numberCell">0.73</td><td class="numberCell">-0.25</td><td class="numberCell">0.36</td><td class="numberCell">0.07</td></tr><tr><td>SPDR S&amp;P 600 Small Cap ETF</td><td>SLY</td><td class="numberCell">0.90</td><td class="numberCell">1.00</td><td class="numberCell">0.81</td><td class="numberCell">0.74</td><td class="numberCell">0.73</td><td class="numberCell">-0.34</td><td class="numberCell">0.30</td><td class="numberCell">0.02</td></tr><tr><td>iShares MSCI EAFE ETF</td><td>EFA</td><td class="numberCell">0.89</td><td class="numberCell">0.81</td><td class="numberCell">1.00</td><td class="numberCell">0.87</td><td class="numberCell">0.70</td><td class="numberCell">-0.23</td><td class="numberCell">0.42</td><td class="numberCell">0.15</td></tr><tr><td>iShares MSCI Emerging Markets ETF</td><td>EEM</td><td class="numberCell">0.76</td><td class="numberCell">0.74</td><td class="numberCell">0.87</td><td class="numberCell">1.00</td><td class="numberCell">0.60</td><td class="numberCell">-0.22</td><td class="numberCell">0.38</td><td class="numberCell">0.28</td></tr><tr><td>Vanguard Real Estate ETF</td><td>VNQ</td><td class="numberCell">0.73</td><td class="numberCell">0.73</td><td class="numberCell">0.70</td><td class="numberCell">0.60</td><td class="numberCell">1.00</td><td class="numberCell">0.00</td><td class="numberCell">0.45</td><td class="numberCell">0.11</td></tr><tr><td>iShares 20+ Year Treasury Bond ETF</td><td>TLT</td><td class="numberCell">-0.25</td><td class="numberCell">-0.34</td><td class="numberCell">-0.23</td><td class="numberCell">-0.22</td><td class="numberCell">0.00</td><td class="numberCell">1.00</td><td class="numberCell">0.52</td><td class="numberCell">0.22</td></tr><tr><td>iShares iBoxx $ Invmt Grade Corp Bd ETF</td><td>LQD</td><td class="numberCell">0.36</td><td class="numberCell">0.30</td><td class="numberCell">0.42</td><td class="numberCell">0.38</td><td class="numberCell">0.45</td><td class="numberCell">0.52</td><td class="numberCell">1.00</td><td class="numberCell">0.26</td></tr><tr><td>SPDR Gold Shares</td><td>GLD</td><td class="numberCell">0.07</td><td class="numberCell">0.02</td><td class="numberCell">0.15</td><td class="numberCell">0.28</td><td class="numberCell">0.11</td><td class="numberCell">0.22</td><td class="numberCell">0.26</td><td class="numberCell">1.00</td></tr></tbody><tfoot><tr><td colspan="10" class="text-muted">Based on monthly returns from Jan 2006 to May 2022</td></tr></tfoot></table>
+            
+        </div>
+
+        
+        <div role="tabpanel" class="tab-pane" id="tableTab">
+            <table class="table table-condensed table-striped stickyHeaders"><caption class="sr-only">Efficient Frontier Points</caption><thead><tr><th class="numberCell">#</th><th class="numberCell">SPY</th><th class="numberCell">SLY</th><th class="numberCell">EFA</th><th class="numberCell">EEM</th><th class="numberCell">VNQ</th><th class="numberCell">TLT</th><th class="numberCell">LQD</th><th class="numberCell">GLD</th><th class="numberCell">Expected Return<sup>*</sup></th><th class="numberCell">Standard Deviation<sup>*</sup></th><th class="numberCell">Sharpe Ratio<sup>*</sup></th></tr></thead><tbody><tr><td class="numberCell">1</td><td class="numberCell">10.82%</td><td class="numberCell">1.20%</td><td class="numberCell">0.03%</td><td class="numberCell">0.01%</td><td class="numberCell">0.00%</td><td class="numberCell">10.23%</td><td class="numberCell">70.41%</td><td class="numberCell">7.30%</td><td class="numberCell">5.86%</td><td class="numberCell">7.30%</td><td class="numberCell">0.639</td></tr><tr><td class="numberCell">2</td><td class="numberCell">11.41%</td><td class="numberCell">1.27%</td><td class="numberCell">0.02%</td><td class="numberCell">0.01%</td><td class="numberCell">0.00%</td><td class="numberCell">10.69%</td><td class="numberCell">69.08%</td><td class="numberCell">7.52%</td><td class="numberCell">5.91%</td><td class="numberCell">7.30%</td><td class="numberCell">0.646</td></tr><tr><td class="numberCell">3</td><td class="numberCell">11.96%</td><td class="numberCell">1.35%</td><td class="numberCell">0.01%</td><td class="numberCell">0.01%</td><td class="numberCell">0.00%</td><td class="numberCell">11.15%</td><td class="numberCell">67.78%</td><td class="numberCell">7.73%</td><td class="numberCell">5.96%</td><td class="numberCell">7.30%</td><td class="numberCell">0.653</td></tr><tr><td class="numberCell">4</td><td class="numberCell">12.51%</td><td class="numberCell">1.44%</td><td class="numberCell">0.01%</td><td class="numberCell">0.01%</td><td class="numberCell">0.00%</td><td class="numberCell">11.62%</td><td class="numberCell">66.48%</td><td class="numberCell">7.93%</td><td class="numberCell">6.02%</td><td class="numberCell">7.30%</td><td class="numberCell">0.659</td></tr><tr><td class="numberCell">5</td><td class="numberCell">13.05%</td><td class="numberCell">1.54%</td><td class="numberCell">0.00%</td><td class="numberCell">0.01%</td><td class="numberCell">0.00%</td><td class="numberCell">12.09%</td><td class="numberCell">65.17%</td><td class="numberCell">8.13%</td><td class="numberCell">6.07%</td><td class="numberCell">7.31%</td><td class="numberCell">0.666</td></tr><tr><td class="numberCell">6</td><td class="numberCell">13.55%</td><td class="numberCell">1.66%</td><td class="numberCell">0.00%</td><td class="numberCell">0.01%</td><td class="numberCell">0.01%</td><td class="numberCell">12.57%</td><td class="numberCell">63.86%</td><td class="numberCell">8.33%</td><td class="numberCell">6.12%</td><td class="numberCell">7.31%</td><td class="numberCell">0.672</td></tr><tr><td class="numberCell">7</td><td class="numberCell">14.03%</td><td class="numberCell">1.80%</td><td class="numberCell">0.00%</td><td class="numberCell">0.01%</td><td class="numberCell">0.02%</td><td class="numberCell">13.06%</td><td class="numberCell">62.55%</td><td class="numberCell">8.53%</td><td class="numberCell">6.17%</td><td class="numberCell">7.32%</td><td class="numberCell">0.678</td></tr><tr><td class="numberCell">8</td><td class="numberCell">14.48%</td><td class="numberCell">1.96%</td><td class="numberCell">0.00%</td><td class="numberCell">0.01%</td><td class="numberCell">0.03%</td><td class="numberCell">13.56%</td><td class="numberCell">61.24%</td><td class="numberCell">8.72%</td><td class="numberCell">6.23%</td><td class="numberCell">7.33%</td><td class="numberCell">0.684</td></tr><tr><td class="numberCell">9</td><td class="numberCell">14.91%</td><td class="numberCell">2.12%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.04%</td><td class="numberCell">14.05%</td><td class="numberCell">59.94%</td><td class="numberCell">8.91%</td><td class="numberCell">6.28%</td><td class="numberCell">7.33%</td><td class="numberCell">0.690</td></tr><tr><td class="numberCell">10</td><td class="numberCell">15.34%</td><td class="numberCell">2.30%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.05%</td><td class="numberCell">14.55%</td><td class="numberCell">58.64%</td><td class="numberCell">9.10%</td><td class="numberCell">6.33%</td><td class="numberCell">7.34%</td><td class="numberCell">0.696</td></tr><tr><td class="numberCell">11</td><td class="numberCell">15.76%</td><td class="numberCell">2.48%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.07%</td><td class="numberCell">15.05%</td><td class="numberCell">57.33%</td><td class="numberCell">9.30%</td><td class="numberCell">6.38%</td><td class="numberCell">7.35%</td><td class="numberCell">0.702</td></tr><tr><td class="numberCell">12</td><td class="numberCell">16.17%</td><td class="numberCell">2.67%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.08%</td><td class="numberCell">15.55%</td><td class="numberCell">56.02%</td><td class="numberCell">9.49%</td><td class="numberCell">6.44%</td><td class="numberCell">7.37%</td><td class="numberCell">0.708</td></tr><tr><td class="numberCell">13</td><td class="numberCell">16.56%</td><td class="numberCell">2.86%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.10%</td><td class="numberCell">16.05%</td><td class="numberCell">54.71%</td><td class="numberCell">9.69%</td><td class="numberCell">6.49%</td><td class="numberCell">7.38%</td><td class="numberCell">0.713</td></tr><tr><td class="numberCell">14</td><td class="numberCell">16.95%</td><td class="numberCell">3.06%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.12%</td><td class="numberCell">16.55%</td><td class="numberCell">53.40%</td><td class="numberCell">9.89%</td><td class="numberCell">6.54%</td><td class="numberCell">7.39%</td><td class="numberCell">0.718</td></tr><tr><td class="numberCell">15</td><td class="numberCell">17.33%</td><td class="numberCell">3.27%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.15%</td><td class="numberCell">17.06%</td><td class="numberCell">52.09%</td><td class="numberCell">10.08%</td><td class="numberCell">6.59%</td><td class="numberCell">7.41%</td><td class="numberCell">0.724</td></tr><tr><td class="numberCell">16</td><td class="numberCell">17.69%</td><td class="numberCell">3.49%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.17%</td><td class="numberCell">17.56%</td><td class="numberCell">50.78%</td><td class="numberCell">10.28%</td><td class="numberCell">6.64%</td><td class="numberCell">7.42%</td><td class="numberCell">0.729</td></tr><tr><td class="numberCell">17</td><td class="numberCell">18.06%</td><td class="numberCell">3.71%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.19%</td><td class="numberCell">18.07%</td><td class="numberCell">49.47%</td><td class="numberCell">10.48%</td><td class="numberCell">6.70%</td><td class="numberCell">7.44%</td><td class="numberCell">0.734</td></tr><tr><td class="numberCell">18</td><td class="numberCell">18.42%</td><td class="numberCell">3.92%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.22%</td><td class="numberCell">18.58%</td><td class="numberCell">48.16%</td><td class="numberCell">10.68%</td><td class="numberCell">6.75%</td><td class="numberCell">7.46%</td><td class="numberCell">0.738</td></tr><tr><td class="numberCell">19</td><td class="numberCell">18.79%</td><td class="numberCell">4.14%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.25%</td><td class="numberCell">19.09%</td><td class="numberCell">46.84%</td><td class="numberCell">10.88%</td><td class="numberCell">6.80%</td><td class="numberCell">7.48%</td><td class="numberCell">0.743</td></tr><tr><td class="numberCell">20</td><td class="numberCell">19.15%</td><td class="numberCell">4.35%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.28%</td><td class="numberCell">19.60%</td><td class="numberCell">45.51%</td><td class="numberCell">11.08%</td><td class="numberCell">6.86%</td><td class="numberCell">7.50%</td><td class="numberCell">0.748</td></tr><tr><td class="numberCell">21</td><td class="numberCell">19.51%</td><td class="numberCell">4.57%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.32%</td><td class="numberCell">20.12%</td><td class="numberCell">44.19%</td><td class="numberCell">11.28%</td><td class="numberCell">6.91%</td><td class="numberCell">7.52%</td><td class="numberCell">0.752</td></tr><tr><td class="numberCell">22</td><td class="numberCell">19.87%</td><td class="numberCell">4.79%</td><td class="numberCell">0.00%</td><td class="numberCell">0.02%</td><td class="numberCell">0.35%</td><td class="numberCell">20.62%</td><td class="numberCell">42.87%</td><td class="numberCell">11.48%</td><td class="numberCell">6.96%</td><td class="numberCell">7.54%</td><td class="numberCell">0.757</td></tr><tr><td class="numberCell">23</td><td class="numberCell">20.23%</td><td class="numberCell">5.01%</td><td class="numberCell">0.00%</td><td class="numberCell">0.03%</td><td class="numberCell">0.39%</td><td class="numberCell">21.12%</td><td class="numberCell">41.55%</td><td class="numberCell">11.68%</td><td class="numberCell">7.01%</td><td class="numberCell">7.57%</td><td class="numberCell">0.761</td></tr><tr><td class="numberCell">24</td><td class="numberCell">20.59%</td><td class="numberCell">5.22%</td><td class="numberCell">0.00%</td><td class="numberCell">0.03%</td><td class="numberCell">0.43%</td><td class="numberCell">21.64%</td><td class="numberCell">40.22%</td><td class="numberCell">11.88%</td><td class="numberCell">7.07%</td><td class="numberCell">7.59%</td><td class="numberCell">0.765</td></tr><tr><td class="numberCell">25</td><td class="numberCell">20.94%</td><td class="numberCell">5.44%</td><td class="numberCell">0.00%</td><td class="numberCell">0.03%</td><td class="numberCell">0.47%</td><td class="numberCell">22.15%</td><td class="numberCell">38.89%</td><td class="numberCell">12.08%</td><td class="numberCell">7.12%</td><td class="numberCell">7.62%</td><td class="numberCell">0.769</td></tr><tr><td class="numberCell">26</td><td class="numberCell">21.28%</td><td class="numberCell">5.66%</td><td class="numberCell">0.00%</td><td class="numberCell">0.04%</td><td class="numberCell">0.52%</td><td class="numberCell">22.65%</td><td class="numberCell">37.57%</td><td class="numberCell">12.28%</td><td class="numberCell">7.17%</td><td class="numberCell">7.64%</td><td class="numberCell">0.773</td></tr><tr><td class="numberCell">27</td><td class="numberCell">21.62%</td><td class="numberCell">5.88%</td><td class="numberCell">0.00%</td><td class="numberCell">0.05%</td><td class="numberCell">0.56%</td><td class="numberCell">23.15%</td><td class="numberCell">36.26%</td><td class="numberCell">12.48%</td><td class="numberCell">7.23%</td><td class="numberCell">7.67%</td><td class="numberCell">0.776</td></tr><tr><td class="numberCell">28</td><td class="numberCell">21.96%</td><td class="numberCell">6.10%</td><td class="numberCell">0.00%</td><td class="numberCell">0.05%</td><td class="numberCell">0.61%</td><td class="numberCell">23.65%</td><td class="numberCell">34.94%</td><td class="numberCell">12.68%</td><td class="numberCell">7.28%</td><td class="numberCell">7.70%</td><td class="numberCell">0.780</td></tr><tr><td class="numberCell">29</td><td class="numberCell">22.30%</td><td class="numberCell">6.32%</td><td class="numberCell">0.01%</td><td class="numberCell">0.06%</td><td class="numberCell">0.66%</td><td class="numberCell">24.15%</td><td class="numberCell">33.62%</td><td class="numberCell">12.88%</td><td class="numberCell">7.33%</td><td class="numberCell">7.73%</td><td class="numberCell">0.783</td></tr><tr><td class="numberCell">30</td><td class="numberCell">22.64%</td><td class="numberCell">6.54%</td><td class="numberCell">0.01%</td><td class="numberCell">0.07%</td><td class="numberCell">0.72%</td><td class="numberCell">24.64%</td><td class="numberCell">32.30%</td><td class="numberCell">13.08%</td><td class="numberCell">7.39%</td><td class="numberCell">7.76%</td><td class="numberCell">0.787</td></tr><tr><td class="numberCell">31</td><td class="numberCell">22.98%</td><td class="numberCell">6.76%</td><td class="numberCell">0.01%</td><td class="numberCell">0.07%</td><td class="numberCell">0.77%</td><td class="numberCell">25.14%</td><td class="numberCell">30.98%</td><td class="numberCell">13.29%</td><td class="numberCell">7.44%</td><td class="numberCell">7.79%</td><td class="numberCell">0.790</td></tr><tr><td class="numberCell">32</td><td class="numberCell">23.31%</td><td class="numberCell">6.98%</td><td class="numberCell">0.01%</td><td class="numberCell">0.08%</td><td class="numberCell">0.83%</td><td class="numberCell">25.62%</td><td class="numberCell">29.66%</td><td class="numberCell">13.50%</td><td class="numberCell">7.49%</td><td class="numberCell">7.83%</td><td class="numberCell">0.793</td></tr><tr><td class="numberCell">33</td><td class="numberCell">23.65%</td><td class="numberCell">7.20%</td><td class="numberCell">0.02%</td><td class="numberCell">0.09%</td><td class="numberCell">0.88%</td><td class="numberCell">26.10%</td><td class="numberCell">28.35%</td><td class="numberCell">13.71%</td><td class="numberCell">7.55%</td><td class="numberCell">7.86%</td><td class="numberCell">0.796</td></tr><tr><td class="numberCell">34</td><td class="numberCell">23.97%</td><td class="numberCell">7.42%</td><td class="numberCell">0.02%</td><td class="numberCell">0.10%</td><td class="numberCell">0.95%</td><td class="numberCell">26.55%</td><td class="numberCell">27.06%</td><td class="numberCell">13.92%</td><td class="numberCell">7.60%</td><td class="numberCell">7.90%</td><td class="numberCell">0.798</td></tr><tr><td class="numberCell">35</td><td class="numberCell">24.26%</td><td class="numberCell">7.64%</td><td class="numberCell">0.02%</td><td class="numberCell">0.11%</td><td class="numberCell">1.03%</td><td class="numberCell">27.00%</td><td class="numberCell">25.80%</td><td class="numberCell">14.14%</td><td class="numberCell">7.65%</td><td class="numberCell">7.93%</td><td class="numberCell">0.801</td></tr><tr><td class="numberCell">36</td><td class="numberCell">24.53%</td><td class="numberCell">7.88%</td><td class="numberCell">0.02%</td><td class="numberCell">0.12%</td><td class="numberCell">1.11%</td><td class="numberCell">27.42%</td><td class="numberCell">24.57%</td><td class="numberCell">14.35%</td><td class="numberCell">7.70%</td><td class="numberCell">7.97%</td><td class="numberCell">0.803</td></tr><tr><td class="numberCell">37</td><td class="numberCell">24.79%</td><td class="numberCell">8.12%</td><td class="numberCell">0.03%</td><td class="numberCell">0.13%</td><td class="numberCell">1.19%</td><td class="numberCell">27.80%</td><td class="numberCell">23.38%</td><td class="numberCell">14.56%</td><td class="numberCell">7.75%</td><td class="numberCell">8.01%</td><td class="numberCell">0.806</td></tr><tr><td class="numberCell">38</td><td class="numberCell">25.03%</td><td class="numberCell">8.37%</td><td class="numberCell">0.03%</td><td class="numberCell">0.14%</td><td class="numberCell">1.27%</td><td class="numberCell">28.17%</td><td class="numberCell">22.22%</td><td class="numberCell">14.78%</td><td class="numberCell">7.80%</td><td class="numberCell">8.04%</td><td class="numberCell">0.808</td></tr><tr><td class="numberCell">39</td><td class="numberCell">25.28%</td><td class="numberCell">8.61%</td><td class="numberCell">0.03%</td><td class="numberCell">0.15%</td><td class="numberCell">1.35%</td><td class="numberCell">28.52%</td><td class="numberCell">21.08%</td><td class="numberCell">14.98%</td><td class="numberCell">7.85%</td><td class="numberCell">8.08%</td><td class="numberCell">0.810</td></tr><tr><td class="numberCell">40</td><td class="numberCell">25.51%</td><td class="numberCell">8.85%</td><td class="numberCell">0.03%</td><td class="numberCell">0.16%</td><td class="numberCell">1.45%</td><td class="numberCell">28.85%</td><td class="numberCell">19.96%</td><td class="numberCell">15.19%</td><td class="numberCell">7.90%</td><td class="numberCell">8.12%</td><td class="numberCell">0.811</td></tr><tr><td class="numberCell">41</td><td class="numberCell">25.71%</td><td class="numberCell">9.10%</td><td class="numberCell">0.04%</td><td class="numberCell">0.17%</td><td class="numberCell">1.55%</td><td class="numberCell">29.16%</td><td class="numberCell">18.88%</td><td class="numberCell">15.40%</td><td class="numberCell">7.95%</td><td class="numberCell">8.16%</td><td class="numberCell">0.813</td></tr><tr><td class="numberCell">42</td><td class="numberCell">25.90%</td><td class="numberCell">9.35%</td><td class="numberCell">0.04%</td><td class="numberCell">0.18%</td><td class="numberCell">1.65%</td><td class="numberCell">29.43%</td><td class="numberCell">17.84%</td><td class="numberCell">15.61%</td><td class="numberCell">8.00%</td><td class="numberCell">8.20%</td><td class="numberCell">0.814</td></tr><tr><td class="numberCell">43</td><td class="numberCell">26.06%</td><td class="numberCell">9.61%</td><td class="numberCell">0.04%</td><td class="numberCell">0.20%</td><td class="numberCell">1.76%</td><td class="numberCell">29.68%</td><td class="numberCell">16.83%</td><td class="numberCell">15.82%</td><td class="numberCell">8.05%</td><td class="numberCell">8.24%</td><td class="numberCell">0.816</td></tr><tr><td class="numberCell">44</td><td class="numberCell">26.23%</td><td class="numberCell">9.86%</td><td class="numberCell">0.04%</td><td class="numberCell">0.21%</td><td class="numberCell">1.87%</td><td class="numberCell">29.91%</td><td class="numberCell">15.84%</td><td class="numberCell">16.03%</td><td class="numberCell">8.09%</td><td class="numberCell">8.29%</td><td class="numberCell">0.817</td></tr><tr><td class="numberCell">45</td><td class="numberCell">26.39%</td><td class="numberCell">10.11%</td><td class="numberCell">0.05%</td><td class="numberCell">0.23%</td><td class="numberCell">2.00%</td><td class="numberCell">30.11%</td><td class="numberCell">14.89%</td><td class="numberCell">16.23%</td><td class="numberCell">8.14%</td><td class="numberCell">8.33%</td><td class="numberCell">0.818</td></tr><tr><td class="numberCell">46</td><td class="numberCell">26.54%</td><td class="numberCell">10.36%</td><td class="numberCell">0.05%</td><td class="numberCell">0.24%</td><td class="numberCell">2.13%</td><td class="numberCell">30.26%</td><td class="numberCell">13.98%</td><td class="numberCell">16.44%</td><td class="numberCell">8.19%</td><td class="numberCell">8.37%</td><td class="numberCell">0.818</td></tr><tr><td class="numberCell">47</td><td class="numberCell">26.67%</td><td class="numberCell">10.62%</td><td class="numberCell">0.05%</td><td class="numberCell">0.25%</td><td class="numberCell">2.27%</td><td class="numberCell">30.40%</td><td class="numberCell">13.11%</td><td class="numberCell">16.63%</td><td class="numberCell">8.23%</td><td class="numberCell">8.42%</td><td class="numberCell">0.819</td></tr><tr><td class="numberCell">48</td><td class="numberCell">26.80%</td><td class="numberCell">10.88%</td><td class="numberCell">0.05%</td><td class="numberCell">0.26%</td><td class="numberCell">2.42%</td><td class="numberCell">30.49%</td><td class="numberCell">12.28%</td><td class="numberCell">16.82%</td><td class="numberCell">8.28%</td><td class="numberCell">8.46%</td><td class="numberCell">0.819</td></tr><tr><td class="numberCell">49</td><td class="numberCell">26.92%</td><td class="numberCell">11.13%</td><td class="numberCell">0.06%</td><td class="numberCell">0.27%</td><td class="numberCell">2.58%</td><td class="numberCell">30.55%</td><td class="numberCell">11.48%</td><td class="numberCell">17.02%</td><td class="numberCell">8.32%</td><td class="numberCell">8.51%</td><td class="numberCell">0.820</td></tr><tr><td class="numberCell">50</td><td class="numberCell">27.02%</td><td class="numberCell">11.37%</td><td class="numberCell">0.06%</td><td class="numberCell">0.28%</td><td class="numberCell">2.74%</td><td class="numberCell">30.55%</td><td class="numberCell">10.74%</td><td class="numberCell">17.24%</td><td class="numberCell">8.36%</td><td class="numberCell">8.56%</td><td class="numberCell">0.820</td></tr><tr><td class="numberCell">51</td><td class="numberCell">27.10%</td><td class="numberCell">11.62%</td><td class="numberCell">0.06%</td><td class="numberCell">0.30%</td><td class="numberCell">2.90%</td><td class="numberCell">30.53%</td><td class="numberCell">10.03%</td><td class="numberCell">17.46%</td><td class="numberCell">8.41%</td><td class="numberCell">8.61%</td><td class="numberCell">0.820</td></tr><tr><td class="numberCell">52</td><td class="numberCell">27.15%</td><td class="numberCell">11.87%</td><td class="numberCell">0.06%</td><td class="numberCell">0.32%</td><td class="numberCell">3.07%</td><td class="numberCell">30.47%</td><td class="numberCell">9.37%</td><td class="numberCell">17.69%</td><td class="numberCell">8.45%</td><td class="numberCell">8.65%</td><td class="numberCell">0.820</td></tr><tr><td class="numberCell">53</td><td class="numberCell">27.17%</td><td class="numberCell">12.13%</td><td class="numberCell">0.07%</td><td class="numberCell">0.34%</td><td class="numberCell">3.24%</td><td class="numberCell">30.37%</td><td class="numberCell">8.75%</td><td class="numberCell">17.94%</td><td class="numberCell">8.49%</td><td class="numberCell">8.70%</td><td class="numberCell">0.819</td></tr><tr><td class="numberCell">54</td><td class="numberCell">27.20%</td><td class="numberCell">12.38%</td><td class="numberCell">0.07%</td><td class="numberCell">0.36%</td><td class="numberCell">3.41%</td><td class="numberCell">30.22%</td><td class="numberCell">8.17%</td><td class="numberCell">18.19%</td><td class="numberCell">8.53%</td><td class="numberCell">8.75%</td><td class="numberCell">0.819</td></tr><tr><td class="numberCell">55</td><td class="numberCell">27.25%</td><td class="numberCell">12.61%</td><td class="numberCell">0.07%</td><td class="numberCell">0.38%</td><td class="numberCell">3.59%</td><td class="numberCell">30.05%</td><td class="numberCell">7.62%</td><td class="numberCell">18.44%</td><td class="numberCell">8.57%</td><td class="numberCell">8.81%</td><td class="numberCell">0.818</td></tr><tr><td class="numberCell">56</td><td class="numberCell">27.28%</td><td class="numberCell">12.84%</td><td class="numberCell">0.07%</td><td class="numberCell">0.40%</td><td class="numberCell">3.76%</td><td class="numberCell">29.84%</td><td class="numberCell">7.12%</td><td class="numberCell">18.69%</td><td class="numberCell">8.61%</td><td class="numberCell">8.86%</td><td class="numberCell">0.818</td></tr><tr><td class="numberCell">57</td><td class="numberCell">27.29%</td><td class="numberCell">13.08%</td><td class="numberCell">0.07%</td><td class="numberCell">0.42%</td><td class="numberCell">3.93%</td><td class="numberCell">29.60%</td><td class="numberCell">6.66%</td><td class="numberCell">18.94%</td><td class="numberCell">8.64%</td><td class="numberCell">8.91%</td><td class="numberCell">0.817</td></tr><tr><td class="numberCell">58</td><td class="numberCell">27.30%</td><td class="numberCell">13.32%</td><td class="numberCell">0.08%</td><td class="numberCell">0.44%</td><td class="numberCell">4.10%</td><td class="numberCell">29.33%</td><td class="numberCell">6.23%</td><td class="numberCell">19.19%</td><td class="numberCell">8.68%</td><td class="numberCell">8.96%</td><td class="numberCell">0.816</td></tr><tr><td class="numberCell">59</td><td class="numberCell">27.31%</td><td class="numberCell">13.55%</td><td class="numberCell">0.07%</td><td class="numberCell">0.46%</td><td class="numberCell">4.27%</td><td class="numberCell">29.04%</td><td class="numberCell">5.83%</td><td class="numberCell">19.45%</td><td class="numberCell">8.72%</td><td class="numberCell">9.01%</td><td class="numberCell">0.815</td></tr><tr><td class="numberCell">60</td><td class="numberCell">27.30%</td><td class="numberCell">13.79%</td><td class="numberCell">0.07%</td><td class="numberCell">0.49%</td><td class="numberCell">4.45%</td><td class="numberCell">28.73%</td><td class="numberCell">5.45%</td><td class="numberCell">19.72%</td><td class="numberCell">8.76%</td><td class="numberCell">9.07%</td><td class="numberCell">0.814</td></tr><tr><td class="numberCell">61</td><td class="numberCell">27.29%</td><td class="numberCell">14.02%</td><td class="numberCell">0.06%</td><td class="numberCell">0.51%</td><td class="numberCell">4.63%</td><td class="numberCell">28.40%</td><td class="numberCell">5.10%</td><td class="numberCell">19.99%</td><td class="numberCell">8.79%</td><td class="numberCell">9.12%</td><td class="numberCell">0.813</td></tr><tr><td class="numberCell">62</td><td class="numberCell">27.28%</td><td class="numberCell">14.24%</td><td class="numberCell">0.06%</td><td class="numberCell">0.53%</td><td class="numberCell">4.81%</td><td class="numberCell">28.04%</td><td class="numberCell">4.78%</td><td class="numberCell">20.26%</td><td class="numberCell">8.83%</td><td class="numberCell">9.18%</td><td class="numberCell">0.811</td></tr><tr><td class="numberCell">63</td><td class="numberCell">27.29%</td><td class="numberCell">14.45%</td><td class="numberCell">0.06%</td><td class="numberCell">0.55%</td><td class="numberCell">4.99%</td><td class="numberCell">27.66%</td><td class="numberCell">4.48%</td><td class="numberCell">20.53%</td><td class="numberCell">8.86%</td><td class="numberCell">9.24%</td><td class="numberCell">0.810</td></tr><tr><td class="numberCell">64</td><td class="numberCell">27.31%</td><td class="numberCell">14.65%</td><td class="numberCell">0.05%</td><td class="numberCell">0.57%</td><td class="numberCell">5.17%</td><td class="numberCell">27.26%</td><td class="numberCell">4.19%</td><td class="numberCell">20.80%</td><td class="numberCell">8.90%</td><td class="numberCell">9.30%</td><td class="numberCell">0.808</td></tr><tr><td class="numberCell">65</td><td class="numberCell">27.32%</td><td class="numberCell">14.86%</td><td class="numberCell">0.05%</td><td class="numberCell">0.59%</td><td class="numberCell">5.35%</td><td class="numberCell">26.85%</td><td class="numberCell">3.91%</td><td class="numberCell">21.07%</td><td class="numberCell">8.93%</td><td class="numberCell">9.36%</td><td class="numberCell">0.807</td></tr><tr><td class="numberCell">66</td><td class="numberCell">27.32%</td><td class="numberCell">15.06%</td><td class="numberCell">0.05%</td><td class="numberCell">0.61%</td><td class="numberCell">5.54%</td><td class="numberCell">26.43%</td><td class="numberCell">3.65%</td><td class="numberCell">21.35%</td><td class="numberCell">8.97%</td><td class="numberCell">9.42%</td><td class="numberCell">0.805</td></tr><tr><td class="numberCell">67</td><td class="numberCell">27.27%</td><td class="numberCell">15.29%</td><td class="numberCell">0.04%</td><td class="numberCell">0.64%</td><td class="numberCell">5.74%</td><td class="numberCell">26.00%</td><td class="numberCell">3.41%</td><td class="numberCell">21.62%</td><td class="numberCell">9.00%</td><td class="numberCell">9.48%</td><td class="numberCell">0.803</td></tr><tr><td class="numberCell">68</td><td class="numberCell">27.18%</td><td class="numberCell">15.55%</td><td class="numberCell">0.04%</td><td class="numberCell">0.67%</td><td class="numberCell">5.94%</td><td class="numberCell">25.56%</td><td class="numberCell">3.17%</td><td class="numberCell">21.89%</td><td class="numberCell">9.04%</td><td class="numberCell">9.54%</td><td class="numberCell">0.801</td></tr><tr><td class="numberCell">69</td><td class="numberCell">27.10%</td><td class="numberCell">15.80%</td><td class="numberCell">0.03%</td><td class="numberCell">0.70%</td><td class="numberCell">6.16%</td><td class="numberCell">25.12%</td><td class="numberCell">2.95%</td><td class="numberCell">22.15%</td><td class="numberCell">9.07%</td><td class="numberCell">9.61%</td><td class="numberCell">0.798</td></tr><tr><td class="numberCell">70</td><td class="numberCell">26.99%</td><td class="numberCell">16.05%</td><td class="numberCell">0.03%</td><td class="numberCell">0.74%</td><td class="numberCell">6.39%</td><td class="numberCell">24.67%</td><td class="numberCell">2.74%</td><td class="numberCell">22.39%</td><td class="numberCell">9.10%</td><td class="numberCell">9.68%</td><td class="numberCell">0.796</td></tr><tr><td class="numberCell">71</td><td class="numberCell">26.89%</td><td class="numberCell">16.29%</td><td class="numberCell">0.03%</td><td class="numberCell">0.78%</td><td class="numberCell">6.64%</td><td class="numberCell">24.20%</td><td class="numberCell">2.55%</td><td class="numberCell">22.62%</td><td class="numberCell">9.14%</td><td class="numberCell">9.75%</td><td class="numberCell">0.793</td></tr><tr><td class="numberCell">72</td><td class="numberCell">26.79%</td><td class="numberCell">16.53%</td><td class="numberCell">0.02%</td><td class="numberCell">0.82%</td><td class="numberCell">6.89%</td><td class="numberCell">23.71%</td><td class="numberCell">2.38%</td><td class="numberCell">22.86%</td><td class="numberCell">9.17%</td><td class="numberCell">9.82%</td><td class="numberCell">0.791</td></tr><tr><td class="numberCell">73</td><td class="numberCell">26.66%</td><td class="numberCell">16.78%</td><td class="numberCell">0.02%</td><td class="numberCell">0.86%</td><td class="numberCell">7.16%</td><td class="numberCell">23.21%</td><td class="numberCell">2.22%</td><td class="numberCell">23.09%</td><td class="numberCell">9.20%</td><td class="numberCell">9.89%</td><td class="numberCell">0.788</td></tr><tr><td class="numberCell">74</td><td class="numberCell">26.49%</td><td class="numberCell">17.03%</td><td class="numberCell">0.01%</td><td class="numberCell">0.90%</td><td class="numberCell">7.46%</td><td class="numberCell">22.70%</td><td class="numberCell">2.07%</td><td class="numberCell">23.34%</td><td class="numberCell">9.23%</td><td class="numberCell">9.97%</td><td class="numberCell">0.785</td></tr><tr><td class="numberCell">75</td><td class="numberCell">26.29%</td><td class="numberCell">17.27%</td><td class="numberCell">0.01%</td><td class="numberCell">0.95%</td><td class="numberCell">7.77%</td><td class="numberCell">22.18%</td><td class="numberCell">1.94%</td><td class="numberCell">23.59%</td><td class="numberCell">9.27%</td><td class="numberCell">10.05%</td><td class="numberCell">0.781</td></tr><tr><td class="numberCell">76</td><td class="numberCell">26.08%</td><td class="numberCell">17.52%</td><td class="numberCell">0.01%</td><td class="numberCell">1.03%</td><td class="numberCell">8.08%</td><td class="numberCell">21.66%</td><td class="numberCell">1.81%</td><td class="numberCell">23.82%</td><td class="numberCell">9.30%</td><td class="numberCell">10.13%</td><td class="numberCell">0.778</td></tr><tr><td class="numberCell">77</td><td class="numberCell">25.86%</td><td class="numberCell">17.76%</td><td class="numberCell">0.00%</td><td class="numberCell">1.11%</td><td class="numberCell">8.39%</td><td class="numberCell">21.14%</td><td class="numberCell">1.70%</td><td class="numberCell">24.04%</td><td class="numberCell">9.32%</td><td class="numberCell">10.21%</td><td class="numberCell">0.774</td></tr><tr><td class="numberCell">78</td><td class="numberCell">25.63%</td><td class="numberCell">18.01%</td><td class="numberCell">0.00%</td><td class="numberCell">1.20%</td><td class="numberCell">8.70%</td><td class="numberCell">20.63%</td><td class="numberCell">1.58%</td><td class="numberCell">24.26%</td><td class="numberCell">9.35%</td><td class="numberCell">10.29%</td><td class="numberCell">0.771</td></tr><tr><td class="numberCell">79</td><td class="numberCell">25.35%</td><td class="numberCell">18.30%</td><td class="numberCell">0.00%</td><td class="numberCell">1.28%</td><td class="numberCell">9.01%</td><td class="numberCell">20.15%</td><td class="numberCell">1.47%</td><td class="numberCell">24.45%</td><td class="numberCell">9.38%</td><td class="numberCell">10.38%</td><td class="numberCell">0.767</td></tr><tr><td class="numberCell">80</td><td class="numberCell">25.01%</td><td class="numberCell">18.61%</td><td class="numberCell">0.00%</td><td class="numberCell">1.37%</td><td class="numberCell">9.31%</td><td class="numberCell">19.68%</td><td class="numberCell">1.39%</td><td class="numberCell">24.64%</td><td class="numberCell">9.41%</td><td class="numberCell">10.46%</td><td class="numberCell">0.763</td></tr><tr><td class="numberCell">81</td><td class="numberCell">24.65%</td><td class="numberCell">18.93%</td><td class="numberCell">0.00%</td><td class="numberCell">1.46%</td><td class="numberCell">9.63%</td><td class="numberCell">19.22%</td><td class="numberCell">1.31%</td><td class="numberCell">24.79%</td><td class="numberCell">9.43%</td><td class="numberCell">10.54%</td><td class="numberCell">0.760</td></tr><tr><td class="numberCell">82</td><td class="numberCell">24.33%</td><td class="numberCell">19.26%</td><td class="numberCell">0.00%</td><td class="numberCell">1.55%</td><td class="numberCell">9.95%</td><td class="numberCell">18.78%</td><td class="numberCell">1.23%</td><td class="numberCell">24.90%</td><td class="numberCell">9.46%</td><td class="numberCell">10.62%</td><td class="numberCell">0.756</td></tr><tr><td class="numberCell">83</td><td class="numberCell">24.00%</td><td class="numberCell">19.57%</td><td class="numberCell">0.00%</td><td class="numberCell">1.65%</td><td class="numberCell">10.29%</td><td class="numberCell">18.34%</td><td class="numberCell">1.16%</td><td class="numberCell">24.98%</td><td class="numberCell">9.48%</td><td class="numberCell">10.70%</td><td class="numberCell">0.752</td></tr><tr><td class="numberCell">84</td><td class="numberCell">23.54%</td><td class="numberCell">19.95%</td><td class="numberCell">0.00%</td><td class="numberCell">1.77%</td><td class="numberCell">10.63%</td><td class="numberCell">17.94%</td><td class="numberCell">1.09%</td><td class="numberCell">25.07%</td><td class="numberCell">9.50%</td><td class="numberCell">10.78%</td><td class="numberCell">0.748</td></tr><tr><td class="numberCell">85</td><td class="numberCell">22.96%</td><td class="numberCell">20.40%</td><td class="numberCell">0.00%</td><td class="numberCell">1.90%</td><td class="numberCell">10.98%</td><td class="numberCell">17.56%</td><td class="numberCell">1.03%</td><td class="numberCell">25.16%</td><td class="numberCell">9.52%</td><td class="numberCell">10.87%</td><td class="numberCell">0.744</td></tr><tr><td class="numberCell">86</td><td class="numberCell">22.37%</td><td class="numberCell">20.83%</td><td class="numberCell">0.00%</td><td class="numberCell">2.02%</td><td class="numberCell">11.36%</td><td class="numberCell">17.21%</td><td class="numberCell">0.97%</td><td class="numberCell">25.23%</td><td class="numberCell">9.54%</td><td class="numberCell">10.95%</td><td class="numberCell">0.740</td></tr><tr><td class="numberCell">87</td><td class="numberCell">21.78%</td><td class="numberCell">21.27%</td><td class="numberCell">0.00%</td><td class="numberCell">2.14%</td><td class="numberCell">11.75%</td><td class="numberCell">16.86%</td><td class="numberCell">0.92%</td><td class="numberCell">25.28%</td><td class="numberCell">9.56%</td><td class="numberCell">11.04%</td><td class="numberCell">0.736</td></tr><tr><td class="numberCell">88</td><td class="numberCell">21.10%</td><td class="numberCell">21.76%</td><td class="numberCell">0.00%</td><td class="numberCell">2.26%</td><td class="numberCell">12.15%</td><td class="numberCell">16.51%</td><td class="numberCell">0.87%</td><td class="numberCell">25.34%</td><td class="numberCell">9.58%</td><td class="numberCell">11.12%</td><td class="numberCell">0.732</td></tr><tr><td class="numberCell">89</td><td class="numberCell">20.34%</td><td class="numberCell">22.30%</td><td class="numberCell">0.00%</td><td class="numberCell">2.38%</td><td class="numberCell">12.57%</td><td class="numberCell">16.19%</td><td class="numberCell">0.82%</td><td class="numberCell">25.41%</td><td class="numberCell">9.60%</td><td class="numberCell">11.21%</td><td class="numberCell">0.727</td></tr><tr><td class="numberCell">90</td><td class="numberCell">19.49%</td><td class="numberCell">22.93%</td><td class="numberCell">0.00%</td><td class="numberCell">2.51%</td><td class="numberCell">12.98%</td><td class="numberCell">15.86%</td><td class="numberCell">0.77%</td><td class="numberCell">25.46%</td><td class="numberCell">9.61%</td><td class="numberCell">11.30%</td><td class="numberCell">0.723</td></tr><tr><td class="numberCell">91</td><td class="numberCell">18.60%</td><td class="numberCell">23.59%</td><td class="numberCell">0.00%</td><td class="numberCell">2.64%</td><td class="numberCell">13.38%</td><td class="numberCell">15.51%</td><td class="numberCell">0.72%</td><td class="numberCell">25.54%</td><td class="numberCell">9.63%</td><td class="numberCell">11.40%</td><td class="numberCell">0.718</td></tr><tr><td class="numberCell">92</td><td class="numberCell">17.73%</td><td class="numberCell">24.26%</td><td class="numberCell">0.00%</td><td class="numberCell">2.78%</td><td class="numberCell">13.82%</td><td class="numberCell">15.12%</td><td class="numberCell">0.67%</td><td class="numberCell">25.61%</td><td class="numberCell">9.65%</td><td class="numberCell">11.51%</td><td class="numberCell">0.714</td></tr><tr><td class="numberCell">93</td><td class="numberCell">16.82%</td><td class="numberCell">24.94%</td><td class="numberCell">0.00%</td><td class="numberCell">2.92%</td><td class="numberCell">14.33%</td><td class="numberCell">14.75%</td><td class="numberCell">0.63%</td><td class="numberCell">25.61%</td><td class="numberCell">9.68%</td><td class="numberCell">11.62%</td><td class="numberCell">0.708</td></tr><tr><td class="numberCell">94</td><td class="numberCell">15.98%</td><td class="numberCell">25.58%</td><td class="numberCell">0.00%</td><td class="numberCell">3.03%</td><td class="numberCell">14.88%</td><td class="numberCell">14.41%</td><td class="numberCell">0.59%</td><td class="numberCell">25.53%</td><td class="numberCell">9.70%</td><td class="numberCell">11.73%</td><td class="numberCell">0.703</td></tr><tr><td class="numberCell">95</td><td class="numberCell">15.04%</td><td class="numberCell">26.23%</td><td class="numberCell">0.00%</td><td class="numberCell">3.21%</td><td class="numberCell">15.46%</td><td class="numberCell">14.02%</td><td class="numberCell">0.56%</td><td class="numberCell">25.48%</td><td class="numberCell">9.72%</td><td class="numberCell">11.85%</td><td class="numberCell">0.698</td></tr><tr><td class="numberCell">96</td><td class="numberCell">13.90%</td><td class="numberCell">26.89%</td><td class="numberCell">0.00%</td><td class="numberCell">3.51%</td><td class="numberCell">16.04%</td><td class="numberCell">13.64%</td><td class="numberCell">0.54%</td><td class="numberCell">25.48%</td><td class="numberCell">9.73%</td><td class="numberCell">11.97%</td><td class="numberCell">0.692</td></tr><tr><td class="numberCell">97</td><td class="numberCell">12.56%</td><td class="numberCell">27.72%</td><td class="numberCell">0.00%</td><td class="numberCell">3.82%</td><td class="numberCell">16.66%</td><td class="numberCell">13.33%</td><td class="numberCell">0.52%</td><td class="numberCell">25.38%</td><td class="numberCell">9.74%</td><td class="numberCell">12.10%</td><td class="numberCell">0.685</td></tr><tr><td class="numberCell">98</td><td class="numberCell">11.05%</td><td class="numberCell">28.54%</td><td class="numberCell">0.00%</td><td class="numberCell">4.21%</td><td class="numberCell">17.43%</td><td class="numberCell">13.11%</td><td class="numberCell">0.52%</td><td class="numberCell">25.16%</td><td class="numberCell">9.74%</td><td class="numberCell">12.24%</td><td class="numberCell">0.678</td></tr><tr><td class="numberCell">99</td><td class="numberCell">9.61%</td><td class="numberCell">29.23%</td><td class="numberCell">0.00%</td><td class="numberCell">4.61%</td><td class="numberCell">18.18%</td><td class="numberCell">13.04%</td><td class="numberCell">0.51%</td><td class="numberCell">24.83%</td><td class="numberCell">9.74%</td><td class="numberCell">12.36%</td><td class="numberCell">0.671</td></tr><tr><td class="numberCell">100</td><td class="numberCell">8.00%</td><td class="numberCell">30.50%</td><td class="numberCell">0.00%</td><td class="numberCell">5.50%</td><td class="numberCell">18.50%</td><td class="numberCell">13.00%</td><td class="numberCell">0.50%</td><td class="numberCell">24.00%</td><td class="numberCell">9.73%</td><td class="numberCell">12.52%</td><td class="numberCell">0.661</td></tr></tbody><tfoot><tr><td colspan="12" class="text-muted"><sup>*</sup>Annualized ex-ante values shown for portfolio return and volatility. Ex-ante Sharpe Ratio calculated using historical 3-month treasury bill returns as the risk-free rate.</td></tr></tfoot></table>
+        </div>
+        
+
+        
+
+        <div id="resultNotes" class="well well-small">
+Notes on results:
+<ul>
+<li>IMPORTANT: The projections or other information generated by Portfolio Visualizer regarding the likelihood of various investment outcomes are hypothetical in nature, do not reflect actual investment results and are not guarantees of future results. Results may vary with each use and over time.</li>
+<li>The results do not constitute investment advice or recommendation, are provided solely for informational purposes, and are not an offer to buy or sell any securities. All use is subject to <a href="terms-of-service.html">terms of service</a>.</li>
+<li>Investing involves risk, including possible loss of principal. Past performance is not a guarantee of future results.</li>
+<li>Asset allocation and diversification strategies do not guarantee a profit or protect against a loss.</li>
+<li>Hypothetical returns do not reflect trading costs, transaction fees, commissions, or actual taxes due on investment returns.</li>
+<li>The results are based on information from a variety of sources we consider reliable, but we do not represent that the information is accurate or complete.</li>
+<li>Refer to the related documentation sections for more details on <a href="faq.html#definitions">terms and definitions</a>, <a href="faq.html#methodology">methodology</a>, and <a href="faq.html#marketData">data sources</a>.</li>
+<li>Portfolio optimization is a process of choosing the proportions of various assets to be held in a portfolio in such a way as to make the portfolio better than any other combination according to the selected objective function such as maximizing risk-adjusted return. Portfolio optimization determines target weights for portfolio assets based on mathematical models that can use either historical or forecasted data as inputs. Optimization results are not guarantees of future performance.</li>
+<li>The results are based on the total return of assets and assume that all received dividends and distributions are reinvested.</li>
+<li>Historical asset statistics are based on monthly returns from Jan 2006 to May 2022</li>
+<li>The efficient frontier is based on the monthly returns, volatilities, and correlations of the specified assets</li>
+<li>Monte Carlo method was used to resample the efficient frontier inputs to mitigate the impact of input estimation errors</li>
+<li>The displayed standard deviation and expected return in the efficient frontier are annualized from the monthly returns</li>
+<li>Ex-ante Sharpe Ratio for the efficient frontier data points is calculated using historical 3-month treasury bill returns as the risk free rate</li>
+</ul>
+</div>
+
+    </div>
+    
+</div>
+
+
+
+<div id="symbolPicker" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="symbolPickerTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2 class="modal-title" id="symbolPickerTitle">Find ETF, Mutual Fund or Stock Symbol</h2>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="assetType" class="control-label col-sm-2">Type</label>
+                        <div class="col-sm-4">
+                            <select name="assetType" id="assetType" class="form-control">
+                                <option value="2">ETF</option>
+                                <option value="5">Mutual Fund</option>
+                                <option value="4">Closed-End Fund</option>
+                                <option value="1">Stock</option>
+                                <option value="10">Asset Class</option>
+                                
+                                
+                                <option value="6">Cash</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="assetSearch" class="control-label col-sm-2">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="assetSearch" name="assetSearch" class="form-control typeahead" placeholder="Enter partial name (3 or more characters)" autofocus>
+                            <p class="help-block">Example: &quot;vanguard bond&quot;</p>
+                        </div>
+                    </div>
+                    <div class="form-group norender">
+                        <label for="cashAsset" class="control-label col-sm-2">Cash Asset</label>
+                        <div class="col-sm-10">
+                            <select name="cashAsset" id="cashAsset" class="form-control">
+                                <option value="CASHX">Money Market</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group norender" >
+                        <label for="assetClassAsset" class="control-label col-sm-2">Asset Class</label>
+                        <div class="col-sm-10">
+                            <select name="assetClassAsset" id="assetClassAsset" class="form-control">
+                                <optgroup label="US Equity">
+
+                                <option value="VTSMX">US Stock Market (VTSMX)</option>
+                                
+                                <option value="VFINX">US Large Cap (VFINX)</option>
+                                
+                                <option value="VIVAX">US Large Cap Value (VIVAX)</option>
+                                
+                                <option value="VIGRX">US Large Cap Growth (VIGRX)</option>
+                                
+                                <option value="VIMSX">US Mid Cap (VIMSX)</option>
+                                
+                                <option value="VMVIX">US Mid Cap Value (VMVIX)</option>
+                                
+                                <option value="VMGIX">US Mid Cap Growth (VMGIX)</option>
+                                
+                                <option value="NAESX">US Small Cap (NAESX)</option>
+                                
+                                <option value="VISVX">US Small Cap Value (VISVX)</option>
+                                
+                                <option value="VISGX">US Small Cap Growth (VISGX)</option>
+                                
+                                <option value="BRSIX">US Micro Cap (BRSIX)</option>
+                                </optgroup>
+<optgroup label="International Equity">
+
+                                <option value="VGTSX">Global ex-US Stock Market (VGTSX)</option>
+                                
+                                <option value="VTMGX">Intl Developed ex-US Market (VTMGX)</option>
+                                
+                                <option value="VSS">International ex-US Small Cap (VSS)</option>
+                                
+                                <option value="EFV">International ex-US Value (EFV)</option>
+                                
+                                <option value="VEURX">European Stocks (VEURX)</option>
+                                
+                                <option value="VPACX">Pacific Stocks (VPACX)</option>
+                                
+                                <option value="VEIEX">Emerging Markets (VEIEX)</option>
+                                </optgroup>
+<optgroup label="Fixed Income">
+
+                                <option value="CASHX">Cash (CASHX)</option>
+                                
+                                <option value="VFISX">Short Term Treasury (VFISX)</option>
+                                
+                                <option value="VFITX">Intermediate Term Treasury (VFITX)</option>
+                                
+                                <option value="IEF">10-year Treasury (IEF)</option>
+                                
+                                <option value="VUSTX">Long Term Treasury (VUSTX)</option>
+                                
+                                <option value="VBMFX">Total US Bond Market (VBMFX)</option>
+                                
+                                <option value="VIPSX">TIPS (VIPSX)</option>
+                                
+                                <option value="PIGLX">Global Bonds (Unhedged) (PIGLX)</option>
+                                
+                                <option value="PGBIX">Global Bonds (USD Hedged) (PGBIX)</option>
+                                
+                                <option value="VFSTX">Short-Term Investment Grade (VFSTX)</option>
+                                
+                                <option value="LQD">Corporate Bonds (LQD)</option>
+                                
+                                <option value="VWESX">Long-Term Corporate Bonds (VWESX)</option>
+                                
+                                <option value="VWEHX">High Yield Corporate Bonds (VWEHX)</option>
+                                
+                                <option value="VWSTX">Short-Term Tax-Exempt (VWSTX)</option>
+                                
+                                <option value="VWITX">Intermediate-Term Tax-Exempt (VWITX)</option>
+                                
+                                <option value="VWLTX">Long-Term Tax-Exempt (VWLTX)</option>
+                                </optgroup>
+<optgroup label="Alternatives">
+
+                                <option value="VGSIX">REIT (VGSIX)</option>
+                                
+                                <option value="GLD">Gold (GLD)</option>
+                                
+                                <option value="GDX">Precious Metals (GDX)</option>
+                                
+                                <option value="GSG">Commodities (GSG)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="form-buttons modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectTicker">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="importDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="importDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="importConfigForm" action="https://www.portfoliovisualizer.com/import" method="POST" data-messages="#importMessages" enctype="multipart/form-data">
+        <input type="hidden" id="importType" name="importType" value="portfolio">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="importDialogTitle">Import Portfolio</h2>
+                </div>
+                <div class="modal-body">
+                    <p id="importPortfolioInfo">
+                        You can upload a portfolio asset allocation by selecting a file below.
+                        The import uses a standard Excel or CSV file format with a ticker symbol followed by asset balance or weight on each row,
+                        and you can <a href="faq.html#portfolios">download sample files</a> for the supported data formats from the related documentation section.
+                    </p>
+                    <p id="importListInfo" class="norender">
+                        You can upload a list of tickers by selecting either a text file of an Excel file below.
+                        The tickers in the file can be listed either on separate lines or on the same line.
+                    </p>
+                    <div id="importMessages"></div>
+
+                    <div class="form-group">
+                        <label for="portfolio" class="control-label col-sm-2">File</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="hidden_jaws"><label for="portfolio_info">File</label></span>
+                                <input class="form-control" type="text" name="portfolio_info" id="portfolio_info" readonly>
+                                <span class="input-group-btn">
+                                    <span class="btn btn-default btn-file">
+                                    Browse...
+                                    <input type="file" id="portfolio" name="portfolio" accept=".csv,.xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,text/plain">
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="importConfigButton">Upload</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div id="confirmDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="confirmActionForm">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="confirmDialogTitle">Confirm Action</h2>
+                </div>
+                <div class="modal-body">
+                    <span id="confirmText"></span>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelConfirmButton">Cancel</button>
+                    <button type="button" class="btn" data-dismiss="modal" id="confirmButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+
+<div id="footer" class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-5">
+                <span class="text-muted">&copy; 2022 Silicon Cloud Technologies LLC</span>
+            </div>
+            <div class="col-sm-1">
+                <a href="about.html">About</a>
+            </div>
+            <div class="col-sm-1">
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="col-sm-1">
+                <a href="pricing.html">Pricing</a>
+            </div>
+            
+            <div class="col-sm-2">
+                <a href="terms-of-service.html">Terms of Service</a>
+            </div>
+            <div class="col-sm-2">
+                <a href="privacy-policy.html">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="../cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="jquery/jquery-3.4.1.min.js">\x3C/script>')</script>           
+<script src="../cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script>jQuery.fn.modal || document.write('<script src="bootstrap/js/bootstrap.min6bf2.js?v=341">\x3C/script>')</script>    
+
+
+<script src="javascript/merged-cd97b9efd972c726e07a723ff74b40a0.min.js"></script>
+
+<script src="../code.highcharts.com/highcharts.html"></script>
+<script>(typeof Highcharts !== 'undefined') || document.write('<script src="highcharts/highcharts465b.js?v=820">\x3C/script>')</script>
+<script src="../code.highcharts.com/modules/annotations.html"></script>
+<script src="../code.highcharts.com/modules/histogram-bellcurve.html"></script>
+
+
+<script>
+$(function() {
+    $.each(q, function(index, f) {
+        f.call(document);
+    });
+    postPageInit();
+});
+</script>
+
+
+</body>
+
+
+</html>

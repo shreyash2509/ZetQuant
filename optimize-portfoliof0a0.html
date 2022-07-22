@@ -1,0 +1,1952 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <title>Portfolio Optimization</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta name="description" content="Portfolio optimizer supporting mean variance optimization to find the optimal risk adjusted portfolio that lies on the efficient frontier, and optimization based on minimizing cvar, diversification or maximum drawdown.">
+    <meta name="keywords" content="portfolio optimization, mean variance optimization, cvar optimization, tracking error optimization, drawdown optimization, diversification optimization, efficient frontier">
+    <link rel="canonical" href="optimize-portfolio.html">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="css/merged-4b5ddc42c451e5d0b325c5d10e865f35.min.css">
+
+
+
+<script>
+var autoCompleteTickers=true;
+var showFullName=false;
+var enableExport=false;
+var expiredAccount=false;
+var enablePDF=false;
+var bookmarkURL="optimize-portfoliof0a0.html?s=y&amp;mode=2&amp;timePeriod=4&amp;goal=2&amp;robustOptimization=true&amp;historicalReturns=false&amp;historicalVolatility=true&amp;constrained=false&amp;groupConstraints=false&amp;comparedAllocation=-1&amp;symbol1=VTI&amp;allocation1_1=40&amp;mean1=5.5&amp;symbol2=VXUS&amp;allocation2_1=20&amp;mean2=5.7&amp;symbol3=BND&amp;allocation3_1=30&amp;mean3=1.8&amp;symbol4=VNQ&amp;allocation4_1=10&amp;mean4=5";
+var showBookmarkLink=true;
+var showExportLinks=true;
+window.q=[];window.$=function(f){q.push(f)}
+</script>
+
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','../www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-43200681-1', 'portfoliovisualizer.com');
+    ga('send', 'pageview');
+</script>
+
+
+
+
+    <script>
+        var addRowsLinkText="More";
+        $(function() {
+            updateFormState();
+            toggleTimeframe();
+            $('#benchmark').on('change', function (e) {
+                $("#benchmarkSymbol").closest('.form-group').toggle($('#benchmark').val()==-1);
+            });
+            
+            
+            $("#savedModelList").on('change', function (e) {
+                var modelName=$("#savedModelList").val();
+                if(modelName) {
+                    document.location.href='optimize-portfolio?openModel='+encodeURIComponent(modelName);
+                }
+            });
+        });
+
+        function switchType() {
+            var field=$('#submitType');
+            if(field.val()!='Refresh') {
+                clearPortfolios();
+                field.val('Refresh');
+                field.prop('form').submit();
+            }
+        }
+        function saveOptimizationModel() {
+            
+            showLoginPrompt(true);
+            
+        }
+
+        function adjustColumns() {
+            var expectedMean=$("#historicalReturns").val()=='false';
+            var expectedVolatility=expectedMean && $("#historicalVolatility").val()=='false';
+            var assetConstraints=$("#constrained").val()=='true';
+            var groupConstraints=$("#groupConstraints").val()=='true';
+
+            var indexWidth=1;
+            var assetWidth=3;
+            var weightWidth=2;
+            var meanWidth=2;
+            var volatilityWidth=2;
+            var assetConstraintWidth=2;
+            var groupConstraintWidth=2;
+            var visibleColumns=indexWidth+assetWidth+weightWidth+(expectedMean ? meanWidth : 0)+(expectedVolatility ? volatilityWidth : 0)+(assetConstraints ? 2*assetConstraintWidth : 0)+(groupConstraints ? groupConstraintWidth : 0);
+            if(visibleColumns>12 && groupConstraints) {
+                groupConstraintWidth--;
+                visibleColumns--;
+            }
+            if(visibleColumns>12) {
+                assetWidth--;
+                visibleColumns--;
+            }
+            if(visibleColumns>12) {
+                weightWidth--;
+                visibleColumns--;
+            }
+            if(visibleColumns>12) {
+                assetConstraintWidth--;
+                visibleColumns-=2;
+            }
+            if(visibleColumns>12 && expectedVolatility) {
+                volatilityWidth--;
+                visibleColumns--;
+            }
+            $('.groupConstraint').not('#groupConstraintsSection').removeClass("col-sm-1 col-sm-2").addClass("col-sm-"+groupConstraintWidth);
+            $('.weight-column').removeClass("col-sm-1 col-sm-2").addClass("col-sm-"+weightWidth);
+            $('.asset-volatility').removeClass("col-sm-1 col-sm-2").addClass("col-sm-"+volatilityWidth);
+            $('.asset-header').removeClass("col-sm-3 col-sm-4").addClass("col-sm-"+(indexWidth+assetWidth));
+            $('.asset-column').removeClass("col-sm-2 col-sm-3").addClass("col-sm-"+assetWidth);
+            $('.totals-column').removeClass("col-sm-1 col-sm-2 col-sm-offset-2 col-sm-offset-3").addClass("col-sm-offset-"+assetWidth).addClass("col-sm-"+weightWidth);
+            $('.constraint').removeClass("col-sm-2 col-sm-3").addClass("col-sm-"+assetConstraintWidth);
+        }
+
+        function updateFormState() {
+            var goal=$("#goal").val();
+            var meanVariance=(goal==3 || goal == 1 || goal == 2 || goal == 4);
+            var trackingError=(goal==11 || goal == 13 || goal == 14);
+            var forecastSupported=meanVariance || goal==9;
+            var groupConstraintsSupported=meanVariance || trackingError;
+            $("#robustOptimization").closest('.form-group').toggle(meanVariance || trackingError);
+            $("#groupConstraints").closest('.form-group').toggle(groupConstraintsSupported);
+            $("#historicalReturns").closest('.form-group').toggle(forecastSupported);
+            var groupConstraints=groupConstraintsSupported && $("#groupConstraints").val()=='true';
+            if(!groupConstraintsSupported) {
+                $("#groupConstraints").val('false').trigger("chosen:updated");
+            }
+            if(!forecastSupported) {
+                $("#historicalReturns").val('true').trigger("chosen:updated");
+            }
+            var historicalReturns=$("#historicalReturns").val()=='true';
+            $('#historicalCorrelations').closest('.form-group').toggle(!historicalReturns);
+            $('#historicalVolatility').closest('.form-group').toggle(!historicalReturns);
+            if(historicalReturns || !forecastSupported) {
+                $("#historicalVolatility").val('true').trigger("chosen:updated");
+                $("#historicalCorrelations").val('true').trigger("chosen:updated");
+            }
+            var historicalVolatility=$("#historicalVolatility").val()=='true';
+            var historicalCorrelations = $("#historicalCorrelations").val() == 'true';
+            var constraints=$("#constrained").val()=='true';
+            
+            adjustColumns();
+            $("#correlationsFile").closest('.form-group').toggle(!historicalCorrelations);
+            $("#riskFreeRate").closest('.form-group').toggle(!historicalReturns);
+            $("#benchmark").closest('.form-group').toggle(historicalReturns);
+            $("#benchmarkSymbol").closest('.form-group').toggle(historicalReturns && $('#benchmark').val()==-1);
+            $(".asset-statistics").toggle(!historicalReturns);
+            $(".constraint").toggle(constraints);
+            $(".groupConstraint").toggle(groupConstraints);
+            $(".asset-volatility").toggle(!historicalVolatility);
+            $("#targetAnnualReturn").closest('.form-group').toggle(goal==3 || goal == 8 || goal == 7 || goal == 6 || goal == 15);
+            $("#targetAnnualVolatility").closest('.form-group').toggle(goal==1);
+            $("#targetTrackingError").closest('.form-group').toggle(goal==14);
+            $("#targetTailLoss").closest('.form-group').toggle(goal==16);
+        }
+        function toggleTimeframe() {
+            var showMonths=$("#timePeriod").val()==2;
+            $("#firstMonth").closest('.form-group').toggle(showMonths);
+            $("#lastMonth").closest('.form-group').toggle(showMonths);
+        }
+    </script>
+</head>
+<body>
+
+
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html"> PORTFOLIO <span class="pv-brand">VISUALIZER</span></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html" class="navbar-optional">Contact</a></li>
+                
+                <li><a href="pricing.html" class="navbar-optional">Pricing</a></li>
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Portfolio Analysis</li>
+                        <li><a href="backtest-asset-class-allocation.html">Backtest Asset Class Allocation</a></li>
+                        <li><a href="backtest-portfolio.html">Backtest Portfolio</a></li>
+                        <li><a href="monte-carlo-simulation.html">Monte Carlo Simulation</a></li>
+                        <li><a href="financial-goals.html">Financial Goals</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Optimization</li>
+                        <li><a href="efficient-frontier.html">Historical Efficient Frontier</a></li>
+                        <li><a href="efficient-frontier-forecast.html">Forecasted Efficient Frontier</a></li>
+                        <li><a href="optimize-portfolio.html">Portfolio Optimization</a></li>
+                        <li><a href="black-litterman-model.html">Black-Litterman Model</a></li>
+                        <li><a href="rolling-optimization.html">Rolling Optimization</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Asset Analytics</li>
+                        <li><a href="fund-screener.html">Fund Screener</a></li>
+                        <li><a href="fund-performance.html">Fund Performance</a></li>
+                        <li><a href="asset-correlations.html">Asset Correlations</a></li>
+                        <li><a href="asset-class-correlations.html">Asset Class Correlations</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Factor Analysis</li>
+                        <li><a href="factor-analysis.html">Factor Regression</a></li>
+                        <li><a href="risk-factor-allocation.html">Risk Factor Allocation</a></li>
+                        <li><a href="etf-and-mutual-fund-factor-regressions.html">Fund and ETF Factor Regressions</a></li>
+                        <li><a href="factor-performance-attribution.html">Factor Performance Attribution</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Market Timing</li>
+                        <li><a href="test-market-timing-model.html">Market Timing Models</a></li>
+                        <li><a href="test-market-timing-model5fea.html?timingModel=4&amp;coreSatellite=true">Core-Satellite</a></li>
+                    </ul>
+                </li>
+                
+                <li><div><a href="sign-up.html" class="btn btn-success navbar-btn">Sign Up</a></div></li>
+                <li><div><a href="login.html" class="btn btn-primary navbar-btn">Log In</a></div></li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="container-fluid">
+<h1>Portfolio Optimization</h1>
+    <p>
+        This portfolio optimizer tool supports the following portfolio optimization strategies:
+    </p>
+    <ul>
+        <li>
+            Mean Variance Optimization &ndash; Find the optimal risk adjusted portfolio that lies on the efficient frontier
+        </li>
+        <li>
+            Conditional Value-at-Risk &ndash; Optimize the portfolio to minimize the expected tail loss
+        </li>
+        <li>
+            Risk Parity &ndash; Find the portfolio that equalizes the risk contribution of portfolio assets
+        </li>
+        <li>
+            Tracking Error &ndash; Find the portfolio that minimizes the tracking error against the selected benchmark
+        </li>
+        <li>
+            Information Ratio &ndash; Find the portfolio that maximizes the information ratio against the selected benchmark
+        </li>
+        
+        <li>
+            Kelly Criterion &ndash; Finds the portfolio with the maximum expected geometric growth rate
+        </li>
+        <li>
+            Sortino Ratio &ndash; Find the portfolio that maximizes the Sortino ratio for the given minimum acceptable return
+        </li>
+        <li>
+            Omega Ratio &ndash; Find the portfolio that maximizes the Omega ratio for the given minimum acceptable return
+        </li>
+        <li>
+            Maximum Drawdown &ndash; Find the portfolio with the minimum worst case drawdown with optional minimum acceptable return
+        </li>
+    </ul>
+    <p>
+        The optimization is based on the monthly return statistics of the selected portfolio assets for the given time period.
+        The optimization result does not predict what allocation would perform best outside the given time period, and the actual performance
+        of portfolios constructed using the optimized asset weights may vary from the given performance goal.
+    </p>
+    <p>
+        The required inputs for the optimization include the time range and the portfolio assets. Portfolio asset weights and constraints are optional.
+        You can also use the <a href="black-litterman-model.html">Black-Litterman model</a> based portfolio optimization, which allows the benchmark portfolio asset weights to be optimized based on investor's views.
+    </p>
+
+
+<form action="https://www.portfoliovisualizer.com/optimize-portfolio#analysisResults" method="post" class="form-horizontal" enctype="multipart/form-data"  novalidate>
+
+    <input type="hidden" id="submitType" name="submitType" value="">
+    
+    
+    
+    <div class="form-group">
+<label for="mode" class="control-label col-sm-3">Portfolio Type</label>
+<div class="col-sm-3">
+<select id="mode" name="mode" class="form-control" onchange="switchType()" >
+<option value="1">Asset Classes</option>
+<option value="2" selected>Tickers</option>
+</select>
+</div>
+</div>
+
+    
+    <div class="form-group">
+<label for="timePeriod" class="control-label col-sm-3">Time Period <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify time period in years or in months"></span>
+</label>
+<div class="col-sm-3">
+<select id="timePeriod" name="timePeriod" class="form-control" onchange="toggleTimeframe()" >
+<option value="2">Month-to-Month</option>
+<option value="4" selected>Year-to-Year</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="startYear" class="control-label col-sm-3">Start Year <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Start year for portfolio optimization period"></span>
+</label>
+<div class="col-sm-2">
+<select id="startYear" name="startYear" class="form-control" >
+<option value="1985" selected>1985</option>
+<option value="1986">1986</option>
+<option value="1987">1987</option>
+<option value="1988">1988</option>
+<option value="1989">1989</option>
+<option value="1990">1990</option>
+<option value="1991">1991</option>
+<option value="1992">1992</option>
+<option value="1993">1993</option>
+<option value="1994">1994</option>
+<option value="1995">1995</option>
+<option value="1996">1996</option>
+<option value="1997">1997</option>
+<option value="1998">1998</option>
+<option value="1999">1999</option>
+<option value="2000">2000</option>
+<option value="2001">2001</option>
+<option value="2002">2002</option>
+<option value="2003">2003</option>
+<option value="2004">2004</option>
+<option value="2005">2005</option>
+<option value="2006">2006</option>
+<option value="2007">2007</option>
+<option value="2008">2008</option>
+<option value="2009">2009</option>
+<option value="2010">2010</option>
+<option value="2011">2011</option>
+<option value="2012">2012</option>
+<option value="2013">2013</option>
+<option value="2014">2014</option>
+<option value="2015">2015</option>
+<option value="2016">2016</option>
+<option value="2017">2017</option>
+<option value="2018">2018</option>
+<option value="2019">2019</option>
+<option value="2020">2020</option>
+<option value="2021">2021</option>
+<option value="2022">2022</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="firstMonth" class="control-label col-sm-3">First Month <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Start month for portfolio optimization period"></span>
+</label>
+<div class="col-sm-2">
+<select id="firstMonth" name="firstMonth" class="form-control" >
+<option value="1" selected>Jan</option>
+<option value="2">Feb</option>
+<option value="3">Mar</option>
+<option value="4">Apr</option>
+<option value="5">May</option>
+<option value="6">Jun</option>
+<option value="7">Jul</option>
+<option value="8">Aug</option>
+<option value="9">Sep</option>
+<option value="10">Oct</option>
+<option value="11">Nov</option>
+<option value="12">Dec</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="endYear" class="control-label col-sm-3">End Year <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="End year for portfolio optimization period"></span>
+</label>
+<div class="col-sm-2">
+<select id="endYear" name="endYear" class="form-control" >
+<option value="1985">1985</option>
+<option value="1986">1986</option>
+<option value="1987">1987</option>
+<option value="1988">1988</option>
+<option value="1989">1989</option>
+<option value="1990">1990</option>
+<option value="1991">1991</option>
+<option value="1992">1992</option>
+<option value="1993">1993</option>
+<option value="1994">1994</option>
+<option value="1995">1995</option>
+<option value="1996">1996</option>
+<option value="1997">1997</option>
+<option value="1998">1998</option>
+<option value="1999">1999</option>
+<option value="2000">2000</option>
+<option value="2001">2001</option>
+<option value="2002">2002</option>
+<option value="2003">2003</option>
+<option value="2004">2004</option>
+<option value="2005">2005</option>
+<option value="2006">2006</option>
+<option value="2007">2007</option>
+<option value="2008">2008</option>
+<option value="2009">2009</option>
+<option value="2010">2010</option>
+<option value="2011">2011</option>
+<option value="2012">2012</option>
+<option value="2013">2013</option>
+<option value="2014">2014</option>
+<option value="2015">2015</option>
+<option value="2016">2016</option>
+<option value="2017">2017</option>
+<option value="2018">2018</option>
+<option value="2019">2019</option>
+<option value="2020">2020</option>
+<option value="2021">2021</option>
+<option value="2022" selected>2022</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="lastMonth" class="control-label col-sm-3">Last Month <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="End month for portfolio optimization period"></span>
+</label>
+<div class="col-sm-2">
+<select id="lastMonth" name="lastMonth" class="form-control" >
+<option value="1">Jan</option>
+<option value="2">Feb</option>
+<option value="3">Mar</option>
+<option value="4">Apr</option>
+<option value="5">May</option>
+<option value="6">Jun</option>
+<option value="7">Jul</option>
+<option value="8">Aug</option>
+<option value="9">Sep</option>
+<option value="10">Oct</option>
+<option value="11">Nov</option>
+<option value="12" selected>Dec</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="goal" class="control-label col-sm-3">Optimization Goal <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Select performance goal for optimization"></span>
+</label>
+<div class="col-sm-6">
+<select id="goal" name="goal" class="form-control" onchange="updateFormState()" >
+<option value="2" selected>Mean Variance - Maximize Sharpe Ratio</option>
+<option value="3">Mean Variance - Minimize Volatility subject to...</option>
+<option value="1">Mean Variance - Maximize Return subject to...</option>
+<option value="4">Mean Variance - Minimize Variance</option>
+<option value="5">CVaR - Minimize Conditional Value-at-Risk</option>
+<option value="15">CVaR - Minimize Conditional Value-at-Risk subject to...</option>
+<option value="16">CVaR - Maximize Return subject to...</option>
+<option value="9">Risk Parity</option>
+<option value="13">Tracking Error - Minimize Tracking Error</option>
+<option value="11">Tracking Error - Maximize Information Ratio</option>
+<option value="14">Tracking Error - Maximize Excess Return subject to...</option>
+<option value="12">Maximize Kelly Criterion</option>
+<option value="6">Minimize Maximum Drawdown subject to...</option>
+<option value="8">Maximize Omega Ratio subject to...</option>
+<option value="7">Maximize Sortino Ratio subject to...</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="targetAnnualReturn" class="control-label col-sm-3">Targeted Annual Return <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Targeted annual return"></span>
+</label>
+<div class="col-sm-2">
+<div class="input-group">
+<input type="number" id="targetAnnualReturn" name="targetAnnualReturn" class="form-control fmt-pct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="targetAnnualVolatility" class="control-label col-sm-3">Targeted Annual Volatility <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Targeted annual volatility"></span>
+</label>
+<div class="col-sm-2">
+<div class="input-group">
+<input type="number" id="targetAnnualVolatility" name="targetAnnualVolatility" class="form-control fmt-pct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="targetTrackingError" class="control-label col-sm-3">Targeted Tracking Error <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Targeted annual tracking error"></span>
+</label>
+<div class="col-sm-2">
+<div class="input-group">
+<input type="number" id="targetTrackingError" name="targetTrackingError" class="form-control fmt-pct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="targetTailLoss" class="control-label col-sm-3">Targeted Monthly CVaR <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Targeted monthly CVaR value"></span>
+</label>
+<div class="col-sm-2">
+<div class="input-group">
+<input type="number" id="targetTailLoss" name="targetTailLoss" class="form-control fmt-pct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="robustOptimization" class="control-label col-sm-3">Robust Optimization <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Use Monte Carlo method to resample the efficient frontier inputs"></span>
+</label>
+<div class="col-sm-2">
+<select id="robustOptimization" name="robustOptimization" class="form-control" >
+<option value="false">No</option>
+<option value="true" selected>Yes</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="historicalReturns" class="control-label col-sm-3">Use Historical Returns <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Use historical returns for assets or specify forward looking capital market expectations"></span>
+</label>
+<div class="col-sm-2">
+<select id="historicalReturns" name="historicalReturns" class="form-control" onchange="updateFormState()" >
+<option value="true">Yes</option>
+<option value="false" selected>No</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="historicalVolatility" class="control-label col-sm-3">Use Historical Volatility <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Use historical volatility or specify expected volatility of assets"></span>
+</label>
+<div class="col-sm-2">
+<select id="historicalVolatility" name="historicalVolatility" class="form-control" onchange="updateFormState()" >
+<option value="true" selected>Yes</option>
+<option value="false">No</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="historicalCorrelations" class="control-label col-sm-3">Use Historical Correlations <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Use historical correlations or import custom correlation matrix for assets"></span>
+</label>
+<div class="col-sm-2">
+<select id="historicalCorrelations" name="historicalCorrelations" class="form-control" onchange="updateFormState()" >
+<option value="true" selected>Yes</option>
+<option value="false">No</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="correlationsFile" class="control-label col-sm-3">Correlation Matrix <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Excel or text file with the correlation matrix for portfolio assets"></span>
+</label>
+<div class="col-sm-5"><div class="input-group">
+<input type="text" class="form-control" readonly name="correlationsFile_info" id="correlationsFile_info" >
+<span class="input-group-btn">
+<span class="btn btn-default btn-file">
+Browse&hellip;
+<input type="file" id="correlationsFile" name="correlationsFile" accept=".csv,.xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,text/plain" >
+</span>
+</span>
+</div>
+</div>
+</div>
+
+    
+    <div class="form-group">
+<label for="constrained" class="control-label col-sm-3">Asset Constraints <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify allocation constraints for assets"></span>
+</label>
+<div class="col-sm-2">
+<select id="constrained" name="constrained" class="form-control" onchange="updateFormState()" >
+<option value="true">Yes</option>
+<option value="false" selected>No</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="groupConstraints" class="control-label col-sm-3">Group Constraints <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Specify asset class level allocation constraints"></span>
+</label>
+<div class="col-sm-2">
+<select id="groupConstraints" name="groupConstraints" class="form-control" onchange="updateFormState()" >
+<option value="false" selected>No</option>
+<option value="true">Yes</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="comparedAllocation" class="control-label col-sm-3">Compared Allocation <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Select allocation for comparison"></span>
+</label>
+<div class="col-sm-4">
+<select id="comparedAllocation" name="comparedAllocation" class="form-control" >
+<option value="-1" selected>None</option>
+<option value="1">Equal Weighted</option>
+<option value="2">Maximum Sharpe Ratio Weights</option>
+<option value="3">Inverse Volatility Weighted</option>
+<option value="4">Risk Parity Weighted</option>
+</select>
+</div>
+</div>
+
+    <div class="form-group">
+<label for="benchmark" class="control-label col-sm-3">Benchmark <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Select benchmark index or an imported benchmark series"></span>
+</label>
+<div class="col-sm-4">
+<select id="benchmark" name="benchmark" class="form-control" >
+<option value="" selected>None</option>
+<option value="-1">Specify Ticker...</option>
+<option value="-2">Import Benchmark...</option>
+<optgroup label="Benchmark Portfolio">
+<option value="VFINX">Vanguard 500 Index Investor</option>
+<option value="VBINX">Vanguard Balanced Index Inv</option>
+</optgroup>
+</select>
+</div>
+</div>
+
+    <div class="form-group norender">
+<label for="benchmarkSymbol" class="control-label col-sm-3">Benchmark Ticker <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-original-title="Ticker symbol for the benchmark asset"></span>
+</label>
+<div class="col-sm-4">
+<div class="input-group">
+<input type="text" id="benchmarkSymbol" name="benchmarkSymbol" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+</div>
+
+
+    <div id="pfSection" class="portfolio-section pv-allow-expansion" data-count="1" data-maxrows="150" data-advanced="false" >
+<div class="row bottomBorder">
+<div class="col-sm-4 separateTop asset-header text-nowrap"><b>Portfolio Assets</b><div class="btn-group btn-group-sm left-margin hidden-print" role="group" aria-label="Portfolio allocation options"><button type="button" class="btn btn-default clearAllocation" title="Clear assets and allocations"><i class="glyphicon glyphicon-trash"></i></button><div id="allocation-menu-1" class="btn-group btn-group-sm allocation-menu hidden-print" role="group"><button id="allocationOptionsButton1" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="glyphicon glyphicon-cog"></i> <span class="caret"></span></button><ul class="dropdown-menu scrollable-menu"><li class="dropdown-header">Allocation Weights</li><li><a href="#" onclick="equalWeightAllocations(1,'');return false;">Equal Weight</a></li><li><a href="#" onclick="normalizeAllocations(1,'');return false;">Normalize</a></li><li><a href="#" onclick="clearAllocations(1,'');return false;">Clear</a></li><li class="divider"></li><li class="dropdown-header">Import Portfolio</li><li><a href="#" onclick="importPortfolio(1,'');return false;">Upload Portfolio</a></li><li class="divider"></li><li class="dropdown-header">Lazy Portfolios</li><li><a href="#" onclick="populatePortfolio('Growth Portfolio',1,false,true,true,null,'');return false;">Growth Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Moderate Portfolio',1,false,true,true,null,'');return false;">Moderate Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Conservative Portfolio',1,false,true,true,null,'');return false;">Conservative Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Income Portfolio',1,false,true,true,null,'');return false;">Income Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Bill Bernstein No Brainer',1,false,true,true,null,'');return false;">Bill Bernstein No Brainer</a></li><li><a href="#" onclick="populatePortfolio('Bill Schultheis Coffee House',1,false,true,true,null,'');return false;">Bill Schultheis Coffee House</a></li><li><a href="#" onclick="populatePortfolio('Bogleheads Three Funds',1,false,true,true,null,'');return false;">Bogleheads Three Funds</a></li><li><a href="#" onclick="populatePortfolio('Bogleheads Four Funds',1,false,true,true,null,'');return false;">Bogleheads Four Funds</a></li><li><a href="#" onclick="populatePortfolio('David Swensen Lazy Portfolio',1,false,true,true,null,'');return false;">David Swensen Lazy Portfolio</a></li><li><a href="#" onclick="populatePortfolio('David Swensen Yale Endowment',1,false,true,true,null,'');return false;">David Swensen Yale Endowment</a></li><li><a href="#" onclick="populatePortfolio('FundAdvice Ultimate Buy & Hold Portfolio',1,false,true,true,null,'');return false;">FundAdvice Ultimate Buy &amp; Hold Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Harry Browne Permanent Portfolio',1,false,true,true,null,'');return false;">Harry Browne Permanent Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Larry Swedroe Simple Portfolio',1,false,true,true,null,'');return false;">Larry Swedroe Simple Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Larry Swedroe Minimize FatTails Portfolio',1,false,true,true,null,'');return false;">Larry Swedroe Minimize FatTails Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Mebane Faber Ivy Portfolio',1,false,true,true,null,'');return false;">Mebane Faber Ivy Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Ray Dalio All Seasons',1,false,true,true,null,'');return false;">Ray Dalio All Seasons</a></li><li><a href="#" onclick="populatePortfolio('Rick Ferri Core Four',1,false,true,true,null,'');return false;">Rick Ferri Core Four</a></li><li><a href="#" onclick="populatePortfolio('Scott Burns Couch Portfolio',1,false,true,true,null,'');return false;">Scott Burns Couch Portfolio</a></li><li><a href="#" onclick="populatePortfolio('Stocks\/Bonds (60\/40)',1,false,true,true,null,'');return false;">Stocks/Bonds (60/40)</a></li><li><a href="#" onclick="populatePortfolio('Stocks\/Bonds (40\/60)',1,false,true,true,null,'');return false;">Stocks/Bonds (40/60)</a></li></ul></div>
+</div></div>
+<div class="col-sm-2 separateTop weight-column"><b>Allocation</b></div><div class="col-sm-2 separateTop text-nowrap asset-statistics asset-mean"><b>Expected Return</b></div><div class="col-sm-2 separateTop text-nowrap asset-statistics asset-volatility"><b>Volatility</b></div><div class="col-sm-2 separateTop text-nowrap constraint"><b>Min. Weight</b></div><div class="col-sm-2 separateTop text-nowrap constraint"><b>Max. Weight</b></div><div class="col-sm-2 separateTop text-nowrap groupConstraint"><b>Group</b></div></div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">1</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol1">Select asset 1</label></span>
+<input type="text" id="symbol1" name="symbol1" class="form-control fmt-ticker" value="VTI" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation1_1">Enter percentage allocation for asset 1</label></span>
+<input type="number" id="allocation1_1" name="allocation1_1" class="form-control fmt-pospct asset-weight" value="40" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-mean">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="mean1">Expected return for asset 1</label></span>
+<input type="number" id="mean1" name="mean1" class="form-control fmt-pct" value="5.5" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-volatility">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="volatility1">Expected volatility for asset 1</label></span>
+<input type="number" id="volatility1" name="volatility1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight1">Minimum allocation for asset 1</label></span>
+<input type="number" id="minWeight1" name="minWeight1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight1">Maximum allocation for asset 1</label></span>
+<input type="number" id="maxWeight1" name="maxWeight1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup1">Group assignment for asset 1</label></span>
+<select id="assetGroup1" name="assetGroup1" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">2</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol2">Select asset 2</label></span>
+<input type="text" id="symbol2" name="symbol2" class="form-control fmt-ticker" value="VXUS" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation2_1">Enter percentage allocation for asset 2</label></span>
+<input type="number" id="allocation2_1" name="allocation2_1" class="form-control fmt-pospct asset-weight" value="20" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-mean">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="mean2">Expected return for asset 2</label></span>
+<input type="number" id="mean2" name="mean2" class="form-control fmt-pct" value="5.7" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-volatility">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="volatility2">Expected volatility for asset 2</label></span>
+<input type="number" id="volatility2" name="volatility2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight2">Minimum allocation for asset 2</label></span>
+<input type="number" id="minWeight2" name="minWeight2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight2">Maximum allocation for asset 2</label></span>
+<input type="number" id="maxWeight2" name="maxWeight2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup2">Group assignment for asset 2</label></span>
+<select id="assetGroup2" name="assetGroup2" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">3</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol3">Select asset 3</label></span>
+<input type="text" id="symbol3" name="symbol3" class="form-control fmt-ticker" value="BND" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation3_1">Enter percentage allocation for asset 3</label></span>
+<input type="number" id="allocation3_1" name="allocation3_1" class="form-control fmt-pospct asset-weight" value="30" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-mean">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="mean3">Expected return for asset 3</label></span>
+<input type="number" id="mean3" name="mean3" class="form-control fmt-pct" value="1.8" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-volatility">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="volatility3">Expected volatility for asset 3</label></span>
+<input type="number" id="volatility3" name="volatility3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight3">Minimum allocation for asset 3</label></span>
+<input type="number" id="minWeight3" name="minWeight3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight3">Maximum allocation for asset 3</label></span>
+<input type="number" id="maxWeight3" name="maxWeight3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup3">Group assignment for asset 3</label></span>
+<select id="assetGroup3" name="assetGroup3" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">4</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol4">Select asset 4</label></span>
+<input type="text" id="symbol4" name="symbol4" class="form-control fmt-ticker" value="VNQ" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation4_1">Enter percentage allocation for asset 4</label></span>
+<input type="number" id="allocation4_1" name="allocation4_1" class="form-control fmt-pospct asset-weight" value="10" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-mean">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="mean4">Expected return for asset 4</label></span>
+<input type="number" id="mean4" name="mean4" class="form-control fmt-pct" value="5" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-volatility">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="volatility4">Expected volatility for asset 4</label></span>
+<input type="number" id="volatility4" name="volatility4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight4">Minimum allocation for asset 4</label></span>
+<input type="number" id="minWeight4" name="minWeight4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight4">Maximum allocation for asset 4</label></span>
+<input type="number" id="maxWeight4" name="maxWeight4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup4">Group assignment for asset 4</label></span>
+<select id="assetGroup4" name="assetGroup4" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">5</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol5">Select asset 5</label></span>
+<input type="text" id="symbol5" name="symbol5" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation5_1">Enter percentage allocation for asset 5</label></span>
+<input type="number" id="allocation5_1" name="allocation5_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-mean">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="mean5">Expected return for asset 5</label></span>
+<input type="number" id="mean5" name="mean5" class="form-control fmt-pct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-volatility">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="volatility5">Expected volatility for asset 5</label></span>
+<input type="number" id="volatility5" name="volatility5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight5">Minimum allocation for asset 5</label></span>
+<input type="number" id="minWeight5" name="minWeight5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight5">Maximum allocation for asset 5</label></span>
+<input type="number" id="maxWeight5" name="maxWeight5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup5">Group assignment for asset 5</label></span>
+<select id="assetGroup5" name="assetGroup5" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">6</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol6">Select asset 6</label></span>
+<input type="text" id="symbol6" name="symbol6" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation6_1">Enter percentage allocation for asset 6</label></span>
+<input type="number" id="allocation6_1" name="allocation6_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-mean">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="mean6">Expected return for asset 6</label></span>
+<input type="number" id="mean6" name="mean6" class="form-control fmt-pct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-volatility">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="volatility6">Expected volatility for asset 6</label></span>
+<input type="number" id="volatility6" name="volatility6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight6">Minimum allocation for asset 6</label></span>
+<input type="number" id="minWeight6" name="minWeight6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight6">Maximum allocation for asset 6</label></span>
+<input type="number" id="maxWeight6" name="maxWeight6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup6">Group assignment for asset 6</label></span>
+<select id="assetGroup6" name="assetGroup6" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">7</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol7">Select asset 7</label></span>
+<input type="text" id="symbol7" name="symbol7" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation7_1">Enter percentage allocation for asset 7</label></span>
+<input type="number" id="allocation7_1" name="allocation7_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-mean">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="mean7">Expected return for asset 7</label></span>
+<input type="number" id="mean7" name="mean7" class="form-control fmt-pct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-volatility">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="volatility7">Expected volatility for asset 7</label></span>
+<input type="number" id="volatility7" name="volatility7" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight7">Minimum allocation for asset 7</label></span>
+<input type="number" id="minWeight7" name="minWeight7" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight7">Maximum allocation for asset 7</label></span>
+<input type="number" id="maxWeight7" name="maxWeight7" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup7">Group assignment for asset 7</label></span>
+<select id="assetGroup7" name="assetGroup7" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">8</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol8">Select asset 8</label></span>
+<input type="text" id="symbol8" name="symbol8" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation8_1">Enter percentage allocation for asset 8</label></span>
+<input type="number" id="allocation8_1" name="allocation8_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-mean">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="mean8">Expected return for asset 8</label></span>
+<input type="number" id="mean8" name="mean8" class="form-control fmt-pct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-volatility">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="volatility8">Expected volatility for asset 8</label></span>
+<input type="number" id="volatility8" name="volatility8" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight8">Minimum allocation for asset 8</label></span>
+<input type="number" id="minWeight8" name="minWeight8" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight8">Maximum allocation for asset 8</label></span>
+<input type="number" id="maxWeight8" name="maxWeight8" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup8">Group assignment for asset 8</label></span>
+<select id="assetGroup8" name="assetGroup8" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+</div>
+<div class="row highlightRow asset-row">
+<div class="col-sm-1 separateTop">9</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol9">Select asset 9</label></span>
+<input type="text" id="symbol9" name="symbol9" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation9_1">Enter percentage allocation for asset 9</label></span>
+<input type="number" id="allocation9_1" name="allocation9_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-mean">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="mean9">Expected return for asset 9</label></span>
+<input type="number" id="mean9" name="mean9" class="form-control fmt-pct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-volatility">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="volatility9">Expected volatility for asset 9</label></span>
+<input type="number" id="volatility9" name="volatility9" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight9">Minimum allocation for asset 9</label></span>
+<input type="number" id="minWeight9" name="minWeight9" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight9">Maximum allocation for asset 9</label></span>
+<input type="number" id="maxWeight9" name="maxWeight9" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup9">Group assignment for asset 9</label></span>
+<select id="assetGroup9" name="assetGroup9" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+</div>
+<div class="row asset-row">
+<div class="col-sm-1 separateTop">10</div>
+<div class="col-sm-3 asset-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="symbol10">Select asset 10</label></span>
+<input type="text" id="symbol10" name="symbol10" class="form-control fmt-ticker" placeholder="Ticker symbol" >
+<span class="input-group-addon glyphicon glyphicon-search" title="Find ticker symbol"></span>
+</div>
+</div>
+<div class="col-sm-2 weight-column"><div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="allocation10_1">Enter percentage allocation for asset 10</label></span>
+<input type="number" id="allocation10_1" name="allocation10_1" class="form-control fmt-pospct asset-weight" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-mean">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="mean10">Expected return for asset 10</label></span>
+<input type="number" id="mean10" name="mean10" class="form-control fmt-pct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 asset-statistics asset-volatility">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="volatility10">Expected volatility for asset 10</label></span>
+<input type="number" id="volatility10" name="volatility10" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minWeight10">Minimum allocation for asset 10</label></span>
+<input type="number" id="minWeight10" name="minWeight10" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 constraint">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxWeight10">Maximum allocation for asset 10</label></span>
+<input type="number" id="maxWeight10" name="maxWeight10" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2 groupConstraint"><span class="hidden_jaws"><label for="assetGroup10">Group assignment for asset 10</label></span>
+<select id="assetGroup10" name="assetGroup10" class="form-control" >
+<option value="">None</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+<option value="F">F</option>
+</select>
+</div>
+</div>
+<div class="row topBorder totals-row">
+<div class="col-sm-1 separateTop"><b>Total</b></div>
+<div class="col-sm-2 col-sm-offset-3 totals-column">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="total1">Total allocation for portfolio</label></span>
+<input type="number" id="total1" name="total1" class="form-control" readonly>
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div id="groupConstraintsSection" class="groupConstraint">
+<hr>
+<div class="row">
+<div class="col-sm-4 separateTop text-nowrap">
+<b>Asset Groups</b>
+<button type="button" class="btn btn-default btn-sm left-margin hidden-print" id="resetGroups" title="Reset group constraints"><i class="glyphicon glyphicon-trash"></i></button>
+</div>
+<div class="col-sm-2 separateTop text-nowrap"><b>Min. Weight</b></div>
+<div class="col-sm-2 separateTop text-nowrap"><b>Max. Weight</b></div>
+</div>
+<div class="row highlightRow">
+<div class="col-sm-1 separateTop">A</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName1">Full name for group A at index 1</label></span>
+<input type="text" id="assetGroupName1" name="assetGroupName1" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight1">Minimum allocation for group A at index 1</label></span>
+<input type="number" id="minGroupWeight1" name="minGroupWeight1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight1">Maximum allocation for group A at index 1</label></span>
+<input type="number" id="maxGroupWeight1" name="maxGroupWeight1" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-1 separateTop">B</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName2">Full name for group B at index 2</label></span>
+<input type="text" id="assetGroupName2" name="assetGroupName2" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight2">Minimum allocation for group B at index 2</label></span>
+<input type="number" id="minGroupWeight2" name="minGroupWeight2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight2">Maximum allocation for group B at index 2</label></span>
+<input type="number" id="maxGroupWeight2" name="maxGroupWeight2" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow">
+<div class="col-sm-1 separateTop">C</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName3">Full name for group C at index 3</label></span>
+<input type="text" id="assetGroupName3" name="assetGroupName3" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight3">Minimum allocation for group C at index 3</label></span>
+<input type="number" id="minGroupWeight3" name="minGroupWeight3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight3">Maximum allocation for group C at index 3</label></span>
+<input type="number" id="maxGroupWeight3" name="maxGroupWeight3" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-1 separateTop">D</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName4">Full name for group D at index 4</label></span>
+<input type="text" id="assetGroupName4" name="assetGroupName4" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight4">Minimum allocation for group D at index 4</label></span>
+<input type="number" id="minGroupWeight4" name="minGroupWeight4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight4">Maximum allocation for group D at index 4</label></span>
+<input type="number" id="maxGroupWeight4" name="maxGroupWeight4" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row highlightRow">
+<div class="col-sm-1 separateTop">E</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName5">Full name for group E at index 5</label></span>
+<input type="text" id="assetGroupName5" name="assetGroupName5" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight5">Minimum allocation for group E at index 5</label></span>
+<input type="number" id="minGroupWeight5" name="minGroupWeight5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight5">Maximum allocation for group E at index 5</label></span>
+<input type="number" id="maxGroupWeight5" name="maxGroupWeight5" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-1 separateTop">F</div><div class="col-sm-3">
+<div class="smallMargin">
+<span class="hidden_jaws"><label for="assetGroupName6">Full name for group F at index 6</label></span>
+<input type="text" id="assetGroupName6" name="assetGroupName6" class="form-control" placeholder="Name (optional)" >
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="minGroupWeight6">Minimum allocation for group F at index 6</label></span>
+<input type="number" id="minGroupWeight6" name="minGroupWeight6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group smallMargin">
+<span class="hidden_jaws"><label for="maxGroupWeight6">Maximum allocation for group F at index 6</label></span>
+<input type="number" id="maxGroupWeight6" name="maxGroupWeight6" class="form-control fmt-pospct" >
+<span class="input-group-addon">%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+    <div class="form-group form-buttons">
+<div class="col-sm-offset-3 col-sm-9">
+<input type="submit" id="submitButton" value="Optimize" class="btn btn-primary">
+<input type="button" id="cancelButton" value="Cancel" class="btn btn-default" onclick="document.location.href='index.html'">
+</div>
+</div>
+
+
+</form>
+
+
+
+
+
+    <h2 class="anchor" id="analysisResults">Portfolio Optimization Results <span class="directLink"></span> <span class="directPrint customPrint"></span> <span class="directExport"></span>
+
+
+<span class="directSave"><a href="#" onclick="saveOptimizationModel(); return false;"><span class="fa fa-save"></span> Save</a></span>
+
+</h2>
+
+
+    
+<p>
+    Portfolio optimization results with goal to maximize Sharpe ratio.  The possible range of expected annual portfolio returns based on provided parameters is 1.92% to 5.07%.  Refer to the efficient frontier section for additional details.  Historical values from Jan 2012 to May 2022 were used for non-user supplied parameters based on the selected time period and available data for the portfolio assets. 
+</p>
+
+<div id="saveConfirmBox" class="alert alert-info alert-dismissible hidden-print norender" role="alert">
+    <button type="button" class="close" onclick="$('#saveConfirmBox').hide()"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+    <span id="saveConfirmMsg3">
+    
+    </span>
+</div>
+
+
+
+<ul id="tabs" class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#growthChart" data-toggle="tab">Summary</a></li>
+    <li role="presentation"><a href="#efficientFrontier" data-toggle="tab">Efficient Frontier</a></li>
+    
+    
+</ul>
+
+<div id="result-content" class="tab-content">
+<div role="tabpanel" class="tab-pane active" id="growthChart">
+<h3>Portfolio Allocations</h3>
+
+<div class="row" style="margin: 0"> 
+    <div class="col-sm-8" style="padding-left: 0; padding-right: 15px;"> 
+        <table class="table table-striped table-condensed">
+            <caption>Provided Portfolio</caption>
+            <thead>
+            <tr>
+                
+                <th>Ticker</th>
+                <th>Name</th>
+                
+                <th class="numberCell">Allocation</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td>VTI</td>
+                
+                <td>Vanguard Total Stock Market ETF</td>
+                <td class="numberCell">40.00%</td>
+            </tr>
+            
+            <tr>
+                
+                <td>VXUS</td>
+                
+                <td>Vanguard Total International Stock ETF</td>
+                <td class="numberCell">20.00%</td>
+            </tr>
+            
+            <tr>
+                
+                <td>BND</td>
+                
+                <td>Vanguard Total Bond Market ETF</td>
+                <td class="numberCell">30.00%</td>
+            </tr>
+            
+            <tr>
+                
+                <td>VNQ</td>
+                
+                <td>Vanguard Real Estate ETF</td>
+                <td class="numberCell">10.00%</td>
+            </tr>
+            
+            </tbody>
+            
+            <tfoot class="hidden-print">
+            <tr>
+                <td colspan="3">
+                    
+                    
+                    <span id="saveConfirmMsg1">
+                    
+                    </span>
+                    <a id="saveIcon1" href="#" onclick="showLoginPrompt(true); return false;" title="Save portfolio"><span class="fa fa-save"></span></a>
+                    <a id="saveLink1" href="#" onclick="showLoginPrompt(true); return false;">Save portfolio &raquo;</a>
+                </td>
+            </tr>
+            </tfoot>
+            
+        </table>
+    </div>
+    <div class="col-sm-4" style="padding: 0"> 
+    <div id="chartDiv1" style="min-width: 250px; min-height: 250px; max-width: 375px; max-height: 375px;"></div>
+<script>
+function getChartData1() {
+var chart1 = { chart: { type: 'pie', spacing: [0, 0, 0, 0] }, title: { text: '' }, series: [{ name: 'Allocation', data: [{name: 'VTI', y: 40.0},{name: 'VXUS', y: 20.0},{name: 'BND', y: 30.0},{name: 'VNQ', y: 10.0}]}]};
+return [chart1, null, null];
+}
+</script>
+
+    </div>
+</div>
+
+<div class="row" style="margin: 0"> 
+    <div class="col-sm-8" style="padding-left: 0; padding-right: 15px;"> 
+        <table class="table table-striped table-condensed">
+            <caption>Maximum Sharpe Ratio</caption>
+            <thead>
+            <tr>
+                
+                <th>Ticker</th>
+                <th>Name</th>
+                
+                <th class="numberCell">Allocation</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td>VTI</td>
+                
+                <td>Vanguard Total Stock Market ETF</td>
+                <td class="numberCell">11.72%</td>
+            </tr>
+            
+            <tr>
+                
+                <td>VXUS</td>
+                
+                <td>Vanguard Total International Stock ETF</td>
+                <td class="numberCell">11.60%</td>
+            </tr>
+            
+            <tr>
+                
+                <td>BND</td>
+                
+                <td>Vanguard Total Bond Market ETF</td>
+                <td class="numberCell">70.25%</td>
+            </tr>
+            
+            <tr>
+                
+                <td>VNQ</td>
+                
+                <td>Vanguard Real Estate ETF</td>
+                <td class="numberCell">6.42%</td>
+            </tr>
+            
+            </tbody>
+            
+            <tfoot class="hidden-print">
+            <tr>
+                <td colspan="3">
+                    
+                    
+                    <span id="saveConfirmMsg2">
+                    
+                    </span>
+                    <a id="saveIcon2" href="#" onclick="showLoginPrompt(true); return false;" title="Save portfolio"><span class="fa fa-save"></span></a>
+                    <a id="saveLink2" href="#" onclick="showLoginPrompt(true); return false;">Save portfolio &raquo;</a>
+                </td>
+            </tr>
+            </tfoot>
+            
+        </table>
+    </div>
+    <div class="col-sm-4" style="padding: 0"> 
+    <div id="chartDiv2" style="min-width: 250px; min-height: 250px; max-width: 375px; max-height: 375px;"></div>
+<script>
+function getChartData2() {
+var chart2 = { chart: { type: 'pie', spacing: [0, 0, 0, 0] }, title: { text: '' }, series: [{ name: 'Allocation', data: [{name: 'VTI', y: 11.72},{name: 'VXUS', y: 11.6},{name: 'BND', y: 70.25},{name: 'VNQ', y: 6.42}]}]};
+return [chart2, null, null];
+}
+</script>
+
+    </div>
+</div>
+
+
+<h3>Portfolio  Summary</h3>
+<table class="table table-condensed table-striped"><caption class="sr-only">Portfolio statistics</caption><thead><tr><th>Portfolio</th><th class="numberCell">Expected Return</th><th class="numberCell">Standard Deviation</th><th class="numberCell">Sharpe Ratio</th></tr></thead><tbody><tr><td>Provided Portfolio</td><td class="numberCell">4.37%</td><td class="numberCell">9.51%</td><td class="numberCell">0.37</td></tr><tr><td>Maximum Sharpe Ratio</td><td class="numberCell">2.88%</td><td class="numberCell">5.16%</td><td class="numberCell">0.40</td></tr></tbody><tfoot><tr><td colspan="4" class="text-muted">Expected return is based on the provided capital market expectations. Ex-ante Sharpe Ratio calculated using the current 3-month treasury bill return as the risk-free rate.</td></tr></tfoot></table>
+
+<div id="resultNotes" class="well well-small separateTop">
+Notes on results:
+<ul>
+<li>IMPORTANT: The projections or other information generated by Portfolio Visualizer regarding the likelihood of various investment outcomes are hypothetical in nature, do not reflect actual investment results and are not guarantees of future results. Results may vary with each use and over time.</li>
+<li>The results do not constitute investment advice or recommendation, are provided solely for informational purposes, and are not an offer to buy or sell any securities. All use is subject to <a href="terms-of-service.html">terms of service</a>.</li>
+<li>Investing involves risk, including possible loss of principal. Past performance is not a guarantee of future results.</li>
+<li>Asset allocation and diversification strategies do not guarantee a profit or protect against a loss.</li>
+<li>Hypothetical returns do not reflect trading costs, transaction fees, commissions, or actual taxes due on investment returns.</li>
+<li>The results are based on information from a variety of sources we consider reliable, but we do not represent that the information is accurate or complete.</li>
+<li>Refer to the related documentation sections for more details on <a href="faq.html#definitions">terms and definitions</a>, <a href="faq.html#methodology">methodology</a>, and <a href="faq.html#marketData">data sources</a>.</li>
+<li>Portfolio optimization is a process of choosing the proportions of various assets to be held in a portfolio in such a way as to make the portfolio better than any other combination according to the selected objective function such as maximizing risk-adjusted return. Portfolio optimization determines target weights for portfolio assets based on mathematical models that can use either historical or forecasted data as inputs. Optimization results are not guarantees of future performance.</li>
+<li>The results are based on the total return of assets and assume that all received dividends and distributions are reinvested.</li>
+<li>Compound annualized growth rate (CAGR) is the annualized geometric mean return of the portfolio. It is calculated from the portfolio start and end balance and is thus impacted by any cashflows.</li>
+<li>The time-weighted rate of return (TWRR) is a measure of the compound rate of growth in a portfolio. This is calculated from the holding period returns (e.g. monthly returns), and TWRR will thus not be impacted by cashflows. If there are no external cashflows, TWRR will equal CAGR. </li>
+<li>The money-weighted rate of return (MWRR) is the internal rate of return (IRR) taking into account cashflows. This is the discount rate at which the present value of cash inflows equals the present value of cash outflows. </li>
+<li>Standard deviation (Stdev) is used to measure the dispersion of returns around the mean and is often used as a measure of risk. A higher standard deviation implies greater the dispersion of data points around the mean.</li>
+<li>Sharpe Ratio is a measure of risk-adjusted performance of the portfolio, and it is calculated by dividing the mean monthly excess return of the portfolio over the risk-free rate by the standard deviation of excess return, and the displayed value is annualized.</li>
+<li>Sortino Ratio is a measure of risk-adjusted return which is a modification of the Sharpe Ratio. While the latter is the ratio of average returns in excess of a risk-free rate divided by the standard deviation of those excess returns, the Sortino Ratio has the same denominator divided by the standard deviation of returns below the risk-free rate.</li>
+<li>Treynor Ratio is a measure of risk-adjusted performance of the portfolio. It is similar to the Sharpe Ratio, but it uses portfolio beta (systematic risk) as the risk metric in the denominator.</li>
+<li>Calmar Ratio is a measure of risk-adjusted performance of the portfolio. It is calculated as the annualized return over the past 36 months divided by the maximum drawdown over the past 36 months based on monthly returns.</li>
+<li>Risk-free returns are calculated based on the Federal Reserve 3-Month Treasury Bill (secondary market) rates.</li>
+<li>Downside deviation measures the downside volatility of the portfolio returns unlike standard deviation, which includes both upside and downside deviations. Downside deviation is calculated based on negative returns that hurt the portfolio performance.</li>
+<li>Correlation measures to what degree the returns of the two assets move in relation to each other. Correlation coefficient is a numerical value between -1 and +1. If one variable goes up by a certain amount, the correlation coefficient indicates which way the other variable moves and by how much. Asset correlations are calculated based on monthly returns.</li>
+<li>Skewness is a measure of the asymmetry of the probability distribution or returns from a normal Gaussian distribution shape about its mean. Negative skewness is associated with the left (typically negative returns) tail of the distribution extending further than the right tail; and positive skewness is associated with the right (typically positive returns) tail of the distribution extending further than the left tail.</li>
+<li>Excess kurtosis is a measure of whether a data distribution is peaked or flat relative to a normal distribution. Distributions with high kurtosis tend to have a distinct peak near the mean, decline rather rapidly, and have heavy or fat tails.</li>
+<li>A drawdown refers to the decline in value of a single investment or an investment portfolio from a relative peak value to a relative trough. A maximum drawdown (Max Drawdown) is the maximum observed loss from a peak to a trough of a portfolio before a new peak is attained. Drawdown values are calculated based on monthly returns.</li>
+<li>Value at Risk (VaR) measures the scale of loss at a given confidence level. If the 5% VaR is -3% the portfolio return is expected to be greater than -3% 95% of the time and less than -3% 5% of the time. Value at Risk can be calculated directly based on historical returns based on a given percentile or analytically based on the mean and standard deviation of the returns.</li>
+<li>Conditional Value at Risk (CVaR) measures the scale of the expected loss once the specific Value at Risk (VaR) breakpoint has been breached, i.e., it calculates the average tail loss by taking a weighted average between the value at risk and losses exceeding the value at risk.</li>
+<li>Beta is a measure of systematic risk and measures the volatility of a particular investment relative to the market or its benchmark. Alpha measures the active return of the investment compared to the market benchmark return. R-squared is the percentage of a portfolio's movements that can be explained by movements in the selected benchmark index.</li>
+<li>Active return is the investment return minus the return of its benchmark. For periods longer than 12 months this is displayed as annualized value, i.e., annualized investment return minus annualized benchmark return. </li>
+<li>Tracking error, also known as active risk, is the standard deviation of active return. This is displayed as annualized value based on the standard deviation of monthly active returns. </li>
+<li>Information ratio is the active return divided by the tracking error. It measures whether the investment outperformed its benchmark consistently. </li>
+<li>Gain/Loss ratio is a measure of downside risk, and it is calculated as the average positive return in up periods divided by the average negative return in down periods. </li>
+<li>Upside Capture Ratio measures how well the fund performed relative to the benchmark when the market was up, and Downside Capture Ratio measures how well the fund performed relative to the benchmark when the market was down. An upside capture ratio greater than 100 would indicate that the fund outperformed its benchmark when the market was up, and a downside capture ratio below 100 would indicate that the fund lost less than its benchmark when the market was down. To calculate upside capture ratio a new series from the portfolio returns is constructed by dropping all time periods where the benchmark return is less than equal to zero. The up capture is then the quotient of the annualized return of the resulting manager series, divided by the annualized return of the resulting benchmark series. The downside capture ratio is calculated analogously.</li>
+<li>All risk measures for the portfolio and portfolio assets are calculated based on monthly returns.</li>
+<li>The results are based on combining user provided forecast model parameters with historical monthly return statistics of the portfolio assets.</li>
+<li>Monte Carlo method was used to resample the efficient frontier inputs to mitigate the impact of input estimation errors.</li>
+</ul>
+</div>
+
+
+</div>
+
+<div role="tabpanel" class="tab-pane" id="efficientFrontier">
+    <table class="table table-condensed table-striped stickyHeaders"><caption class="sr-only">Efficient Frontier Assets</caption><thead><tr><th class="numberCell">#</th><th>Asset</th><th class="numberCell">Expected Return</th><th class="numberCell">Standard Deviation</th><th class="numberCell">Sharpe Ratio</th><th class="numberCell">Min. Weight</th><th class="numberCell">Max. Weight</th></tr></thead><tbody><tr><td class="numberCell">1</td><td>Vanguard Total Stock Market ETF (VTI)</td><td class="numberCell">5.50%</td><td class="numberCell">13.87%</td><td class="numberCell">0.327</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr><tr><td class="numberCell">2</td><td>Vanguard Total International Stock ETF (VXUS)</td><td class="numberCell">5.70%</td><td class="numberCell">14.08%</td><td class="numberCell">0.336</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr><tr><td class="numberCell">3</td><td>Vanguard Total Bond Market ETF (BND)</td><td class="numberCell">1.80%</td><td class="numberCell">3.67%</td><td class="numberCell">0.260</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr><tr><td class="numberCell">4</td><td>Vanguard Real Estate ETF (VNQ)</td><td class="numberCell">5.00%</td><td class="numberCell">15.79%</td><td class="numberCell">0.257</td><td class="numberCell">0.00%</td><td class="numberCell">100.00%</td></tr></tbody><tfoot><tr><td colspan="7" class="text-muted">Results based on the provided capital market expectations. Expected return is the annualized monthly arithmetic mean return. Ex-ante Sharpe Ratio calculated using the current 3-month treasury bill return as the risk-free rate.</td></tr></tfoot></table><h3>Asset Correlations</h3><table class="table table-condensed table-striped"><caption class="sr-only">Efficient Frontier Asset Correlations</caption><thead><tr><th>Name</th><th>Ticker</th><th class="numberCell">VTI</th><th class="numberCell">VXUS</th><th class="numberCell">BND</th><th class="numberCell">VNQ</th></tr></thead><tbody><tr><td>Vanguard Total Stock Market ETF</td><td>VTI</td><td class="numberCell">1.00</td><td class="numberCell">0.85</td><td class="numberCell">0.15</td><td class="numberCell">0.67</td></tr><tr><td>Vanguard Total International Stock ETF</td><td>VXUS</td><td class="numberCell">0.85</td><td class="numberCell">1.00</td><td class="numberCell">0.18</td><td class="numberCell">0.58</td></tr><tr><td>Vanguard Total Bond Market ETF</td><td>BND</td><td class="numberCell">0.15</td><td class="numberCell">0.18</td><td class="numberCell">1.00</td><td class="numberCell">0.42</td></tr><tr><td>Vanguard Real Estate ETF</td><td>VNQ</td><td class="numberCell">0.67</td><td class="numberCell">0.58</td><td class="numberCell">0.42</td><td class="numberCell">1.00</td></tr></tbody><tfoot><tr><td colspan="6" class="text-muted">Based on monthly returns from Jan 2012 to May 2022</td></tr></tfoot></table>
+        <div class="alert alert-dismissible alert-info" role="alert">
+<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+<strong>Note:</strong> You can hover over any of the data points on the chart for more information.
+</div>
+
+    <div id="chartDiv3" style="min-width: 900px; min-height: 650px; max-width: 1350px; max-height: 975px;"></div>
+<script>
+function getChartData3() {
+var chart3 = { chart: { type: 'spline', inverted: true  }, title: { text: 'Resampled Efficient Frontier (Jan 2012 - May 2022)' }, tooltip: { shared: false, headerFormat: null, pointFormat: '{point.text}' }, xAxis: { title: { text: 'Expected Return' }, labels: { formatter: function() { return (100.0*this.value).toFixed(1) + '%'; } }, reversed: false, gridLineWidth: 1, endOnTick: true, min: 0.014099999999999913 }, yAxis: { title: { text: 'Standard Deviation' }, labels: { formatter: function() { return (100.0*this.value).toFixed(1) + '%'; } }, gridLineWidth: 1, startOnTick: true, endOnTick: true }, legend: { enabled: false }, plotOptions: { spline: { series: { stickyTracking: false }, marker: { radius: 2, enabled: true } }, scatter: { series: { stickyTracking: false }, marker: { radius: 3 } } }, series: [{ name: 'Frontier', data: [ {x:0.01915456121042558,y:0.036453466513078236,text:'2.37% VTI<br\/>0.76% VXUS<br\/>96.87% BND<br\/>Expected Return: 1.92%<br\/>Standard Deviation: 3.65%<br\/>Sharpe Ratio: 0.293'},{x:0.01949141380214381,y:0.03649858434038156,text:'3.04% VTI<br\/>0.97% VXUS<br\/>95.95% BND<br\/>0.04% VNQ<br\/>Expected Return: 1.95%<br\/>Standard Deviation: 3.65%<br\/>Sharpe Ratio: 0.302'},{x:0.01979106789902474,y:0.03658735158909952,text:'3.50% VTI<br\/>1.26% VXUS<br\/>95.14% BND<br\/>0.10% VNQ<br\/>Expected Return: 1.98%<br\/>Standard Deviation: 3.66%<br\/>Sharpe Ratio: 0.309'},{x:0.02009582796987952,y:0.036718194618796926,text:'3.88% VTI<br\/>1.63% VXUS<br\/>94.31% BND<br\/>0.18% VNQ<br\/>Expected Return: 2.01%<br\/>Standard Deviation: 3.67%<br\/>Sharpe Ratio: 0.316'},{x:0.02039843810558506,y:0.03689229145703128,text:'4.17% VTI<br\/>2.04% VXUS<br\/>93.49% BND<br\/>0.30% VNQ<br\/>Expected Return: 2.04%<br\/>Standard Deviation: 3.69%<br\/>Sharpe Ratio: 0.323'},{x:0.020697517435751545,y:0.03710280440253677,text:'4.45% VTI<br\/>2.44% VXUS<br\/>92.67% BND<br\/>0.45% VNQ<br\/>Expected Return: 2.07%<br\/>Standard Deviation: 3.71%<br\/>Sharpe Ratio: 0.329'},{x:0.021004036053885455,y:0.037353582052629224,text:'4.72% VTI<br\/>2.84% VXUS<br\/>91.83% BND<br\/>0.62% VNQ<br\/>Expected Return: 2.10%<br\/>Standard Deviation: 3.74%<br\/>Sharpe Ratio: 0.334'},{x:0.02131652874473633,y:0.03764125151060077,text:'5.00% VTI<br\/>3.24% VXUS<br\/>90.97% BND<br\/>0.79% VNQ<br\/>Expected Return: 2.13%<br\/>Standard Deviation: 3.76%<br\/>Sharpe Ratio: 0.340'},{x:0.02163150616922027,y:0.03796438184634034,text:'5.27% VTI<br\/>3.65% VXUS<br\/>90.10% BND<br\/>0.98% VNQ<br\/>Expected Return: 2.16%<br\/>Standard Deviation: 3.80%<br\/>Sharpe Ratio: 0.345'},{x:0.02195023887341807,y:0.03832131133075183,text:'5.55% VTI<br\/>4.04% VXUS<br\/>89.22% BND<br\/>1.18% VNQ<br\/>Expected Return: 2.20%<br\/>Standard Deviation: 3.83%<br\/>Sharpe Ratio: 0.350'},{x:0.022270459507621077,y:0.03870868264015941,text:'5.84% VTI<br\/>4.44% VXUS<br\/>88.34% BND<br\/>1.38% VNQ<br\/>Expected Return: 2.23%<br\/>Standard Deviation: 3.87%<br\/>Sharpe Ratio: 0.355'},{x:0.022592607218004268,y:0.039128556667299426,text:'6.14% VTI<br\/>4.83% VXUS<br\/>87.45% BND<br\/>1.58% VNQ<br\/>Expected Return: 2.26%<br\/>Standard Deviation: 3.91%<br\/>Sharpe Ratio: 0.359'},{x:0.022916244246434125,y:0.039579124637204054,text:'6.44% VTI<br\/>5.21% VXUS<br\/>86.56% BND<br\/>1.80% VNQ<br\/>Expected Return: 2.29%<br\/>Standard Deviation: 3.96%<br\/>Sharpe Ratio: 0.363'},{x:0.023239232170540136,y:0.040057835672478094,text:'6.73% VTI<br\/>5.58% VXUS<br\/>85.67% BND<br\/>2.02% VNQ<br\/>Expected Return: 2.32%<br\/>Standard Deviation: 4.01%<br\/>Sharpe Ratio: 0.367'},{x:0.023564344353987687,y:0.040568264711929,text:'7.02% VTI<br\/>5.96% VXUS<br\/>84.77% BND<br\/>2.25% VNQ<br\/>Expected Return: 2.36%<br\/>Standard Deviation: 4.06%<br\/>Sharpe Ratio: 0.370'},{x:0.02388952484979301,y:0.04110584073348837,text:'7.31% VTI<br\/>6.33% VXUS<br\/>83.87% BND<br\/>2.49% VNQ<br\/>Expected Return: 2.39%<br\/>Standard Deviation: 4.11%<br\/>Sharpe Ratio: 0.373'},{x:0.02421341667075727,y:0.041667466172882604,text:'7.60% VTI<br\/>6.70% VXUS<br\/>82.97% BND<br\/>2.73% VNQ<br\/>Expected Return: 2.42%<br\/>Standard Deviation: 4.17%<br\/>Sharpe Ratio: 0.375'},{x:0.02453806505517675,y:0.04225369799146013,text:'7.89% VTI<br\/>7.06% VXUS<br\/>82.07% BND<br\/>2.98% VNQ<br\/>Expected Return: 2.45%<br\/>Standard Deviation: 4.23%<br\/>Sharpe Ratio: 0.378'},{x:0.02486448804689645,y:0.042864300663675886,text:'8.20% VTI<br\/>7.41% VXUS<br\/>81.16% BND<br\/>3.23% VNQ<br\/>Expected Return: 2.49%<br\/>Standard Deviation: 4.29%<br\/>Sharpe Ratio: 0.380'},{x:0.025191158314012974,y:0.04349676902484769,text:'8.50% VTI<br\/>7.76% VXUS<br\/>80.25% BND<br\/>3.49% VNQ<br\/>Expected Return: 2.52%<br\/>Standard Deviation: 4.35%<br\/>Sharpe Ratio: 0.381'},{x:0.025517803515579418,y:0.04415026270483071,text:'8.79% VTI<br\/>8.12% VXUS<br\/>79.35% BND<br\/>3.74% VNQ<br\/>Expected Return: 2.55%<br\/>Standard Deviation: 4.42%<br\/>Sharpe Ratio: 0.383'},{x:0.025844535537516977,y:0.04482382287237902,text:'9.09% VTI<br\/>8.47% VXUS<br\/>78.44% BND<br\/>4.00% VNQ<br\/>Expected Return: 2.58%<br\/>Standard Deviation: 4.48%<br\/>Sharpe Ratio: 0.384'},{x:0.026171399165888287,y:0.045517144970704776,text:'9.38% VTI<br\/>8.83% VXUS<br\/>77.53% BND<br\/>4.27% VNQ<br\/>Expected Return: 2.62%<br\/>Standard Deviation: 4.55%<br\/>Sharpe Ratio: 0.386'},{x:0.02649848577771574,y:0.04622810124765747,text:'9.67% VTI<br\/>9.18% VXUS<br\/>76.62% BND<br\/>4.53% VNQ<br\/>Expected Return: 2.65%<br\/>Standard Deviation: 4.62%<br\/>Sharpe Ratio: 0.387'},{x:0.026825940731068698,y:0.04695626430909611,text:'9.96% VTI<br\/>9.53% VXUS<br\/>75.71% BND<br\/>4.79% VNQ<br\/>Expected Return: 2.68%<br\/>Standard Deviation: 4.70%<br\/>Sharpe Ratio: 0.387'},{x:0.02715333698728961,y:0.04770180204760695,text:'10.26% VTI<br\/>9.87% VXUS<br\/>74.80% BND<br\/>5.06% VNQ<br\/>Expected Return: 2.72%<br\/>Standard Deviation: 4.77%<br\/>Sharpe Ratio: 0.388'},{x:0.02748085233369313,y:0.048462868784389324,text:'10.55% VTI<br\/>10.22% VXUS<br\/>73.89% BND<br\/>5.34% VNQ<br\/>Expected Return: 2.75%<br\/>Standard Deviation: 4.85%<br\/>Sharpe Ratio: 0.389'},{x:0.027808475908786434,y:0.049238344326937536,text:'10.84% VTI<br\/>10.57% VXUS<br\/>72.98% BND<br\/>5.61% VNQ<br\/>Expected Return: 2.78%<br\/>Standard Deviation: 4.92%<br\/>Sharpe Ratio: 0.389'},{x:0.028136195242188133,y:0.05002754092290372,text:'11.13% VTI<br\/>10.91% VXUS<br\/>72.07% BND<br\/>5.88% VNQ<br\/>Expected Return: 2.81%<br\/>Standard Deviation: 5.00%<br\/>Sharpe Ratio: 0.389'},{x:0.028464069803304515,y:0.05083012150329186,text:'11.43% VTI<br\/>11.26% VXUS<br\/>71.16% BND<br\/>6.15% VNQ<br\/>Expected Return: 2.85%<br\/>Standard Deviation: 5.08%<br\/>Sharpe Ratio: 0.389'},{x:0.028792150865822652,y:0.05164558873832646,text:'11.72% VTI<br\/>11.60% VXUS<br\/>70.25% BND<br\/>6.42% VNQ<br\/>Expected Return: 2.88%<br\/>Standard Deviation: 5.16%<br\/>Sharpe Ratio: 0.389'},{x:0.029120376947722404,y:0.05247339375887902,text:'12.01% VTI<br\/>11.95% VXUS<br\/>69.34% BND<br\/>6.70% VNQ<br\/>Expected Return: 2.91%<br\/>Standard Deviation: 5.25%<br\/>Sharpe Ratio: 0.389'},{x:0.029448884710177037,y:0.053313619521386406,text:'12.30% VTI<br\/>12.29% VXUS<br\/>68.43% BND<br\/>6.97% VNQ<br\/>Expected Return: 2.94%<br\/>Standard Deviation: 5.33%<br\/>Sharpe Ratio: 0.389'},{x:0.029777541315484157,y:0.05416488830994905,text:'12.60% VTI<br\/>12.64% VXUS<br\/>67.52% BND<br\/>7.25% VNQ<br\/>Expected Return: 2.98%<br\/>Standard Deviation: 5.42%<br\/>Sharpe Ratio: 0.389'},{x:0.030106408224471082,y:0.05502668012195767,text:'12.89% VTI<br\/>12.98% VXUS<br\/>66.61% BND<br\/>7.53% VNQ<br\/>Expected Return: 3.01%<br\/>Standard Deviation: 5.50%<br\/>Sharpe Ratio: 0.389'},{x:0.030435378620903286,y:0.05589894360148137,text:'13.18% VTI<br\/>13.32% VXUS<br\/>65.69% BND<br\/>7.80% VNQ<br\/>Expected Return: 3.04%<br\/>Standard Deviation: 5.59%<br\/>Sharpe Ratio: 0.388'},{x:0.03076441017091458,y:0.05678079866260925,text:'13.47% VTI<br\/>13.66% VXUS<br\/>64.78% BND<br\/>8.08% VNQ<br\/>Expected Return: 3.08%<br\/>Standard Deviation: 5.68%<br\/>Sharpe Ratio: 0.388'},{x:0.031093566701623443,y:0.05767235803503008,text:'13.76% VTI<br\/>14.01% VXUS<br\/>63.87% BND<br\/>8.36% VNQ<br\/>Expected Return: 3.11%<br\/>Standard Deviation: 5.77%<br\/>Sharpe Ratio: 0.387'},{x:0.03142275730739219,y:0.05857282655704868,text:'14.05% VTI<br\/>14.35% VXUS<br\/>62.95% BND<br\/>8.65% VNQ<br\/>Expected Return: 3.14%<br\/>Standard Deviation: 5.86%<br\/>Sharpe Ratio: 0.387'},{x:0.03175201655724824,y:0.059481469351417106,text:'14.34% VTI<br\/>14.69% VXUS<br\/>62.04% BND<br\/>8.93% VNQ<br\/>Expected Return: 3.18%<br\/>Standard Deviation: 5.95%<br\/>Sharpe Ratio: 0.386'},{x:0.03208131473546616,y:0.06039813754279727,text:'14.63% VTI<br\/>15.03% VXUS<br\/>61.13% BND<br\/>9.22% VNQ<br\/>Expected Return: 3.21%<br\/>Standard Deviation: 6.04%<br\/>Sharpe Ratio: 0.386'},{x:0.03241075378181768,y:0.061322304423041006,text:'14.92% VTI<br\/>15.37% VXUS<br\/>60.21% BND<br\/>9.50% VNQ<br\/>Expected Return: 3.24%<br\/>Standard Deviation: 6.13%<br\/>Sharpe Ratio: 0.385'},{x:0.032740345272991744,y:0.06225372335958887,text:'15.21% VTI<br\/>15.70% VXUS<br\/>59.30% BND<br\/>9.79% VNQ<br\/>Expected Return: 3.27%<br\/>Standard Deviation: 6.23%<br\/>Sharpe Ratio: 0.385'},{x:0.0330700555616954,y:0.06319198612030433,text:'15.50% VTI<br\/>16.04% VXUS<br\/>58.38% BND<br\/>10.07% VNQ<br\/>Expected Return: 3.31%<br\/>Standard Deviation: 6.32%<br\/>Sharpe Ratio: 0.384'},{x:0.03339986547529805,y:0.06413674379185366,text:'15.79% VTI<br\/>16.38% VXUS<br\/>57.47% BND<br\/>10.36% VNQ<br\/>Expected Return: 3.34%<br\/>Standard Deviation: 6.41%<br\/>Sharpe Ratio: 0.383'},{x:0.03372986415776036,y:0.0650881362878369,text:'16.08% VTI<br\/>16.72% VXUS<br\/>56.56% BND<br\/>10.64% VNQ<br\/>Expected Return: 3.37%<br\/>Standard Deviation: 6.51%<br\/>Sharpe Ratio: 0.383'},{x:0.03406004434559118,y:0.06604581701737827,text:'16.37% VTI<br\/>17.05% VXUS<br\/>55.64% BND<br\/>10.93% VNQ<br\/>Expected Return: 3.41%<br\/>Standard Deviation: 6.60%<br\/>Sharpe Ratio: 0.382'},{x:0.03439032120411878,y:0.06700917391378637,text:'16.66% VTI<br\/>17.39% VXUS<br\/>54.73% BND<br\/>11.22% VNQ<br\/>Expected Return: 3.44%<br\/>Standard Deviation: 6.70%<br\/>Sharpe Ratio: 0.381'},{x:0.034720694759070136,y:0.06797796565630103,text:'16.96% VTI<br\/>17.73% VXUS<br\/>53.81% BND<br\/>11.50% VNQ<br\/>Expected Return: 3.47%<br\/>Standard Deviation: 6.80%<br\/>Sharpe Ratio: 0.381'},{x:0.035051165036178666,y:0.06895196316259967,text:'17.25% VTI<br\/>18.07% VXUS<br\/>52.90% BND<br\/>11.79% VNQ<br\/>Expected Return: 3.51%<br\/>Standard Deviation: 6.90%<br\/>Sharpe Ratio: 0.380'},{x:0.03538173206119177,y:0.06993094891555414,text:'17.54% VTI<br\/>18.40% VXUS<br\/>51.98% BND<br\/>12.08% VNQ<br\/>Expected Return: 3.54%<br\/>Standard Deviation: 6.99%<br\/>Sharpe Ratio: 0.379'},{x:0.03571239585985464,y:0.07091471632552201,text:'17.83% VTI<br\/>18.74% VXUS<br\/>51.07% BND<br\/>12.36% VNQ<br\/>Expected Return: 3.57%<br\/>Standard Deviation: 7.09%<br\/>Sharpe Ratio: 0.378'},{x:0.03604315645791889,y:0.07190306912694866,text:'18.12% VTI<br\/>19.08% VXUS<br\/>50.15% BND<br\/>12.65% VNQ<br\/>Expected Return: 3.60%<br\/>Standard Deviation: 7.19%<br\/>Sharpe Ratio: 0.378'},{x:0.03637407741667653,y:0.07289614359343707,text:'18.41% VTI<br\/>19.42% VXUS<br\/>49.24% BND<br\/>12.93% VNQ<br\/>Expected Return: 3.64%<br\/>Standard Deviation: 7.29%<br\/>Sharpe Ratio: 0.377'},{x:0.03670506459794587,y:0.0738933886104831,text:'18.70% VTI<br\/>19.75% VXUS<br\/>48.32% BND<br\/>13.22% VNQ<br\/>Expected Return: 3.67%<br\/>Standard Deviation: 7.39%<br\/>Sharpe Ratio: 0.376'},{x:0.03703606659262526,y:0.0748944790016613,text:'19.00% VTI<br\/>20.09% VXUS<br\/>47.41% BND<br\/>13.51% VNQ<br\/>Expected Return: 3.70%<br\/>Standard Deviation: 7.49%<br\/>Sharpe Ratio: 0.375'},{x:0.0373671802900728,y:0.0758995970126554,text:'19.29% VTI<br\/>20.42% VXUS<br\/>46.50% BND<br\/>13.80% VNQ<br\/>Expected Return: 3.74%<br\/>Standard Deviation: 7.59%<br\/>Sharpe Ratio: 0.375'},{x:0.03769844999171279,y:0.07690867713361109,text:'19.58% VTI<br\/>20.76% VXUS<br\/>45.58% BND<br\/>14.08% VNQ<br\/>Expected Return: 3.77%<br\/>Standard Deviation: 7.69%<br\/>Sharpe Ratio: 0.374'},{x:0.03802988043968791,y:0.07792149196154259,text:'19.87% VTI<br\/>21.09% VXUS<br\/>44.67% BND<br\/>14.37% VNQ<br\/>Expected Return: 3.80%<br\/>Standard Deviation: 7.79%<br\/>Sharpe Ratio: 0.373'},{x:0.038361386200239656,y:0.07893798228082775,text:'20.16% VTI<br\/>21.43% VXUS<br\/>43.75% BND<br\/>14.66% VNQ<br\/>Expected Return: 3.84%<br\/>Standard Deviation: 7.89%<br\/>Sharpe Ratio: 0.372'},{x:0.038692988246568305,y:0.07995780167832588,text:'20.45% VTI<br\/>21.76% VXUS<br\/>42.84% BND<br\/>14.95% VNQ<br\/>Expected Return: 3.87%<br\/>Standard Deviation: 8.00%<br\/>Sharpe Ratio: 0.372'},{x:0.0390246937836749,y:0.08098084989184784,text:'20.74% VTI<br\/>22.10% VXUS<br\/>41.92% BND<br\/>15.24% VNQ<br\/>Expected Return: 3.90%<br\/>Standard Deviation: 8.10%<br\/>Sharpe Ratio: 0.371'},{x:0.03935649642053174,y:0.08200697464871902,text:'21.04% VTI<br\/>22.43% VXUS<br\/>41.00% BND<br\/>15.53% VNQ<br\/>Expected Return: 3.94%<br\/>Standard Deviation: 8.20%<br\/>Sharpe Ratio: 0.370'},{x:0.03968841744183149,y:0.08303630177002849,text:'21.33% VTI<br\/>22.77% VXUS<br\/>40.09% BND<br\/>15.81% VNQ<br\/>Expected Return: 3.97%<br\/>Standard Deviation: 8.30%<br\/>Sharpe Ratio: 0.369'},{x:0.04002043813897016,y:0.08406867039875837,text:'21.62% VTI<br\/>23.11% VXUS<br\/>39.17% BND<br\/>16.11% VNQ<br\/>Expected Return: 4.00%<br\/>Standard Deviation: 8.41%<br\/>Sharpe Ratio: 0.369'},{x:0.0403525558939386,y:0.08510381376075632,text:'21.91% VTI<br\/>23.44% VXUS<br\/>38.26% BND<br\/>16.40% VNQ<br\/>Expected Return: 4.04%<br\/>Standard Deviation: 8.51%<br\/>Sharpe Ratio: 0.368'},{x:0.040684848091373293,y:0.08614203052633618,text:'22.19% VTI<br\/>23.78% VXUS<br\/>37.34% BND<br\/>16.69% VNQ<br\/>Expected Return: 4.07%<br\/>Standard Deviation: 8.61%<br\/>Sharpe Ratio: 0.367'},{x:0.04101741150743843,y:0.08718350228536642,text:'22.48% VTI<br\/>24.11% VXUS<br\/>36.43% BND<br\/>16.98% VNQ<br\/>Expected Return: 4.10%<br\/>Standard Deviation: 8.72%<br\/>Sharpe Ratio: 0.367'},{x:0.041350160796097324,y:0.0882276535820925,text:'22.77% VTI<br\/>24.45% VXUS<br\/>35.51% BND<br\/>17.27% VNQ<br\/>Expected Return: 4.14%<br\/>Standard Deviation: 8.82%<br\/>Sharpe Ratio: 0.366'},{x:0.041683007578368736,y:0.08927418052592952,text:'23.06% VTI<br\/>24.78% VXUS<br\/>34.59% BND<br\/>17.56% VNQ<br\/>Expected Return: 4.17%<br\/>Standard Deviation: 8.93%<br\/>Sharpe Ratio: 0.365'},{x:0.04201584616275289,y:0.09032270761572699,text:'23.35% VTI<br\/>25.12% VXUS<br\/>33.68% BND<br\/>17.86% VNQ<br\/>Expected Return: 4.20%<br\/>Standard Deviation: 9.03%<br\/>Sharpe Ratio: 0.364'},{x:0.04234874743359618,y:0.09137335088794209,text:'23.64% VTI<br\/>25.45% VXUS<br\/>32.76% BND<br\/>18.15% VNQ<br\/>Expected Return: 4.23%<br\/>Standard Deviation: 9.14%<br\/>Sharpe Ratio: 0.364'},{x:0.0426817461936293,y:0.09242613106076901,text:'23.93% VTI<br\/>25.79% VXUS<br\/>31.84% BND<br\/>18.44% VNQ<br\/>Expected Return: 4.27%<br\/>Standard Deviation: 9.24%<br\/>Sharpe Ratio: 0.363'},{x:0.04301484246880238,y:0.09348097593708864,text:'24.22% VTI<br\/>26.12% VXUS<br\/>30.93% BND<br\/>18.73% VNQ<br\/>Expected Return: 4.30%<br\/>Standard Deviation: 9.35%<br\/>Sharpe Ratio: 0.362'},{x:0.04334803628508066,y:0.09453781640357058,text:'24.51% VTI<br\/>26.46% VXUS<br\/>30.01% BND<br\/>19.03% VNQ<br\/>Expected Return: 4.33%<br\/>Standard Deviation: 9.45%<br\/>Sharpe Ratio: 0.362'},{x:0.04368132766842736,y:0.09559658627522506,text:'24.80% VTI<br\/>26.79% VXUS<br\/>29.09% BND<br\/>19.32% VNQ<br\/>Expected Return: 4.37%<br\/>Standard Deviation: 9.56%<br\/>Sharpe Ratio: 0.361'},{x:0.044014716644813934,y:0.09665722214875833,text:'25.09% VTI<br\/>27.13% VXUS<br\/>28.18% BND<br\/>19.61% VNQ<br\/>Expected Return: 4.40%<br\/>Standard Deviation: 9.67%<br\/>Sharpe Ratio: 0.360'},{x:0.04434820324021915,y:0.09771966326420144,text:'25.37% VTI<br\/>27.46% VXUS<br\/>27.26% BND<br\/>19.90% VNQ<br\/>Expected Return: 4.43%<br\/>Standard Deviation: 9.77%<br\/>Sharpe Ratio: 0.360'},{x:0.04468178748062446,y:0.09878385137430094,text:'25.66% VTI<br\/>27.80% VXUS<br\/>26.35% BND<br\/>20.19% VNQ<br\/>Expected Return: 4.47%<br\/>Standard Deviation: 9.88%<br\/>Sharpe Ratio: 0.359'},{x:0.045015469392026164,y:0.09984973062120739,text:'25.95% VTI<br\/>28.13% VXUS<br\/>25.43% BND<br\/>20.49% VNQ<br\/>Expected Return: 4.50%<br\/>Standard Deviation: 9.98%<br\/>Sharpe Ratio: 0.359'},{x:0.045349249000418146,y:0.10091724742001232,text:'26.24% VTI<br\/>28.47% VXUS<br\/>24.51% BND<br\/>20.78% VNQ<br\/>Expected Return: 4.53%<br\/>Standard Deviation: 10.09%<br\/>Sharpe Ratio: 0.358'},{x:0.04568316105749193,y:0.10198657318889681,text:'26.53% VTI<br\/>28.80% VXUS<br\/>23.60% BND<br\/>21.07% VNQ<br\/>Expected Return: 4.57%<br\/>Standard Deviation: 10.20%<br\/>Sharpe Ratio: 0.357'},{x:0.04601721333718278,y:0.10305762808257905,text:'26.82% VTI<br\/>29.13% VXUS<br\/>22.68% BND<br\/>21.36% VNQ<br\/>Expected Return: 4.60%<br\/>Standard Deviation: 10.31%<br\/>Sharpe Ratio: 0.357'},{x:0.04635136343709556,y:0.10413017250542171,text:'27.11% VTI<br\/>29.47% VXUS<br\/>21.76% BND<br\/>21.66% VNQ<br\/>Expected Return: 4.64%<br\/>Standard Deviation: 10.41%<br\/>Sharpe Ratio: 0.356'},{x:0.0466856113832701,y:0.10520416090069538,text:'27.40% VTI<br\/>29.80% VXUS<br\/>20.85% BND<br\/>21.95% VNQ<br\/>Expected Return: 4.67%<br\/>Standard Deviation: 10.52%<br\/>Sharpe Ratio: 0.356'},{x:0.04701881419689391,y:0.10627752412659447,text:'27.69% VTI<br\/>30.13% VXUS<br\/>19.93% BND<br\/>22.25% VNQ<br\/>Expected Return: 4.70%<br\/>Standard Deviation: 10.63%<br\/>Sharpe Ratio: 0.355'},{x:0.04734978468940754,y:0.10734808674088953,text:'27.98% VTI<br\/>30.44% VXUS<br\/>19.02% BND<br\/>22.56% VNQ<br\/>Expected Return: 4.73%<br\/>Standard Deviation: 10.73%<br\/>Sharpe Ratio: 0.354'},{x:0.047680851083126585,y:0.10841992008899388,text:'28.27% VTI<br\/>30.75% VXUS<br\/>18.11% BND<br\/>22.87% VNQ<br\/>Expected Return: 4.77%<br\/>Standard Deviation: 10.84%<br\/>Sharpe Ratio: 0.354'},{x:0.04800904843500686,y:0.10948725310802739,text:'28.56% VTI<br\/>31.04% VXUS<br\/>17.20% BND<br\/>23.19% VNQ<br\/>Expected Return: 4.80%<br\/>Standard Deviation: 10.95%<br\/>Sharpe Ratio: 0.353'},{x:0.04833230680751499,y:0.11054606675874534,text:'28.85% VTI<br\/>31.30% VXUS<br\/>16.31% BND<br\/>23.54% VNQ<br\/>Expected Return: 4.83%<br\/>Standard Deviation: 11.05%<br\/>Sharpe Ratio: 0.353'},{x:0.04864032893912884,y:0.11157706836174942,text:'29.10% VTI<br\/>31.49% VXUS<br\/>15.44% BND<br\/>23.96% VNQ<br\/>Expected Return: 4.86%<br\/>Standard Deviation: 11.16%<br\/>Sharpe Ratio: 0.352'},{x:0.04893600243195895,y:0.11258954248511416,text:'29.31% VTI<br\/>31.63% VXUS<br\/>14.59% BND<br\/>24.48% VNQ<br\/>Expected Return: 4.89%<br\/>Standard Deviation: 11.26%<br\/>Sharpe Ratio: 0.351'},{x:0.04921982575094175,y:0.1135814519562152,text:'29.46% VTI<br\/>31.73% VXUS<br\/>13.75% BND<br\/>25.06% VNQ<br\/>Expected Return: 4.92%<br\/>Standard Deviation: 11.36%<br\/>Sharpe Ratio: 0.351'},{x:0.049480750603193346,y:0.11453738649902387,text:'29.52% VTI<br\/>31.73% VXUS<br\/>12.96% BND<br\/>25.79% VNQ<br\/>Expected Return: 4.95%<br\/>Standard Deviation: 11.45%<br\/>Sharpe Ratio: 0.350'},{x:0.04973249415300396,y:0.11548468477376718,text:'29.59% VTI<br\/>31.65% VXUS<br\/>12.18% BND<br\/>26.58% VNQ<br\/>Expected Return: 4.97%<br\/>Standard Deviation: 11.55%<br\/>Sharpe Ratio: 0.349'},{x:0.049963589281877496,y:0.11639824212926625,text:'29.59% VTI<br\/>31.50% VXUS<br\/>11.43% BND<br\/>27.48% VNQ<br\/>Expected Return: 5.00%<br\/>Standard Deviation: 11.64%<br\/>Sharpe Ratio: 0.348'},{x:0.05018091780379108,y:0.11727759375971694,text:'29.50% VTI<br\/>31.37% VXUS<br\/>10.72% BND<br\/>28.40% VNQ<br\/>Expected Return: 5.02%<br\/>Standard Deviation: 11.73%<br\/>Sharpe Ratio: 0.347'},{x:0.05038675599600695,y:0.11809418108266503,text:'28.99% VTI<br\/>31.62% VXUS<br\/>10.06% BND<br\/>29.32% VNQ<br\/>Expected Return: 5.04%<br\/>Standard Deviation: 11.81%<br\/>Sharpe Ratio: 0.347'},{x:0.05057008638851368,y:0.11881107159930851,text:'28.43% VTI<br\/>31.97% VXUS<br\/>9.49% BND<br\/>30.11% VNQ<br\/>Expected Return: 5.06%<br\/>Standard Deviation: 11.88%<br\/>Sharpe Ratio: 0.346'},{x:0.05073452963937042,y:0.11940635028050191,text:'28.50% VTI<br\/>32.00% VXUS<br\/>9.00% BND<br\/>30.50% VNQ<br\/>Expected Return: 5.07%<br\/>Standard Deviation: 11.94%<br\/>Sharpe Ratio: 0.346'}]}, { name: 'Points', color: 'black', type: 'scatter', data: [ {x:0.04367216887707248,y:0.0950872789201031,text:'Provided Portfolio<br\/>Expected Return: 4.37%<br\/>Standard Deviation: 9.51%<br\/>Sharpe Ratio: 0.363'},{x:0.028792150865822652,y:0.05164558873832646,text:'Maximum Sharpe Ratio<br\/>Expected Return: 2.88%<br\/>Standard Deviation: 5.16%<br\/>Sharpe Ratio: 0.389'},{x:0.05500000000000016,y:0.13870937226116592,text:'VTI<br\/>Expected Return: 5.50%<br\/>Standard Deviation: 13.87%<br\/>Sharpe Ratio: 0.327'},{x:0.05699999999999861,y:0.14078588154794205,text:'VXUS<br\/>Expected Return: 5.70%<br\/>Standard Deviation: 14.08%<br\/>Sharpe Ratio: 0.336'},{x:0.017999999999999794,y:0.0366590539546681,text:'BND<br\/>Expected Return: 1.80%<br\/>Standard Deviation: 3.67%<br\/>Sharpe Ratio: 0.260'},{x:0.05000000000000071,y:0.1579216966784983,text:'VNQ<br\/>Expected Return: 5.00%<br\/>Standard Deviation: 15.79%<br\/>Sharpe Ratio: 0.257'}]}], annotations: [{labelOptions: { backgroundColor: 'rgba(255,255,255,0.5)', verticalAlign: 'top', y: 15 }, labels: [{ point: { xAxis: 0, yAxis: 0, x: 0.04367216887707248, y: 0.0950872789201031 }, text: 'Provided Portfolio' },{ point: { xAxis: 0, yAxis: 0, x: 0.028792150865822652, y: 0.05164558873832646 }, text: 'Maximum Sharpe Ratio' },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.05500000000000016, y: 0.13870937226116592 }, text: 'VTI', style: {color: '#3366CC' } },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.05699999999999861, y: 0.14078588154794205 }, text: 'VXUS', style: {color: '#DC3912' } },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.017999999999999794, y: 0.0366590539546681 }, text: 'BND', style: {color: '#FF9900' } },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.05000000000000071, y: 0.1579216966784983 }, text: 'VNQ', style: {color: '#109618' } },{ shape: 'connector', point: { xAxis: 0, yAxis: 0, x: 0.028792150865822652, y: 0.05164558873832646 }, text: 'Tangency Portfolio' }], shapes: [{ point: { xAxis: 0, yAxis: 0, x: 0.05500000000000016, y: 0.13870937226116592 }, type: 'circle', r: 4, fill: '#3366CC', stroke: '#3366CC' },{ point: { xAxis: 0, yAxis: 0, x: 0.05699999999999861, y: 0.14078588154794205 }, type: 'circle', r: 4, fill: '#DC3912', stroke: '#DC3912' },{ point: { xAxis: 0, yAxis: 0, x: 0.017999999999999794, y: 0.0366590539546681 }, type: 'circle', r: 4, fill: '#FF9900', stroke: '#FF9900' },{ point: { xAxis: 0, yAxis: 0, x: 0.05000000000000071, y: 0.1579216966784983 }, type: 'circle', r: 4, fill: '#109618', stroke: '#109618' }]}] };
+return [chart3, null, null];
+}
+</script>
+<div id="chartDiv4" style="min-width: 900px; min-height: 650px; max-width: 1350px; max-height: 975px;"></div>
+<script>
+function getChartData4() {
+var chart4 = { chart: { type: 'area', }, title: { text: 'Efficient Frontier Transition Map (Jan 2012 - May 2022)' }, plotOptions: { area: { stacking: 'normal', marker: { radius: 2 } } },xAxis: { title: { text: 'Standard Deviation'} , labels: { formatter: function() { return (100.0*this.value).toFixed(1) + '%'; }}, bogus: true},yAxis: { title: {text: 'Allocation'} , min: 0, max: 1 , labels: { formatter: function() { return (100.0*this.value).toFixed(1) + '%'; } }},tooltip: { formatter: function () { var s = '<b>' + (100.0*this.x).toFixed(2) + '%' + '</b>'; $.each(this.points, function () { s += '<br/><span style="color:'+ this.series.color+ '">\u25CF </span>' + this.series.name + ': ' + (100.0*this.y).toFixed(2) + '%'; }); return s; } }, series: [{ name: 'VTI', data: [[0.036453466513078236,0.02370649710830318],[0.03649858434038156,0.030438338679816854],[0.03658735158909952,0.035021074467778586],[0.036718194618796926,0.038757430040996674],[0.03689229145703128,0.04173258863871546],[0.03710280440253677,0.04445018148665621],[0.037353582052629224,0.04717563854441823],[0.03764125151060077,0.049981740663562466],[0.03796438184634034,0.05269354142864433],[0.03832131133075183,0.055535332439772274],[0.03870868264015941,0.05844491173720186],[0.039128556667299426,0.06136533159999503],[0.039579124637204054,0.06437055053099298],[0.040057835672478094,0.06731932650292889],[0.040568264711929,0.07023392933369015],[0.04110584073348837,0.07312569516564907],[0.041667466172882604,0.07600700910952086],[0.04225369799146013,0.07893575054305799],[0.042864300663675886,0.08195935237065033],[0.04349676902484769,0.08497149474506145],[0.04415026270483071,0.08792767925029589],[0.04482382287237902,0.09086298028333299],[0.045517144970704776,0.0937660819896203],[0.04622810124765747,0.09668207483820496],[0.04695626430909611,0.09963435035940059],[0.04770180204760695,0.10256950446507554],[0.048462868784389324,0.10549214478619375],[0.049238344326937536,0.10841173160151048],[0.05002754092290372,0.11133131841682803],[0.05083012150329186,0.11425563366564902],[0.05164558873832646,0.11719180575960066],[0.05247339375887902,0.12012797785355461],[0.053313619521386406,0.1230491924644681],[0.05416488830994905,0.1259687902117608],[0.05502668012195767,0.1288939722533626],[0.05589894360148137,0.13181619057770155],[0.05678079866260925,0.13473402134876197],[0.05767235803503008,0.13763398776367353],[0.05857282655704868,0.14052275442184256],[0.059481469351417106,0.14340776952312753],[0.06039813754279727,0.14629247924986669],[0.061322304423041006,0.14918943492769923],[0.06225372335958887,0.15209458923855737],[0.06319198612030433,0.15500270504939],[0.06413674379185366,0.1579128982653951],[0.0650881362878369,0.16083122633235492],[0.06604581701737827,0.1637394010342733],[0.06700917391378637,0.16664757573619082],[0.06797796565630103,0.1695557504381114],[0.06895196316259967,0.17246392514002984],[0.06993094891555414,0.17537209984194957],[0.07091471632552201,0.17828027454386816],[0.07190306912694866,0.18118844924578764],[0.07289614359343707,0.18410406052400238],[0.0738933886104831,0.18702681775465846],[0.0748944790016613,0.1899526494559],[0.0758995970126554,0.19287490331613166],[0.07690867713361109,0.19579405948150239],[0.07792149196154259,0.19871321564687397],[0.07893798228082775,0.20162018033551088],[0.07995780167832588,0.20452677726706736],[0.08098084989184784,0.20744189680639738],[0.08200697464871902,0.21035701634572854],[0.08303630177002849,0.21326167112516825],[0.08406867039875837,0.21615803789163285],[0.08510381376075632,0.21905308284169148],[0.08614203052633618,0.2219417395057257],[0.08718350228536642,0.22482723963485066],[0.0882276535820925,0.2277172511560434],[0.08927418052592952,0.23060726267723858],[0.09032270761572699,0.23349915723093737],[0.09137335088794209,0.23639167140791956],[0.09242613106076901,0.23928418558490053],[0.09348097593708864,0.24217669976188283],[0.09453781640357058,0.24506921393886383],[0.09559658627522506,0.24796172811584719],[0.09665722214875833,0.2508542422928282],[0.09771966326420144,0.2537467564698104],[0.09878385137430094,0.2566392706467915],[0.09984973062120739,0.2595317848237738],[0.10091724742001232,0.2624242990007546],[0.10198657318889681,0.26531751965192824],[0.10305762808257905,0.26821600047994093],[0.10413017250542171,0.2711144813079529],[0.10520416090069538,0.27401296213596804],[0.10627752412659447,0.27691144296398085],[0.10734808674088953,0.2798099237919947],[0.10841992008899388,0.2827084046200078],[0.10948725310802739,0.28560418771283475],[0.11054606675874534,0.28849662646964885],[0.11157706836174942,0.2910389291720498],[0.11258954248511416,0.2931029215595022],[0.1135814519562152,0.2945511612808084],[0.11453738649902387,0.2952392531262796],[0.11548468477376718,0.2959372726229282],[0.11639824212926625,0.29588787690562696],[0.11727759375971694,0.29499844442068596],[0.11809418108266503,0.2898866041741085],[0.11881107159930851,0.28427450572309476],[0.11940635028050191,0.28500580473342113]]},{ name: 'VXUS', data: [[0.036453466513078236,0.007594317454761088],[0.03649858434038156,0.009682553256493275],[0.03658735158909952,0.012614374941631486],[0.036718194618796926,0.016301332639891416],[0.03689229145703128,0.020369470482187065],[0.03710280440253677,0.024382164498599465],[0.037353582052629224,0.02840511169445944],[0.03764125151060077,0.03241059136477586],[0.03796438184634034,0.0364625911988314],[0.03832131133075183,0.040438204374178596],[0.03870868264015941,0.04436680502418156],[0.039128556667299426,0.048266354538354234],[0.039579124637204054,0.05207375467949749],[0.040057835672478094,0.055849213418808],[0.040568264711929,0.059619744657796896],[0.04110584073348837,0.06334642031366874],[0.041667466172882604,0.06698311979564119],[0.04225369799146013,0.07056349948599933],[0.042864300663675886,0.07409802903579499],[0.04349676902484769,0.07762929967658942],[0.04415026270483071,0.08117764277304611],[0.04482382287237902,0.08471931357266078],[0.045517144970704776,0.088253173577132],[0.04622810124765747,0.09177809426143967],[0.04695626430909611,0.09527557782496221],[0.04770180204760695,0.09873701043084283],[0.048462868784389324,0.10220008992095879],[0.049238344326937536,0.1056663921888338],[0.05002754092290372,0.10913269445670853],[0.05083012150329186,0.11259179393095183],[0.05164558873832646,0.11603900437642076],[0.05247339375887902,0.11947872757601387],[0.053313619521386406,0.12291848500761564],[0.05416488830994905,0.12635824292104808],[0.05502668012195767,0.12979800083448123],[0.05589894360148137,0.13322369265943107],[0.05678079866260925,0.13664416897886003],[0.05767235803503008,0.1400611962497077],[0.05857282655704868,0.1434709699055787],[0.059481469351417106,0.14688001207497256],[0.06039813754279727,0.1502761499035908],[0.061322304423041006,0.15366392238233814],[0.06225372335958887,0.15704561783614338],[0.06319198612030433,0.16042507642828194],[0.06413674379185366,0.16380264314084556],[0.0650881362878369,0.1671701242735094],[0.06604581701737827,0.17054402279149064],[0.06700917391378637,0.1739179213094714],[0.06797796565630103,0.17729181982745204],[0.06895196316259967,0.1806657183454334],[0.06993094891555414,0.18403961686341425],[0.07091471632552201,0.18741351538139558],[0.07190306912694866,0.1907874138993762],[0.07289614359343707,0.19415249268840393],[0.0738933886104831,0.19751020832944413],[0.0748944790016613,0.20086289928917328],[0.0758995970126554,0.20421581975768632],[0.07690867713361109,0.2075707969680528],[0.07792149196154259,0.21092856681131633],[0.07893798228082775,0.21428633665458002],[0.07995780167832588,0.21764402532482696],[0.08098084989184784,0.22099484719354417],[0.08200697464871902,0.22434566906226072],[0.08303630177002849,0.22769919625008886],[0.08406867039875837,0.23105312922439517],[0.08510381376075632,0.2344070621987018],[0.08614203052633618,0.23776099517300847],[0.08718350228536642,0.24111492814731492],[0.0882276535820925,0.2444688611216216],[0.08927418052592952,0.24782279409592822],[0.09032270761572699,0.25117223938767136],[0.09137335088794209,0.2545202079802114],[0.09242613106076901,0.2578681765727516],[0.09348097593708864,0.2612161451652919],[0.09453781640357058,0.26456411375783195],[0.09559658627522506,0.2679120823503725],[0.09665722214875833,0.2712600509429127],[0.09771966326420144,0.27460801953545294],[0.09878385137430094,0.27795598812799327],[0.09984973062120739,0.2813039567205333],[0.10091724742001232,0.28465192531307393],[0.10198657318889681,0.2879961044826367],[0.10305762808257905,0.2913352316754935],[0.10413017250542171,0.2946743588683497],[0.10520416090069538,0.29801348606120664],[0.10627752412659447,0.3012764626928181],[0.10734808674088953,0.3043842823668338],[0.10841992008899388,0.3074921020408499],[0.10948725310802739,0.310419757784778],[0.11054606675874534,0.3130389737493023],[0.11157706836174942,0.3149411085810588],[0.11258954248511416,0.3162740913825916],[0.1135814519562152,0.31728750583440607],[0.11453738649902387,0.3172570656682744],[0.11548468477376718,0.31648405094373394],[0.11639824212926625,0.31499165580056937],[0.11727759375971694,0.3137263747958062],[0.11809418108266503,0.3162469057506321],[0.11881107159930851,0.31969709258459594],[0.11940635028050191,0.3200019955952382]]},{ name: 'BND', data: [[0.036453466513078236,0.9686991625834283],[0.03649858434038156,0.9595182437112917],[0.03658735158909952,0.9513687717230818],[0.036718194618796926,0.9430925753884161],[0.03689229145703128,0.9348519712811983],[0.03710280440253677,0.9266741016359812],[0.037353582052629224,0.9182670125541665],[0.03764125151060077,0.9096824297227523],[0.03796438184634034,0.9010176198088796],[0.03832131133075183,0.8922405675734839],[0.03870868264015941,0.8834197218973635],[0.039128556667299426,0.874536366978426],[0.039579124637204054,0.8656021699940294],[0.040057835672478094,0.8566758691306328],[0.040568264711929,0.8476792054758644],[0.04110584073348837,0.8386704330375493],[0.041667466172882604,0.8296843129250803],[0.04225369799146013,0.8206724919586253],[0.042864300663675886,0.8116124602067641],[0.04349676902484769,0.8025451808541019],[0.04415026270483071,0.7934767648220009],[0.04482382287237902,0.7844039739389644],[0.045517144970704776,0.7753234152406665],[0.04622810124765747,0.7662389047202334],[0.04695626430909611,0.7571454938160507],[0.04770180204760695,0.7480465549442485],[0.048462868784389324,0.7389453110005062],[0.049238344326937536,0.7298438977848075],[0.05002754092290372,0.7207424845691079],[0.05083012150329186,0.7116383827986039],[0.05164558873832646,0.7025300734255044],[0.05247339375887902,0.693418613663958],[0.053313619521386406,0.6842990360120876],[0.05416488830994905,0.6751775563323428],[0.05502668012195767,0.6660533565673167],[0.05589894360148137,0.656925450509161],[0.05678079866260925,0.6477968499961533],[0.05767235803503008,0.6386638634246399],[0.05857282655704868,0.6295295459135941],[0.059481469351417106,0.6203953615237313],[0.06039813754279727,0.611260152755889],[0.061322304423041006,0.6021236343155159],[0.06225372335958887,0.5929853159606168],[0.06319198612030433,0.5838462729674094],[0.06413674379185366,0.5747070444486045],[0.0650881362878369,0.5655640144037407],[0.06604581701737827,0.5564181503434021],[0.06700917391378637,0.5472722862830646],[0.06797796565630103,0.5381264222227248],[0.06895196316259967,0.528980558162385],[0.06993094891555414,0.5198346941020447],[0.07091471632552201,0.5106888300417058],[0.07190306912694866,0.5015429659813673],[0.07289614359343707,0.4923943674669775],[0.0738933886104831,0.483246240137437],[0.0748944790016613,0.47410006301862206],[0.0758995970126554,0.46495292326613974],[0.07690867713361109,0.45580390899102396],[0.07792149196154259,0.4466535093676709],[0.07893798228082775,0.4375019117305186],[0.07995780167832588,0.4283502637268456],[0.08098084989184784,0.41919824957077323],[0.08200697464871902,0.4100462354146995],[0.08303630177002849,0.40089253335591907],[0.08406867039875837,0.391737566439585],[0.08510381376075632,0.38258240047800435],[0.08614203052633618,0.3734238535948404],[0.08718350228536642,0.36425942013283297],[0.0882276535820925,0.3550929339716626],[0.08927418052592952,0.3459264478104884],[0.09032270761572699,0.3367625662993762],[0.09137335088794209,0.3275995418641826],[0.09242613106076901,0.3184365174289904],[0.09348097593708864,0.3092734929937964],[0.09453781640357058,0.3001104685586037],[0.09559658627522506,0.2909474441234085],[0.09665722214875833,0.2817844196882167],[0.09771966326420144,0.2726213952530229],[0.09878385137430094,0.2634583708178314],[0.09984973062120739,0.25429534638263807],[0.10091724742001232,0.24513232194744494],[0.10198657318889681,0.23596751732215382],[0.10305762808257905,0.22680112241478756],[0.10413017250542171,0.2176347275074225],[0.10520416090069538,0.20846833260005326],[0.10627752412659447,0.19932087278403254],[0.10734808674088953,0.19021199326363938],[0.10841992008899388,0.18110311374324678],[0.10948725310802739,0.1720465932220244],[0.11054606675874534,0.1630785421465351],[0.11157706836174942,0.15437529931795435],[0.11258954248511416,0.14585953556356546],[0.1135814519562152,0.13754812374407335],[0.11453738649902387,0.12960341983848808],[0.11548468477376718,0.12178535635513224],[0.11639824212926625,0.11433563776179792],[0.11727759375971694,0.10723115374967232],[0.11809418108266503,0.10064680856542851],[0.11881107159930851,0.09487973544161532],[0.11940635028050191,0.0899939252924954]]},{ name: 'VNQ', data: [[0.036453466513078236,2.285350736795529E-8],[0.03649858434038156,3.6086435239789653E-4],[0.03658735158909952,9.957788675078716E-4],[0.036718194618796926,0.0018486619306961204],[0.03689229145703128,0.0030459695978986272],[0.03710280440253677,0.0044935523787627985],[0.037353582052629224,0.006152237206954861],[0.03764125151060077,0.007925238248909663],[0.03796438184634034,0.009826247563645031],[0.03832131133075183,0.011785895612565392],[0.03870868264015941,0.013768561341253061],[0.039128556667299426,0.015831946883224753],[0.039579124637204054,0.017953524795479205],[0.040057835672478094,0.020155590947630333],[0.040568264711929,0.022467120532648526],[0.04110584073348837,0.024857451483132578],[0.041667466172882604,0.027325558169757375],[0.04225369799146013,0.029828258012316946],[0.042864300663675886,0.03233015838679093],[0.04349676902484769,0.034854024724247264],[0.04415026270483071,0.0374179131546571],[0.04482382287237902,0.04001373220504152],[0.045517144970704776,0.04265732919258155],[0.04622810124765747,0.045300926180121874],[0.04695626430909611,0.04794457799958636],[0.04770180204760695,0.0506469301598328],[0.048462868784389324,0.05336245429234123],[0.049238344326937536,0.056077978424848796],[0.05002754092290372,0.05879350255735548],[0.05083012150329186,0.06151418960479503],[0.05164558873832646,0.06423911643847424],[0.05247339375887902,0.06697468090647356],[0.053313619521386406,0.06973328651582861],[0.05416488830994905,0.07249541053484763],[0.05502668012195767,0.07525467034483929],[0.05589894360148137,0.0780346662537065],[0.05678079866260925,0.0808249596762245],[0.05767235803503008,0.08364095256197886],[0.05857282655704868,0.08647672975898468],[0.059481469351417106,0.08931685687816857],[0.06039813754279727,0.09217121809065361],[0.061322304423041006,0.09502300837444638],[0.06225372335958887,0.09787447696468222],[0.06319198612030433,0.10072594555491828],[0.06413674379185366,0.10357741414515444],[0.0650881362878369,0.1064346349903948],[0.06604581701737827,0.10929842583083359],[0.06700917391378637,0.11216221667127287],[0.06797796565630103,0.11502600751171166],[0.06895196316259967,0.11788979835215178],[0.06993094891555414,0.12075358919259095],[0.07091471632552201,0.12361738003303005],[0.07190306912694866,0.1264811708734688],[0.07289614359343707,0.12934907932061612],[0.0738933886104831,0.13221673377846013],[0.0748944790016613,0.13508438823630442],[0.0758995970126554,0.1379563536600422],[0.07690867713361109,0.14083123455942081],[0.07792149196154259,0.14370470817413888],[0.07893798228082775,0.14659157127939057],[0.07995780167832588,0.14947893368125964],[0.08098084989184784,0.15236500642928533],[0.08200697464871902,0.15525107917731096],[0.08303630177002849,0.15814659926882385],[0.08406867039875837,0.161051266444387],[0.08510381376075632,0.16395745448160226],[0.08614203052633618,0.16687341172642545],[0.08718350228536642,0.16979841208500157],[0.0882276535820925,0.17272095375067228],[0.08927418052592952,0.1756434954163445],[0.09032270761572699,0.1785660370820153],[0.09137335088794209,0.18148857874768642],[0.09242613106076901,0.1844111204133576],[0.09348097593708864,0.18733366207902868],[0.09453781640357058,0.19025620374470034],[0.09559658627522506,0.1931787454103715],[0.09665722214875833,0.19610128707604235],[0.09771966326420144,0.19902382874171348],[0.09878385137430094,0.20194637040738364],[0.09984973062120739,0.20486891207305472],[0.10091724742001232,0.20779145373872646],[0.10198657318889681,0.21071885854328112],[0.10305762808257905,0.21364764542977768],[0.10413017250542171,0.2165764323162748],[0.10520416090069538,0.21950521920277177],[0.10627752412659447,0.22249122155916826],[0.10734808674088953,0.2255938005775319],[0.10841992008899388,0.2286963795958956],[0.10948725310802739,0.2319294612803628],[0.11054606675874534,0.23538585763451347],[0.11157706836174942,0.23964466292893694],[0.11258954248511416,0.24476345149434045],[0.1135814519562152,0.25061320914071195],[0.11453738649902387,0.25790026136695804],[0.11548468477376718,0.26579332007820544],[0.11639824212926625,0.27478482953200556],[0.11727759375971694,0.28404402703383536],[0.11809418108266503,0.29321968150983063],[0.11881107159930851,0.3011486662506941],[0.11940635028050191,0.30499827437884525]]}]};
+return [chart4, null, null];
+}
+</script>
+<table class="table table-condensed table-striped stickyHeaders"><caption class="sr-only">Efficient Frontier Assets</caption><thead><tr><th class="numberCell">#</th><th class="numberCell">VTI</th><th class="numberCell">VXUS</th><th class="numberCell">BND</th><th class="numberCell">VNQ</th><th class="numberCell">Expected Return<sup>*</sup></th><th class="numberCell">Standard Deviation<sup>*</sup></th><th class="numberCell">Sharpe Ratio<sup>*</sup></th></tr></thead><tbody><tr><td class="numberCell">1</td><td class="numberCell">2.37%</td><td class="numberCell">0.76%</td><td class="numberCell">96.87%</td><td class="numberCell">0.00%</td><td class="numberCell">1.92%</td><td class="numberCell">3.65%</td><td class="numberCell">0.293</td></tr><tr><td class="numberCell">2</td><td class="numberCell">3.04%</td><td class="numberCell">0.97%</td><td class="numberCell">95.95%</td><td class="numberCell">0.04%</td><td class="numberCell">1.95%</td><td class="numberCell">3.65%</td><td class="numberCell">0.302</td></tr><tr><td class="numberCell">3</td><td class="numberCell">3.50%</td><td class="numberCell">1.26%</td><td class="numberCell">95.14%</td><td class="numberCell">0.10%</td><td class="numberCell">1.98%</td><td class="numberCell">3.66%</td><td class="numberCell">0.309</td></tr><tr><td class="numberCell">4</td><td class="numberCell">3.88%</td><td class="numberCell">1.63%</td><td class="numberCell">94.31%</td><td class="numberCell">0.18%</td><td class="numberCell">2.01%</td><td class="numberCell">3.67%</td><td class="numberCell">0.316</td></tr><tr><td class="numberCell">5</td><td class="numberCell">4.17%</td><td class="numberCell">2.04%</td><td class="numberCell">93.49%</td><td class="numberCell">0.30%</td><td class="numberCell">2.04%</td><td class="numberCell">3.69%</td><td class="numberCell">0.323</td></tr><tr><td class="numberCell">6</td><td class="numberCell">4.45%</td><td class="numberCell">2.44%</td><td class="numberCell">92.67%</td><td class="numberCell">0.45%</td><td class="numberCell">2.07%</td><td class="numberCell">3.71%</td><td class="numberCell">0.329</td></tr><tr><td class="numberCell">7</td><td class="numberCell">4.72%</td><td class="numberCell">2.84%</td><td class="numberCell">91.83%</td><td class="numberCell">0.62%</td><td class="numberCell">2.10%</td><td class="numberCell">3.74%</td><td class="numberCell">0.334</td></tr><tr><td class="numberCell">8</td><td class="numberCell">5.00%</td><td class="numberCell">3.24%</td><td class="numberCell">90.97%</td><td class="numberCell">0.79%</td><td class="numberCell">2.13%</td><td class="numberCell">3.76%</td><td class="numberCell">0.340</td></tr><tr><td class="numberCell">9</td><td class="numberCell">5.27%</td><td class="numberCell">3.65%</td><td class="numberCell">90.10%</td><td class="numberCell">0.98%</td><td class="numberCell">2.16%</td><td class="numberCell">3.80%</td><td class="numberCell">0.345</td></tr><tr><td class="numberCell">10</td><td class="numberCell">5.55%</td><td class="numberCell">4.04%</td><td class="numberCell">89.22%</td><td class="numberCell">1.18%</td><td class="numberCell">2.20%</td><td class="numberCell">3.83%</td><td class="numberCell">0.350</td></tr><tr><td class="numberCell">11</td><td class="numberCell">5.84%</td><td class="numberCell">4.44%</td><td class="numberCell">88.34%</td><td class="numberCell">1.38%</td><td class="numberCell">2.23%</td><td class="numberCell">3.87%</td><td class="numberCell">0.355</td></tr><tr><td class="numberCell">12</td><td class="numberCell">6.14%</td><td class="numberCell">4.83%</td><td class="numberCell">87.45%</td><td class="numberCell">1.58%</td><td class="numberCell">2.26%</td><td class="numberCell">3.91%</td><td class="numberCell">0.359</td></tr><tr><td class="numberCell">13</td><td class="numberCell">6.44%</td><td class="numberCell">5.21%</td><td class="numberCell">86.56%</td><td class="numberCell">1.80%</td><td class="numberCell">2.29%</td><td class="numberCell">3.96%</td><td class="numberCell">0.363</td></tr><tr><td class="numberCell">14</td><td class="numberCell">6.73%</td><td class="numberCell">5.58%</td><td class="numberCell">85.67%</td><td class="numberCell">2.02%</td><td class="numberCell">2.32%</td><td class="numberCell">4.01%</td><td class="numberCell">0.367</td></tr><tr><td class="numberCell">15</td><td class="numberCell">7.02%</td><td class="numberCell">5.96%</td><td class="numberCell">84.77%</td><td class="numberCell">2.25%</td><td class="numberCell">2.36%</td><td class="numberCell">4.06%</td><td class="numberCell">0.370</td></tr><tr><td class="numberCell">16</td><td class="numberCell">7.31%</td><td class="numberCell">6.33%</td><td class="numberCell">83.87%</td><td class="numberCell">2.49%</td><td class="numberCell">2.39%</td><td class="numberCell">4.11%</td><td class="numberCell">0.373</td></tr><tr><td class="numberCell">17</td><td class="numberCell">7.60%</td><td class="numberCell">6.70%</td><td class="numberCell">82.97%</td><td class="numberCell">2.73%</td><td class="numberCell">2.42%</td><td class="numberCell">4.17%</td><td class="numberCell">0.375</td></tr><tr><td class="numberCell">18</td><td class="numberCell">7.89%</td><td class="numberCell">7.06%</td><td class="numberCell">82.07%</td><td class="numberCell">2.98%</td><td class="numberCell">2.45%</td><td class="numberCell">4.23%</td><td class="numberCell">0.378</td></tr><tr><td class="numberCell">19</td><td class="numberCell">8.20%</td><td class="numberCell">7.41%</td><td class="numberCell">81.16%</td><td class="numberCell">3.23%</td><td class="numberCell">2.49%</td><td class="numberCell">4.29%</td><td class="numberCell">0.380</td></tr><tr><td class="numberCell">20</td><td class="numberCell">8.50%</td><td class="numberCell">7.76%</td><td class="numberCell">80.25%</td><td class="numberCell">3.49%</td><td class="numberCell">2.52%</td><td class="numberCell">4.35%</td><td class="numberCell">0.381</td></tr><tr><td class="numberCell">21</td><td class="numberCell">8.79%</td><td class="numberCell">8.12%</td><td class="numberCell">79.35%</td><td class="numberCell">3.74%</td><td class="numberCell">2.55%</td><td class="numberCell">4.42%</td><td class="numberCell">0.383</td></tr><tr><td class="numberCell">22</td><td class="numberCell">9.09%</td><td class="numberCell">8.47%</td><td class="numberCell">78.44%</td><td class="numberCell">4.00%</td><td class="numberCell">2.58%</td><td class="numberCell">4.48%</td><td class="numberCell">0.384</td></tr><tr><td class="numberCell">23</td><td class="numberCell">9.38%</td><td class="numberCell">8.83%</td><td class="numberCell">77.53%</td><td class="numberCell">4.27%</td><td class="numberCell">2.62%</td><td class="numberCell">4.55%</td><td class="numberCell">0.386</td></tr><tr><td class="numberCell">24</td><td class="numberCell">9.67%</td><td class="numberCell">9.18%</td><td class="numberCell">76.62%</td><td class="numberCell">4.53%</td><td class="numberCell">2.65%</td><td class="numberCell">4.62%</td><td class="numberCell">0.387</td></tr><tr><td class="numberCell">25</td><td class="numberCell">9.96%</td><td class="numberCell">9.53%</td><td class="numberCell">75.71%</td><td class="numberCell">4.79%</td><td class="numberCell">2.68%</td><td class="numberCell">4.70%</td><td class="numberCell">0.387</td></tr><tr><td class="numberCell">26</td><td class="numberCell">10.26%</td><td class="numberCell">9.87%</td><td class="numberCell">74.80%</td><td class="numberCell">5.06%</td><td class="numberCell">2.72%</td><td class="numberCell">4.77%</td><td class="numberCell">0.388</td></tr><tr><td class="numberCell">27</td><td class="numberCell">10.55%</td><td class="numberCell">10.22%</td><td class="numberCell">73.89%</td><td class="numberCell">5.34%</td><td class="numberCell">2.75%</td><td class="numberCell">4.85%</td><td class="numberCell">0.389</td></tr><tr><td class="numberCell">28</td><td class="numberCell">10.84%</td><td class="numberCell">10.57%</td><td class="numberCell">72.98%</td><td class="numberCell">5.61%</td><td class="numberCell">2.78%</td><td class="numberCell">4.92%</td><td class="numberCell">0.389</td></tr><tr><td class="numberCell">29</td><td class="numberCell">11.13%</td><td class="numberCell">10.91%</td><td class="numberCell">72.07%</td><td class="numberCell">5.88%</td><td class="numberCell">2.81%</td><td class="numberCell">5.00%</td><td class="numberCell">0.389</td></tr><tr><td class="numberCell">30</td><td class="numberCell">11.43%</td><td class="numberCell">11.26%</td><td class="numberCell">71.16%</td><td class="numberCell">6.15%</td><td class="numberCell">2.85%</td><td class="numberCell">5.08%</td><td class="numberCell">0.389</td></tr><tr><td class="numberCell">31</td><td class="numberCell">11.72%</td><td class="numberCell">11.60%</td><td class="numberCell">70.25%</td><td class="numberCell">6.42%</td><td class="numberCell">2.88%</td><td class="numberCell">5.16%</td><td class="numberCell">0.389</td></tr><tr><td class="numberCell">32</td><td class="numberCell">12.01%</td><td class="numberCell">11.95%</td><td class="numberCell">69.34%</td><td class="numberCell">6.70%</td><td class="numberCell">2.91%</td><td class="numberCell">5.25%</td><td class="numberCell">0.389</td></tr><tr><td class="numberCell">33</td><td class="numberCell">12.30%</td><td class="numberCell">12.29%</td><td class="numberCell">68.43%</td><td class="numberCell">6.97%</td><td class="numberCell">2.94%</td><td class="numberCell">5.33%</td><td class="numberCell">0.389</td></tr><tr><td class="numberCell">34</td><td class="numberCell">12.60%</td><td class="numberCell">12.64%</td><td class="numberCell">67.52%</td><td class="numberCell">7.25%</td><td class="numberCell">2.98%</td><td class="numberCell">5.42%</td><td class="numberCell">0.389</td></tr><tr><td class="numberCell">35</td><td class="numberCell">12.89%</td><td class="numberCell">12.98%</td><td class="numberCell">66.61%</td><td class="numberCell">7.53%</td><td class="numberCell">3.01%</td><td class="numberCell">5.50%</td><td class="numberCell">0.389</td></tr><tr><td class="numberCell">36</td><td class="numberCell">13.18%</td><td class="numberCell">13.32%</td><td class="numberCell">65.69%</td><td class="numberCell">7.80%</td><td class="numberCell">3.04%</td><td class="numberCell">5.59%</td><td class="numberCell">0.388</td></tr><tr><td class="numberCell">37</td><td class="numberCell">13.47%</td><td class="numberCell">13.66%</td><td class="numberCell">64.78%</td><td class="numberCell">8.08%</td><td class="numberCell">3.08%</td><td class="numberCell">5.68%</td><td class="numberCell">0.388</td></tr><tr><td class="numberCell">38</td><td class="numberCell">13.76%</td><td class="numberCell">14.01%</td><td class="numberCell">63.87%</td><td class="numberCell">8.36%</td><td class="numberCell">3.11%</td><td class="numberCell">5.77%</td><td class="numberCell">0.387</td></tr><tr><td class="numberCell">39</td><td class="numberCell">14.05%</td><td class="numberCell">14.35%</td><td class="numberCell">62.95%</td><td class="numberCell">8.65%</td><td class="numberCell">3.14%</td><td class="numberCell">5.86%</td><td class="numberCell">0.387</td></tr><tr><td class="numberCell">40</td><td class="numberCell">14.34%</td><td class="numberCell">14.69%</td><td class="numberCell">62.04%</td><td class="numberCell">8.93%</td><td class="numberCell">3.18%</td><td class="numberCell">5.95%</td><td class="numberCell">0.386</td></tr><tr><td class="numberCell">41</td><td class="numberCell">14.63%</td><td class="numberCell">15.03%</td><td class="numberCell">61.13%</td><td class="numberCell">9.22%</td><td class="numberCell">3.21%</td><td class="numberCell">6.04%</td><td class="numberCell">0.386</td></tr><tr><td class="numberCell">42</td><td class="numberCell">14.92%</td><td class="numberCell">15.37%</td><td class="numberCell">60.21%</td><td class="numberCell">9.50%</td><td class="numberCell">3.24%</td><td class="numberCell">6.13%</td><td class="numberCell">0.385</td></tr><tr><td class="numberCell">43</td><td class="numberCell">15.21%</td><td class="numberCell">15.70%</td><td class="numberCell">59.30%</td><td class="numberCell">9.79%</td><td class="numberCell">3.27%</td><td class="numberCell">6.23%</td><td class="numberCell">0.385</td></tr><tr><td class="numberCell">44</td><td class="numberCell">15.50%</td><td class="numberCell">16.04%</td><td class="numberCell">58.38%</td><td class="numberCell">10.07%</td><td class="numberCell">3.31%</td><td class="numberCell">6.32%</td><td class="numberCell">0.384</td></tr><tr><td class="numberCell">45</td><td class="numberCell">15.79%</td><td class="numberCell">16.38%</td><td class="numberCell">57.47%</td><td class="numberCell">10.36%</td><td class="numberCell">3.34%</td><td class="numberCell">6.41%</td><td class="numberCell">0.383</td></tr><tr><td class="numberCell">46</td><td class="numberCell">16.08%</td><td class="numberCell">16.72%</td><td class="numberCell">56.56%</td><td class="numberCell">10.64%</td><td class="numberCell">3.37%</td><td class="numberCell">6.51%</td><td class="numberCell">0.383</td></tr><tr><td class="numberCell">47</td><td class="numberCell">16.37%</td><td class="numberCell">17.05%</td><td class="numberCell">55.64%</td><td class="numberCell">10.93%</td><td class="numberCell">3.41%</td><td class="numberCell">6.60%</td><td class="numberCell">0.382</td></tr><tr><td class="numberCell">48</td><td class="numberCell">16.66%</td><td class="numberCell">17.39%</td><td class="numberCell">54.73%</td><td class="numberCell">11.22%</td><td class="numberCell">3.44%</td><td class="numberCell">6.70%</td><td class="numberCell">0.381</td></tr><tr><td class="numberCell">49</td><td class="numberCell">16.96%</td><td class="numberCell">17.73%</td><td class="numberCell">53.81%</td><td class="numberCell">11.50%</td><td class="numberCell">3.47%</td><td class="numberCell">6.80%</td><td class="numberCell">0.381</td></tr><tr><td class="numberCell">50</td><td class="numberCell">17.25%</td><td class="numberCell">18.07%</td><td class="numberCell">52.90%</td><td class="numberCell">11.79%</td><td class="numberCell">3.51%</td><td class="numberCell">6.90%</td><td class="numberCell">0.380</td></tr><tr><td class="numberCell">51</td><td class="numberCell">17.54%</td><td class="numberCell">18.40%</td><td class="numberCell">51.98%</td><td class="numberCell">12.08%</td><td class="numberCell">3.54%</td><td class="numberCell">6.99%</td><td class="numberCell">0.379</td></tr><tr><td class="numberCell">52</td><td class="numberCell">17.83%</td><td class="numberCell">18.74%</td><td class="numberCell">51.07%</td><td class="numberCell">12.36%</td><td class="numberCell">3.57%</td><td class="numberCell">7.09%</td><td class="numberCell">0.378</td></tr><tr><td class="numberCell">53</td><td class="numberCell">18.12%</td><td class="numberCell">19.08%</td><td class="numberCell">50.15%</td><td class="numberCell">12.65%</td><td class="numberCell">3.60%</td><td class="numberCell">7.19%</td><td class="numberCell">0.378</td></tr><tr><td class="numberCell">54</td><td class="numberCell">18.41%</td><td class="numberCell">19.42%</td><td class="numberCell">49.24%</td><td class="numberCell">12.93%</td><td class="numberCell">3.64%</td><td class="numberCell">7.29%</td><td class="numberCell">0.377</td></tr><tr><td class="numberCell">55</td><td class="numberCell">18.70%</td><td class="numberCell">19.75%</td><td class="numberCell">48.32%</td><td class="numberCell">13.22%</td><td class="numberCell">3.67%</td><td class="numberCell">7.39%</td><td class="numberCell">0.376</td></tr><tr><td class="numberCell">56</td><td class="numberCell">19.00%</td><td class="numberCell">20.09%</td><td class="numberCell">47.41%</td><td class="numberCell">13.51%</td><td class="numberCell">3.70%</td><td class="numberCell">7.49%</td><td class="numberCell">0.375</td></tr><tr><td class="numberCell">57</td><td class="numberCell">19.29%</td><td class="numberCell">20.42%</td><td class="numberCell">46.50%</td><td class="numberCell">13.80%</td><td class="numberCell">3.74%</td><td class="numberCell">7.59%</td><td class="numberCell">0.375</td></tr><tr><td class="numberCell">58</td><td class="numberCell">19.58%</td><td class="numberCell">20.76%</td><td class="numberCell">45.58%</td><td class="numberCell">14.08%</td><td class="numberCell">3.77%</td><td class="numberCell">7.69%</td><td class="numberCell">0.374</td></tr><tr><td class="numberCell">59</td><td class="numberCell">19.87%</td><td class="numberCell">21.09%</td><td class="numberCell">44.67%</td><td class="numberCell">14.37%</td><td class="numberCell">3.80%</td><td class="numberCell">7.79%</td><td class="numberCell">0.373</td></tr><tr><td class="numberCell">60</td><td class="numberCell">20.16%</td><td class="numberCell">21.43%</td><td class="numberCell">43.75%</td><td class="numberCell">14.66%</td><td class="numberCell">3.84%</td><td class="numberCell">7.89%</td><td class="numberCell">0.372</td></tr><tr><td class="numberCell">61</td><td class="numberCell">20.45%</td><td class="numberCell">21.76%</td><td class="numberCell">42.84%</td><td class="numberCell">14.95%</td><td class="numberCell">3.87%</td><td class="numberCell">8.00%</td><td class="numberCell">0.372</td></tr><tr><td class="numberCell">62</td><td class="numberCell">20.74%</td><td class="numberCell">22.10%</td><td class="numberCell">41.92%</td><td class="numberCell">15.24%</td><td class="numberCell">3.90%</td><td class="numberCell">8.10%</td><td class="numberCell">0.371</td></tr><tr><td class="numberCell">63</td><td class="numberCell">21.04%</td><td class="numberCell">22.43%</td><td class="numberCell">41.00%</td><td class="numberCell">15.53%</td><td class="numberCell">3.94%</td><td class="numberCell">8.20%</td><td class="numberCell">0.370</td></tr><tr><td class="numberCell">64</td><td class="numberCell">21.33%</td><td class="numberCell">22.77%</td><td class="numberCell">40.09%</td><td class="numberCell">15.81%</td><td class="numberCell">3.97%</td><td class="numberCell">8.30%</td><td class="numberCell">0.369</td></tr><tr><td class="numberCell">65</td><td class="numberCell">21.62%</td><td class="numberCell">23.11%</td><td class="numberCell">39.17%</td><td class="numberCell">16.11%</td><td class="numberCell">4.00%</td><td class="numberCell">8.41%</td><td class="numberCell">0.369</td></tr><tr><td class="numberCell">66</td><td class="numberCell">21.91%</td><td class="numberCell">23.44%</td><td class="numberCell">38.26%</td><td class="numberCell">16.40%</td><td class="numberCell">4.04%</td><td class="numberCell">8.51%</td><td class="numberCell">0.368</td></tr><tr><td class="numberCell">67</td><td class="numberCell">22.19%</td><td class="numberCell">23.78%</td><td class="numberCell">37.34%</td><td class="numberCell">16.69%</td><td class="numberCell">4.07%</td><td class="numberCell">8.61%</td><td class="numberCell">0.367</td></tr><tr><td class="numberCell">68</td><td class="numberCell">22.48%</td><td class="numberCell">24.11%</td><td class="numberCell">36.43%</td><td class="numberCell">16.98%</td><td class="numberCell">4.10%</td><td class="numberCell">8.72%</td><td class="numberCell">0.367</td></tr><tr><td class="numberCell">69</td><td class="numberCell">22.77%</td><td class="numberCell">24.45%</td><td class="numberCell">35.51%</td><td class="numberCell">17.27%</td><td class="numberCell">4.14%</td><td class="numberCell">8.82%</td><td class="numberCell">0.366</td></tr><tr><td class="numberCell">70</td><td class="numberCell">23.06%</td><td class="numberCell">24.78%</td><td class="numberCell">34.59%</td><td class="numberCell">17.56%</td><td class="numberCell">4.17%</td><td class="numberCell">8.93%</td><td class="numberCell">0.365</td></tr><tr><td class="numberCell">71</td><td class="numberCell">23.35%</td><td class="numberCell">25.12%</td><td class="numberCell">33.68%</td><td class="numberCell">17.86%</td><td class="numberCell">4.20%</td><td class="numberCell">9.03%</td><td class="numberCell">0.364</td></tr><tr><td class="numberCell">72</td><td class="numberCell">23.64%</td><td class="numberCell">25.45%</td><td class="numberCell">32.76%</td><td class="numberCell">18.15%</td><td class="numberCell">4.23%</td><td class="numberCell">9.14%</td><td class="numberCell">0.364</td></tr><tr><td class="numberCell">73</td><td class="numberCell">23.93%</td><td class="numberCell">25.79%</td><td class="numberCell">31.84%</td><td class="numberCell">18.44%</td><td class="numberCell">4.27%</td><td class="numberCell">9.24%</td><td class="numberCell">0.363</td></tr><tr><td class="numberCell">74</td><td class="numberCell">24.22%</td><td class="numberCell">26.12%</td><td class="numberCell">30.93%</td><td class="numberCell">18.73%</td><td class="numberCell">4.30%</td><td class="numberCell">9.35%</td><td class="numberCell">0.362</td></tr><tr><td class="numberCell">75</td><td class="numberCell">24.51%</td><td class="numberCell">26.46%</td><td class="numberCell">30.01%</td><td class="numberCell">19.03%</td><td class="numberCell">4.33%</td><td class="numberCell">9.45%</td><td class="numberCell">0.362</td></tr><tr><td class="numberCell">76</td><td class="numberCell">24.80%</td><td class="numberCell">26.79%</td><td class="numberCell">29.09%</td><td class="numberCell">19.32%</td><td class="numberCell">4.37%</td><td class="numberCell">9.56%</td><td class="numberCell">0.361</td></tr><tr><td class="numberCell">77</td><td class="numberCell">25.09%</td><td class="numberCell">27.13%</td><td class="numberCell">28.18%</td><td class="numberCell">19.61%</td><td class="numberCell">4.40%</td><td class="numberCell">9.67%</td><td class="numberCell">0.360</td></tr><tr><td class="numberCell">78</td><td class="numberCell">25.37%</td><td class="numberCell">27.46%</td><td class="numberCell">27.26%</td><td class="numberCell">19.90%</td><td class="numberCell">4.43%</td><td class="numberCell">9.77%</td><td class="numberCell">0.360</td></tr><tr><td class="numberCell">79</td><td class="numberCell">25.66%</td><td class="numberCell">27.80%</td><td class="numberCell">26.35%</td><td class="numberCell">20.19%</td><td class="numberCell">4.47%</td><td class="numberCell">9.88%</td><td class="numberCell">0.359</td></tr><tr><td class="numberCell">80</td><td class="numberCell">25.95%</td><td class="numberCell">28.13%</td><td class="numberCell">25.43%</td><td class="numberCell">20.49%</td><td class="numberCell">4.50%</td><td class="numberCell">9.98%</td><td class="numberCell">0.359</td></tr><tr><td class="numberCell">81</td><td class="numberCell">26.24%</td><td class="numberCell">28.47%</td><td class="numberCell">24.51%</td><td class="numberCell">20.78%</td><td class="numberCell">4.53%</td><td class="numberCell">10.09%</td><td class="numberCell">0.358</td></tr><tr><td class="numberCell">82</td><td class="numberCell">26.53%</td><td class="numberCell">28.80%</td><td class="numberCell">23.60%</td><td class="numberCell">21.07%</td><td class="numberCell">4.57%</td><td class="numberCell">10.20%</td><td class="numberCell">0.357</td></tr><tr><td class="numberCell">83</td><td class="numberCell">26.82%</td><td class="numberCell">29.13%</td><td class="numberCell">22.68%</td><td class="numberCell">21.36%</td><td class="numberCell">4.60%</td><td class="numberCell">10.31%</td><td class="numberCell">0.357</td></tr><tr><td class="numberCell">84</td><td class="numberCell">27.11%</td><td class="numberCell">29.47%</td><td class="numberCell">21.76%</td><td class="numberCell">21.66%</td><td class="numberCell">4.64%</td><td class="numberCell">10.41%</td><td class="numberCell">0.356</td></tr><tr><td class="numberCell">85</td><td class="numberCell">27.40%</td><td class="numberCell">29.80%</td><td class="numberCell">20.85%</td><td class="numberCell">21.95%</td><td class="numberCell">4.67%</td><td class="numberCell">10.52%</td><td class="numberCell">0.356</td></tr><tr><td class="numberCell">86</td><td class="numberCell">27.69%</td><td class="numberCell">30.13%</td><td class="numberCell">19.93%</td><td class="numberCell">22.25%</td><td class="numberCell">4.70%</td><td class="numberCell">10.63%</td><td class="numberCell">0.355</td></tr><tr><td class="numberCell">87</td><td class="numberCell">27.98%</td><td class="numberCell">30.44%</td><td class="numberCell">19.02%</td><td class="numberCell">22.56%</td><td class="numberCell">4.73%</td><td class="numberCell">10.73%</td><td class="numberCell">0.354</td></tr><tr><td class="numberCell">88</td><td class="numberCell">28.27%</td><td class="numberCell">30.75%</td><td class="numberCell">18.11%</td><td class="numberCell">22.87%</td><td class="numberCell">4.77%</td><td class="numberCell">10.84%</td><td class="numberCell">0.354</td></tr><tr><td class="numberCell">89</td><td class="numberCell">28.56%</td><td class="numberCell">31.04%</td><td class="numberCell">17.20%</td><td class="numberCell">23.19%</td><td class="numberCell">4.80%</td><td class="numberCell">10.95%</td><td class="numberCell">0.353</td></tr><tr><td class="numberCell">90</td><td class="numberCell">28.85%</td><td class="numberCell">31.30%</td><td class="numberCell">16.31%</td><td class="numberCell">23.54%</td><td class="numberCell">4.83%</td><td class="numberCell">11.05%</td><td class="numberCell">0.353</td></tr><tr><td class="numberCell">91</td><td class="numberCell">29.10%</td><td class="numberCell">31.49%</td><td class="numberCell">15.44%</td><td class="numberCell">23.96%</td><td class="numberCell">4.86%</td><td class="numberCell">11.16%</td><td class="numberCell">0.352</td></tr><tr><td class="numberCell">92</td><td class="numberCell">29.31%</td><td class="numberCell">31.63%</td><td class="numberCell">14.59%</td><td class="numberCell">24.48%</td><td class="numberCell">4.89%</td><td class="numberCell">11.26%</td><td class="numberCell">0.351</td></tr><tr><td class="numberCell">93</td><td class="numberCell">29.46%</td><td class="numberCell">31.73%</td><td class="numberCell">13.75%</td><td class="numberCell">25.06%</td><td class="numberCell">4.92%</td><td class="numberCell">11.36%</td><td class="numberCell">0.351</td></tr><tr><td class="numberCell">94</td><td class="numberCell">29.52%</td><td class="numberCell">31.73%</td><td class="numberCell">12.96%</td><td class="numberCell">25.79%</td><td class="numberCell">4.95%</td><td class="numberCell">11.45%</td><td class="numberCell">0.350</td></tr><tr><td class="numberCell">95</td><td class="numberCell">29.59%</td><td class="numberCell">31.65%</td><td class="numberCell">12.18%</td><td class="numberCell">26.58%</td><td class="numberCell">4.97%</td><td class="numberCell">11.55%</td><td class="numberCell">0.349</td></tr><tr><td class="numberCell">96</td><td class="numberCell">29.59%</td><td class="numberCell">31.50%</td><td class="numberCell">11.43%</td><td class="numberCell">27.48%</td><td class="numberCell">5.00%</td><td class="numberCell">11.64%</td><td class="numberCell">0.348</td></tr><tr><td class="numberCell">97</td><td class="numberCell">29.50%</td><td class="numberCell">31.37%</td><td class="numberCell">10.72%</td><td class="numberCell">28.40%</td><td class="numberCell">5.02%</td><td class="numberCell">11.73%</td><td class="numberCell">0.347</td></tr><tr><td class="numberCell">98</td><td class="numberCell">28.99%</td><td class="numberCell">31.62%</td><td class="numberCell">10.06%</td><td class="numberCell">29.32%</td><td class="numberCell">5.04%</td><td class="numberCell">11.81%</td><td class="numberCell">0.347</td></tr><tr><td class="numberCell">99</td><td class="numberCell">28.43%</td><td class="numberCell">31.97%</td><td class="numberCell">9.49%</td><td class="numberCell">30.11%</td><td class="numberCell">5.06%</td><td class="numberCell">11.88%</td><td class="numberCell">0.346</td></tr><tr><td class="numberCell">100</td><td class="numberCell">28.50%</td><td class="numberCell">32.00%</td><td class="numberCell">9.00%</td><td class="numberCell">30.50%</td><td class="numberCell">5.07%</td><td class="numberCell">11.94%</td><td class="numberCell">0.346</td></tr></tbody><tfoot><tr><td colspan="8" class="text-muted"><sup>*</sup>Annualized ex-ante values shown for portfolio return and volatility. Ex-ante Sharpe Ratio calculated using the current 3-month treasury bill return as the risk-free rate.</td></tr></tfoot></table>
+</div>
+
+
+
+    
+
+</div>
+
+</div>
+
+
+
+<div id="symbolPicker" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="symbolPickerTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2 class="modal-title" id="symbolPickerTitle">Find ETF, Mutual Fund or Stock Symbol</h2>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="assetType" class="control-label col-sm-2">Type</label>
+                        <div class="col-sm-4">
+                            <select name="assetType" id="assetType" class="form-control">
+                                <option value="2">ETF</option>
+                                <option value="5">Mutual Fund</option>
+                                <option value="4">Closed-End Fund</option>
+                                <option value="1">Stock</option>
+                                <option value="10">Asset Class</option>
+                                
+                                
+                                <option value="6">Cash</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="assetSearch" class="control-label col-sm-2">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="assetSearch" name="assetSearch" class="form-control typeahead" placeholder="Enter partial name (3 or more characters)" autofocus>
+                            <p class="help-block">Example: &quot;vanguard bond&quot;</p>
+                        </div>
+                    </div>
+                    <div class="form-group norender">
+                        <label for="cashAsset" class="control-label col-sm-2">Cash Asset</label>
+                        <div class="col-sm-10">
+                            <select name="cashAsset" id="cashAsset" class="form-control">
+                                <option value="CASHX">Money Market</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group norender" >
+                        <label for="assetClassAsset" class="control-label col-sm-2">Asset Class</label>
+                        <div class="col-sm-10">
+                            <select name="assetClassAsset" id="assetClassAsset" class="form-control">
+                                <optgroup label="US Equity">
+
+                                <option value="VTSMX">US Stock Market (VTSMX)</option>
+                                
+                                <option value="VFINX">US Large Cap (VFINX)</option>
+                                
+                                <option value="VIVAX">US Large Cap Value (VIVAX)</option>
+                                
+                                <option value="VIGRX">US Large Cap Growth (VIGRX)</option>
+                                
+                                <option value="VIMSX">US Mid Cap (VIMSX)</option>
+                                
+                                <option value="VMVIX">US Mid Cap Value (VMVIX)</option>
+                                
+                                <option value="VMGIX">US Mid Cap Growth (VMGIX)</option>
+                                
+                                <option value="NAESX">US Small Cap (NAESX)</option>
+                                
+                                <option value="VISVX">US Small Cap Value (VISVX)</option>
+                                
+                                <option value="VISGX">US Small Cap Growth (VISGX)</option>
+                                
+                                <option value="BRSIX">US Micro Cap (BRSIX)</option>
+                                </optgroup>
+<optgroup label="International Equity">
+
+                                <option value="VGTSX">Global ex-US Stock Market (VGTSX)</option>
+                                
+                                <option value="VTMGX">Intl Developed ex-US Market (VTMGX)</option>
+                                
+                                <option value="VSS">International ex-US Small Cap (VSS)</option>
+                                
+                                <option value="EFV">International ex-US Value (EFV)</option>
+                                
+                                <option value="VEURX">European Stocks (VEURX)</option>
+                                
+                                <option value="VPACX">Pacific Stocks (VPACX)</option>
+                                
+                                <option value="VEIEX">Emerging Markets (VEIEX)</option>
+                                </optgroup>
+<optgroup label="Fixed Income">
+
+                                <option value="CASHX">Cash (CASHX)</option>
+                                
+                                <option value="VFISX">Short Term Treasury (VFISX)</option>
+                                
+                                <option value="VFITX">Intermediate Term Treasury (VFITX)</option>
+                                
+                                <option value="IEF">10-year Treasury (IEF)</option>
+                                
+                                <option value="VUSTX">Long Term Treasury (VUSTX)</option>
+                                
+                                <option value="VBMFX">Total US Bond Market (VBMFX)</option>
+                                
+                                <option value="VIPSX">TIPS (VIPSX)</option>
+                                
+                                <option value="PIGLX">Global Bonds (Unhedged) (PIGLX)</option>
+                                
+                                <option value="PGBIX">Global Bonds (USD Hedged) (PGBIX)</option>
+                                
+                                <option value="VFSTX">Short-Term Investment Grade (VFSTX)</option>
+                                
+                                <option value="LQD">Corporate Bonds (LQD)</option>
+                                
+                                <option value="VWESX">Long-Term Corporate Bonds (VWESX)</option>
+                                
+                                <option value="VWEHX">High Yield Corporate Bonds (VWEHX)</option>
+                                
+                                <option value="VWSTX">Short-Term Tax-Exempt (VWSTX)</option>
+                                
+                                <option value="VWITX">Intermediate-Term Tax-Exempt (VWITX)</option>
+                                
+                                <option value="VWLTX">Long-Term Tax-Exempt (VWLTX)</option>
+                                </optgroup>
+<optgroup label="Alternatives">
+
+                                <option value="VGSIX">REIT (VGSIX)</option>
+                                
+                                <option value="GLD">Gold (GLD)</option>
+                                
+                                <option value="GDX">Precious Metals (GDX)</option>
+                                
+                                <option value="GSG">Commodities (GSG)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="form-buttons modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectTicker">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div id="importDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="importDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="importConfigForm" action="https://www.portfoliovisualizer.com/import" method="POST" data-messages="#importMessages" enctype="multipart/form-data">
+        <input type="hidden" id="importType" name="importType" value="portfolio">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="importDialogTitle">Import Portfolio</h2>
+                </div>
+                <div class="modal-body">
+                    <p id="importPortfolioInfo">
+                        You can upload a portfolio asset allocation by selecting a file below.
+                        The import uses a standard Excel or CSV file format with a ticker symbol followed by asset balance or weight on each row,
+                        and you can <a href="faq.html#portfolios">download sample files</a> for the supported data formats from the related documentation section.
+                    </p>
+                    <p id="importListInfo" class="norender">
+                        You can upload a list of tickers by selecting either a text file of an Excel file below.
+                        The tickers in the file can be listed either on separate lines or on the same line.
+                    </p>
+                    <div id="importMessages"></div>
+
+                    <div class="form-group">
+                        <label for="portfolio" class="control-label col-sm-2">File</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="hidden_jaws"><label for="portfolio_info">File</label></span>
+                                <input class="form-control" type="text" name="portfolio_info" id="portfolio_info" readonly>
+                                <span class="input-group-btn">
+                                    <span class="btn btn-default btn-file">
+                                    Browse...
+                                    <input type="file" id="portfolio" name="portfolio" accept=".csv,.xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,text/plain">
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="importConfigButton">Upload</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div id="confirmDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmDialogTitle" aria-hidden="true">
+    <form class="form-horizontal" id="confirmActionForm">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h2 class="modal-title" id="confirmDialogTitle">Confirm Action</h2>
+                </div>
+                <div class="modal-body">
+                    <span id="confirmText"></span>
+                </div>
+                <div class="form-buttons modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelConfirmButton">Cancel</button>
+                    <button type="button" class="btn" data-dismiss="modal" id="confirmButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<div id="footer" class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-5">
+                <span class="text-muted">&copy; 2022 Silicon Cloud Technologies LLC</span>
+            </div>
+            <div class="col-sm-1">
+                <a href="about.html">About</a>
+            </div>
+            <div class="col-sm-1">
+                <a href="contact.html">Contact</a>
+            </div>
+            
+            <div class="col-sm-1">
+                <a href="pricing.html">Pricing</a>
+            </div>
+            
+            <div class="col-sm-2">
+                <a href="terms-of-service.html">Terms of Service</a>
+            </div>
+            <div class="col-sm-2">
+                <a href="privacy-policy.html">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="../cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="jquery/jquery-3.4.1.min.js">\x3C/script>')</script>           
+<script src="../cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script>jQuery.fn.modal || document.write('<script src="bootstrap/js/bootstrap.min6bf2.js?v=341">\x3C/script>')</script>    
+
+
+<script src="javascript/merged-cd97b9efd972c726e07a723ff74b40a0.min.js"></script>
+
+<script src="../code.highcharts.com/highcharts.html"></script>
+<script>(typeof Highcharts !== 'undefined') || document.write('<script src="highcharts/highcharts465b.js?v=820">\x3C/script>')</script>
+<script src="../code.highcharts.com/modules/annotations.html"></script>
+<script src="../code.highcharts.com/modules/histogram-bellcurve.html"></script>
+
+
+<script>
+$(function() {
+    $.each(q, function(index, f) {
+        f.call(document);
+    });
+    postPageInit();
+});
+</script>
+
+
+</body>
+
+
+</html>
